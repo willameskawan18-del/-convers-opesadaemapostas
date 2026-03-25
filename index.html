@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversão Pesada em Apostas</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#000;color:#fff;overflow-x:hidden}
+
+/* FUNDO CASSINO */
+body::before{
+  content:"";
+  position:fixed;width:100%;height:100%;top:0;left:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='40' font-size='28' fill='rgba(255,215,0,0.07)'%3E💰%3C/text%3E%3Ctext x='120' y='100' font-size='28' fill='rgba(255,0,0,0.07)'%3E🎰%3C/text%3E%3Ctext x='60' y='170' font-size='28' fill='rgba(255,215,0,0.07)'%3E🪙%3C/text%3E%3C/svg%3E");
+  background-repeat:repeat;z-index:-3;
+}
+
+/* LOGO FUNDO */
+body::after{
+  content:"CPA";
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:260px;font-weight:900;
+  color:rgba(255,215,0,0.04);
+  z-index:-2;
+}
+
+.container{max-width:1100px;margin:auto;padding:20px}
+.center{text-align:center}
+
+/* LOGO TOPO PROFISSIONAL */
+.logo{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-top:60px;
+}
+.logo img{
+  width:450px;
+  max-width:none;
+  filter: drop-shadow(0 0 25px rgba(255,215,0,1)) drop-shadow(0 0 40px rgba(255,215,0,0.8));
+  transform: scale(1.05);
+  animation: glowLogo 3s ease-in-out infinite alternate;
+}
+@keyframes glowLogo{
+  from{filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));}
+  to{filter: drop-shadow(0 0 35px rgba(255,215,0,1));}
+}
+
+.hero{padding:60px 20px;text-align:center}
+.hero p{margin-top:20px;font-size:20px;color:#e2e8f0}
+.highlight{color:#FFD700}
+
+.btn{display:inline-block;padding:16px 32px;border-radius:12px;text-decoration:none;font-weight:800;margin:10px;transition:.3s}
+.primary{background:linear-gradient(90deg,#FFD700,#ff0000);color:#000}
+.primary:hover{transform:scale(1.1)}
+.secondary{background:#111;color:#fff;border:1px solid #FFD700}
+
+/* CENTRALIZAR BOTÃO PRINCIPAL */
+.main-btn{
+  display:inline-block;
+  margin:20px auto;
+}
+
+.section{margin-top:100px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px}
+
+/* CARDS AJUSTADOS */
+.card{
+  background:#000;
+  padding:40px 30px;
+  border-radius:15px;
+  border:1px solid #FFD700;
+  box-shadow:0 0 10px #FFD700, 0 0 20px rgba(255,215,0,0.6);
+  position:relative;
+  transition: all 0.3s ease;
+  overflow:visible;
+  cursor:pointer;
+}
+.card:hover{
+  box-shadow:0 0 25px #FFD700, 0 0 60px rgba(255,215,0,1), inset 0 0 10px rgba(255,215,0,0.3);
+  transform: translateY(-5px) scale(1.01);
+}
+.card::after{
+  content:"";
+  position:absolute;
+  top:-25px;
+  right:-25px;
+  width:70px;
+  height:70px;
+  background-image:url("./logo2.png");
+  background-size:contain;
+  background-repeat:no-repeat;
+  animation: rotateLogo 6s ease-in-out infinite, floatLogo 3s ease-in-out infinite;
+  z-index:2;
+}
+.card::before{
+  content:"CPA";
+  position:absolute;top:10px;left:10px;
+  font-size:40px;color:rgba(255,215,0,0.05);
+}
+.card:hover::before{
+  left:100%;
+}
+
+@keyframes rotateLogo{
+  0%{transform:rotate(0deg)}
+  50%{transform:rotate(8deg)}
+  100%{transform:rotate(0deg)}
+}
+@keyframes floatLogo{
+  0%{transform:translateY(0px)}
+  50%{transform:translateY(-6px)}
+  100%{transform:translateY(0px)}
+}
+
+/* TEXTO DENTRO DOS CARDS */
+.section.grid .card p{
+  margin-top:15px;
+  line-height:1.5;
+}
+
+/* ESPAÇO ENTRE TITULO E CARDS */
+.section h2.center{
+  margin-bottom:50px;
+}
+
+/* CRONOMETRO PREMIUM */
+.countdown-box{
+  margin-top:25px;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #FFD700;
+  display:inline-block;
+  box-shadow:0 0 20px rgba(255,215,0,0.3);
+}
+.countdown{
+  font-size:32px;
+  letter-spacing:3px;
+  margin-top:10px;
+}
+
+/* BOTÃO TELEGRAM FLUTUANTE */
+.telegram-float{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#0088cc;
+  color:#fff;
+  padding:15px 18px;
+  border-radius:50px;
+  font-weight:700;
+  text-decoration:none;
+  box-shadow:0 0 15px rgba(0,136,204,0.7);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  background:#000;
+  border:1px solid #FFD700;
+  padding:15px;
+  border-radius:10px;
+  display:none;
+}
+
+/* LOGO3 COM PULSO ANIMADO */
+.logo3{
+  width:120px;
+  height:auto;
+  margin-bottom:15px;
+  animation: pulseLogo 2s infinite alternate;
+}
+@keyframes pulseLogo{
+  0%{transform:scale(1); filter:drop-shadow(0 0 10px #FFD700);}
+  50%{transform:scale(1.1); filter:drop-shadow(0 0 20px #FFD700);}
+  100%{transform:scale(1); filter:drop-shadow(0 0 10px #FFD700);}
+}
+
+footer{text-align:center;margin-top:50px;color:#666}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="logo">
+  <img src="logo.png" alt="CPA Logo">
+</div>
+
+<section class="hero">
+<p>Entre no jogo de quem está lucrando todos os dias e descubra como transformar jogadores em <span class="highlight">dinheiro real</span></p>
+
+<!-- BOTÃO CORRIGIDO -->
+<a href="planos.html" class="btn primary main-btn">ESCOLHER PLANO</a>
+
+<div style="color:#FFD700;font-weight:700;margin-top:20px;">
+🔥 Somente durante esse tempo você garante <span style="color:#22c55e;">20% DE DESCONTO</span> no acesso
+</div>
+
+<div class="countdown-box">
+Oferta expira em
+<div id="timer" class="countdown"></div>
+</div>
+</section>
+
+<section class="section grid">
+<div class="card"><h3>Você está perdendo dinheiro?</h3><p>Enquanto outros lucram, você ainda não sabe como converter jogadores.</p></div>
+<div class="card"><h3>O segredo</h3><p>Existe uma forma de lucrar com cada jogador ativo, que poucos sabem.</p></div>
+<div class="card"><h3>Oportunidade</h3><p>Quem domina conversão, domina o dinheiro.</p></div>
+</section>
+
+<section class="section" style="margin-top:150px;">
+<h2 class="center">O que você vai desbloquear</h2>
+<div class="grid">
+<div class="card">Estratégias ocultas</div>
+<div class="card">Passo a passo real</div>
+<div class="card">Grupo fechado</div>
+<div class="card">Mentoria</div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="center">Acesso aos Gerentes</h2>
+<div class="grid">
+<div class="card">Gerentes prontos para parceria</div>
+<div class="card">Negociações já validadas</div>
+<div class="card">Maior chance de conversão</div>
+<div class="card">Aceleração de ganhos</div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="center">Bônus Exclusivos</h2>
+<div class="grid">
+<div class="card">Scripts prontos de conversão</div>
+<div class="card">Plataformas que mais pagam</div>
+<div class="card">Estratégias para atrair jogadores</div>
+<div class="card">Checklist diário de lucro</div>
+</div>
+</section>
+
+<footer style="margin-top:120px; padding-bottom:30px; text-align:center; color:#666;">
+
+<img src="logo3.png" alt="Logo3" class="logo3">
+
+<div style="margin-bottom:20px; font-size:18px; color:#FFD700; font-weight:700;">
+Não perca mais tempo, transforme seu conhecimento em lucro agora!!
+</div>
+
+<!-- BOTÃO CORRIGIDO -->
+<a href="planos.html" class="btn primary main-btn" style="margin-bottom:20px;">ESCOLHER PLANO</a>
+
+<br>
+<span>© 2026 Conversão Pesada em Apostas</span>
+</footer>
+
+</div>
+
+<a href="https://t.me/conversaopesadaemapostas" target="_blank" class="telegram-float">Telegram</a>
+
+<div class="popup" id="popup">Alguém acabou de comprar!</div>
+
+<script>
+// TIMER
+function startTimer(duration){
+  let timer=duration;
+  setInterval(()=>{
+    let h=parseInt(timer/3600),
+        m=parseInt((timer%3600)/60),
+        s=parseInt(timer%60);
+    document.getElementById('timer').textContent=
+      `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    if(--timer<0) timer=duration;
+  },1000)
+}
+startTimer(10800);
+
+// POPUP
+function showPopup(){let p=document.getElementById('popup');p.style.display='block';setTimeout(()=>p.style.display='none',4000)}
+function popupLoop(){let delay=Math.floor(Math.random()*(180000-120000)+120000);setTimeout(()=>{showPopup();popupLoop()},delay)}
+popupLoop();
+
+// EFEITO CARD
+const cards = document.querySelectorAll('.card');
+cards.forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const moveX = (x - rect.width / 2) / 15;
+    const moveY = (y - rect.height / 2) / 15;
+    card.style.transform = `translateY(-5px) scale(1.02) rotateX(${-moveY}deg) rotateY(${moveX}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'translateY(0) scale(1) rotateX(0) rotateY(0)';
+  });
+});
+</script>
+
+</body>
+</html>

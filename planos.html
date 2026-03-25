@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planos - Conversão Pesada</title>
+
+<style>
+
+html, body{
+  margin:0;
+  padding:0;
+  background:#000;
+  width:100%;
+  min-height:100vh;
+  overflow-x:hidden;
+  font-family:Arial, sans-serif;
+  color:#fff;
+}
+
+.section-vendas-avancada{
+  position:relative;
+  background:#000;
+  padding:60px 20px;
+  width:100%;
+  overflow:hidden;
+}
+
+/* FUNDO */
+.bg-cpa{
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  font-size:260px;
+  font-weight:900;
+  color:rgba(255,215,0,0.04);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.bg-pattern{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='40' font-size='28' fill='rgba(255,215,0,0.07)'%3E💰%3C/text%3E%3Ctext x='120' y='100' font-size='28' fill='rgba(255,0,0,0.07)'%3E🎰%3C/text%3E%3Ctext x='60' y='170' font-size='28' fill='rgba(255,215,0,0.07)'%3E🪙%3C/text%3E%3C/svg%3E");
+  background-repeat:repeat;
+}
+
+/* LOGO */
+.logo{
+  display:flex;
+  justify-content:center;
+  margin-bottom:50px;
+}
+.logo img{
+  width:350px;
+  max-width:90%;
+}
+
+/* TITULO */
+.title{
+  text-align:center;
+  color:#FFD700;
+  margin-bottom:30px;
+}
+
+/* URGÊNCIA */
+.urgencia{
+  text-align:center;
+  color:#ff4444;
+  font-weight:800;
+  margin-bottom:40px;
+  font-size:18px;
+  animation: pulseUrg 1.5s infinite;
+}
+
+@keyframes pulseUrg{
+  0%{opacity:1;}
+  50%{opacity:0.5;}
+  100%{opacity:1;}
+}
+
+/* PLANOS */
+.planos{
+  display:flex;
+  flex-direction:column;
+  gap:30px;
+  max-width:700px;
+  margin:0 auto;
+}
+
+/* CARD */
+.card{
+  background:#000;
+  padding:25px;
+  border-radius:15px;
+  border:1px solid #FFD700;
+  box-shadow:0 0 10px #FFD700,0 0 20px rgba(255,215,0,0.6);
+  position:relative;
+  opacity:0;
+  transform:translateY(50px);
+  transition: all 0.8s ease;
+}
+
+.card.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.card:hover{
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:0 0 30px #FFD700,0 0 60px rgba(255,215,0,0.7);
+}
+
+/* LOGO2 NOS CARDS */
+.card::after{
+  content:"";
+  position:absolute;
+  top:-20px;
+  right:-20px;
+  width:60px;
+  height:60px;
+  background:url('./logo2.png') no-repeat center/contain;
+}
+
+/* DESTAQUES */
+.destaque{
+  transform:scale(1.05);
+  border:2px solid #FFD700;
+  box-shadow:0 0 25px #FFD700,0 0 80px rgba(255,215,0,1);
+}
+
+/* SELO */
+.selo{
+  position:absolute;
+  top:-15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,#FFD700,#ff0000);
+  color:#000;
+  padding:6px 12px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:800;
+}
+
+/* BOTÕES */
+.btn{
+  display:inline-block;
+  margin-top:10px;
+  padding:12px 24px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:800;
+}
+
+.primary{
+  background:linear-gradient(90deg,#FFD700,#ff0000);
+  color:#000;
+}
+
+.premium-btn{
+  background:linear-gradient(90deg,#FFD700,#FF4500);
+  color:#000;
+}
+
+.profissional-btn{
+  background:linear-gradient(90deg,#FFD700,#FFA500);
+  color:#000;
+  animation:pulse 2s infinite alternate;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.1);}
+  100%{transform:scale(1);}
+}
+
+</style>
+</head>
+
+<body>
+
+<section class="section-vendas-avancada">
+
+<div class="bg-cpa">CPA</div>
+<div class="bg-pattern"></div>
+
+<div class="logo">
+  <img src="logo.png">
+</div>
+
+<h2 class="title">Escolha seu Plano e Comece a Lucrar Agora</h2>
+
+<div class="urgencia">
+⚠️ Restam apenas <span id="vagas">17</span> vagas disponíveis!
+</div>
+
+<div class="planos">
+
+<!-- BASICO -->
+<div class="card plano" data-delay="0">
+<h3>PLANO BÁSICO</h3>
+<p style="font-weight:800;">
+  <span style="text-decoration: line-through; color:#999; font-size:14px;">De R$97</span><br>
+  <span style="color:#FFD700; font-size:22px;">Por R$39,90</span>
+</p>
+
+<ul>
+<li>✔ Sistema completo para lucrar com jogadores todos os dias</li>
+<li>✔ Acesso ao grupo Basico</li>
+<li>✔ Estratégia para atrair jogadores</li>
+<li>✔ Acesso imediato após pagamento</li>
+</ul>
+
+<a href="LINK_BASICO" target="_blank" class="btn primary">COMPRAR</a>
+
+<p style="color:#22c55e; font-size:13px; margin-top:10px;">
+✔ Pagamento seguro via Pix
+</p>
+</div>
+
+<!-- PREMIUM -->
+<div class="card plano destaque" data-delay="200">
+<div class="selo">🔥 MAIS ESCOLHIDO</div>
+
+<h3>PLANO PREMIUM</h3>
+<p style="font-weight:800;">
+  <span style="text-decoration: line-through; color:#999; font-size:14px;">De R$149</span><br>
+  <span style="color:#FFD700; font-size:22px;">Por R$79,90</span>
+</p>
+
+<ul>
+<li>✔ Sistema completo para lucrar com jogadores todos os dias</li>
+<li>✔ Estratégia oculta</li>
+<li>✔ Contatos de gerentes</li>
+<li>✔ 2 mentorias exclusivas</li>
+<li>✔ Acesso ao grupo PREMIUM</li>
+<li>✔ Plataformas que mais pagam</li>
+<li>✔ Scripts prontos de conversão</li>
+<li>✔ Estratégia para atrair jogadores</li>
+<li>✔ Acesso imediato após pagamento</li>
+</ul>
+
+<a href="LINK_PREMIUM" target="_blank" class="btn premium-btn">COMPRAR PREMIUM</a>
+
+<p style="color:#22c55e; font-size:13px; margin-top:10px;">
+✔ Pagamento seguro via Pix
+</p>
+</div>
+
+<!-- VIP -->
+<div class="card plano destaque" data-delay="400">
+<div class="selo">👑 ACESSO COMPLETO</div>
+
+<h3>PLANO VIP</h3>
+<p style="font-weight:800;">
+  <span style="text-decoration: line-through; color:#999; font-size:14px;">De R$199/mês</span><br>
+  <span style="color:#FFD700; font-size:22px;">Por R$89,90/mês</span>
+</p>
+
+<ul>
+<li>✔ Sistema completo para lucrar com jogadores todos os dias</li>
+<li>✔ Suporte exclusivo</li>
+<li>✔ Estratégia oculta</li>
+<li>✔ Mentorias exclusivas</li>
+<li>✔ Acesso ao grupo VIP</li>
+<li>✔ Contatos de gerentes</li>
+<li>✔ Plataformas que mais pagam</li>
+<li>✔ Scripts prontos de conversão</li>
+<li>✔ Acesso a atualizações do curso</li>
+<li>✔ Estratégia para atrair jogadores</li>
+<li>✔ Acesso imediato após pagamento</li>
+</ul>
+
+<a href="https://t.me/conversaopesadaemapostas" target="_blank" class="btn profissional-btn">
+COMPRAR VIP
+</a>
+
+<p style="color:#FFD700; font-size:13px; margin-top:10px;">
+🔥 Atendimento direto no telegram.
+</p>
+</div>
+
+</div>
+
+</section>
+
+<script>
+
+function reveal(){
+document.querySelectorAll('.plano').forEach(p=>{
+setTimeout(()=>p.classList.add('show'), p.dataset.delay);
+});
+}
+window.onload = reveal;
+
+let vagas = 17;
+setInterval(()=>{
+  if(vagas > 3){
+    vagas--;
+    document.getElementById("vagas").innerText = vagas;
+  }
+}, 8000);
+
+</script>
+
+</body>
+</html>
