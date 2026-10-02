@@ -24,8 +24,16 @@ Todo dinheiro e todas as apostas são fictícios.
 | ESC | Pausa / fechar janelas |
 | F12 | Painel de debug (só rodando pelo editor) |
 
+## O que tem no jogo
+Cidade 3D com trânsito e pedestres, apostas esportivas simuladas, trabalhos, banca que evolui em 6 estágios até o Grande Cassino,
+clientes com IA e fila, funcionários, reputação, concorrentes com IA (que podem falir ou ser comprados), promoções, eventos,
+imóveis, licenças, banco e cheque especial, falência com modo recuperação, operação online e **19 jogos de cassino jogáveis**
+(21, roleta, bacará, Bac Bo, dragão & tigre, sic bo, roda da fortuna, aviãozinho, campo minado, plinko, dados, maior ou menor,
+keno, bingo, raspadinha, caça-níqueis, jackpot e video poker). Veja `../DEVELOPMENT_STATUS.md`.
+
 ## Testes automáticos
 ```
 godot --headless --path game -s res://tests/run_tests.gd      # simulação
 godot --headless --path game res://tests/smoke_test.tscn      # cena completa
+godot --headless --path game -s res://tests/campaign_bot.gd   # robô joga a campanha inteira
 ```

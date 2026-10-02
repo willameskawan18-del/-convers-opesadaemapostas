@@ -45,9 +45,9 @@ func build(def: Dictionary, p_stage: int, items: Array, brand: String, stage_nam
 	if stage == 6:
 		position = Vector3(float(def.x), 0, float(def.fz) - dir * (d / 2.0 + 3.0))
 	rotation.y = 0.0 if dir > 0 else PI
-	var wall_m := WorldKit.mat(st.wall)
-	var trim_m := WorldKit.mat(st.trim, 0.4, 0.3)
-	var floor_m := WorldKit.mat(st.floor, 0.6)
+	var wall_m := Mats.facade(st.wall, [0, 0, 0, 2, 2, 3, 2][stage])
+	var trim_m := Mats.metal(st.trim, 0.3) if stage >= 3 else Mats.plastic(st.trim, 0.4)
+	var floor_m := Mats.carpet(st.floor, st.trim) if stage >= 4 else Mats.paving(st.floor)
 	# Piso
 	WorldKit.solid(self, Vector3(w, 0.1, d), Vector3(0, 0.05, 0), floor_m)
 	# Paredes (fundo, laterais, frente com porta)
@@ -68,17 +68,25 @@ func build(def: Dictionary, p_stage: int, items: Array, brand: String, stage_nam
 	# Teto (escondido quando o jogador entra)
 	roof = Node3D.new()
 	add_child(roof)
-	WorldKit.box(roof, Vector3(w + 0.4, 0.3, d + 0.4), Vector3(0, h + 0.15, 0), WorldKit.mat(Color(st.wall).darkened(0.35)))
+	WorldKit.box(roof, Vector3(w + 0.4, 0.3, d + 0.4), Vector3(0, h + 0.15, 0), Mats.roof())
+	WorldKit.box(self, Vector3(w + 0.1, 0.5, d + 0.1), Vector3(0, 0.25, 0), Mats.facade(Color(st.wall).darkened(0.45), 2))
 	# Luzes internas
 	var lamp_m := WorldKit.mat(Color(1, 0.95, 0.85), 0.5, 0.0, Color(1, 0.92, 0.75), 2.0)
 	for lx in _spread(maxi(1, int(w / 7.0)), w * 0.7):
 		WorldKit.box(self, Vector3(1.4, 0.06, 0.4), Vector3(lx, h - 0.05, 0), lamp_m, false)
-	var light := OmniLight3D.new()
-	light.position = Vector3(0, h - 0.6, 0)
-	light.omni_range = maxf(w, d) * 0.85
-	light.light_energy = 1.4
-	light.light_color = Color(1, 0.93, 0.8)
-	add_child(light)
+	# Grade de luzes internas (ambientes grandes têm várias)
+	var nx := maxi(1, int(round(w / 11.0)))
+	var nz := maxi(1, int(round(d / 11.0)))
+	for ix in nx:
+		for iz in nz:
+			var light := OmniLight3D.new()
+			light.position = Vector3(-w / 2 + w * (ix + 0.5) / nx, h - 0.6, -d / 2 + d * (iz + 0.5) / nz)
+			light.omni_range = maxf(w / nx, d / nz) * 1.1 + 2.0
+			light.light_energy = 1.5 if stage < 5 else 1.9
+			light.light_color = Color(1, 0.93, 0.8) if stage < 6 else Color(1, 0.85, 0.65)
+			add_child(light)
+	if stage >= 3:
+		_interior_decor(st, city)
 	# Letreiro
 	_sign(brand.to_upper() if stage < 6 else "GRANDE CASSINO " + brand.to_upper(), stage_name.to_upper(), st, city)
 	_layout_anchors()
@@ -88,6 +96,48 @@ func build(def: Dictionary, p_stage: int, items: Array, brand: String, stage_nam
 		_columns(trim_m)
 	if stage == 6:
 		_casino_facade(trim_m)
+
+
+func _interior_decor(st: Dictionary, city: City) -> void:
+	var neon := Mats.glow(Color(st.trim), 2.5)
+	# Faixas de neon nas paredes
+	WorldKit.box(self, Vector3(w - 0.8, 0.08, 0.06), Vector3(0, h - 0.5, -d / 2 + 0.33), neon, false)
+	for sgn in [-1.0, 1.0]:
+		WorldKit.box(self, Vector3(0.06, 0.08, d - 0.8), Vector3(sgn * (w / 2 - 0.33), h - 0.5, 0), neon, false)
+		WorldKit.box(self, Vector3(0.06, 0.08, d - 0.8), Vector3(sgn * (w / 2 - 0.33), 0.3, 0), neon, false)
+	# Quadros de odds/jogos nas paredes laterais
+	for sgn in [-1.0, 1.0]:
+		for k in maxi(1, int(d / 8.0)):
+			var z := -d / 2 + 4.0 + k * 8.0
+			if z > d / 2 - 3.0:
+				break
+			var scr := WorldKit.box(self, Vector3(0.08, 1.6, 2.8), Vector3(sgn * (w / 2 - 0.36), h * 0.55, z), Mats.glow(Color(0.15, 0.45, 0.9) if k % 2 == 0 else Color(0.1, 0.6, 0.3), 0.8), false)
+			scr.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if stage >= 4:
+		# Bar
+		var bx := w / 2 - 3.0
+		var bz := d / 2 - 4.0
+		WorldKit.solid(self, Vector3(3.6, 1.1, 0.8), Vector3(bx, 0.55, bz), Mats.plastic(Color(0.1, 0.07, 0.06), 0.3))
+		WorldKit.box(self, Vector3(3.8, 0.08, 1.0), Vector3(bx, 1.12, bz), Mats.metal(Color(st.trim), 0.25), false)
+		WorldKit.box(self, Vector3(3.4, 1.4, 0.3), Vector3(bx, 2.2, bz + 1.3), Mats.plastic(Color(0.08, 0.06, 0.05), 0.4), false)
+		for i in 6:
+			WorldKit.cylinder(self, 0.06, 0.3, Vector3(bx - 1.4 + i * 0.55, 2.4, bz + 1.2), Mats.glow(Color(0.9, 0.6, 0.2).lerp(Color(0.3, 0.8, 1.0), i / 6.0), 1.2), 6)
+		var lb := WorldKit.label(self, "BAR", Vector3(bx, 3.2, bz + 1.1), 64, Color(st.trim), 8)
+		lb.rotation.y = PI
+	if stage >= 6:
+		# Lustres
+		for ix in 3:
+			for iz in 2:
+				var c := Vector3(-w / 3 + ix * w / 3, h - 1.4, -d / 4 + iz * d / 2)
+				WorldKit.cylinder(self, 0.03, 1.0, c + Vector3(0, 0.6, 0), Mats.metal(Color(0.9, 0.75, 0.3), 0.2), 6)
+				WorldKit.sphere(self, 0.55, c, Mats.glow(Color(1.0, 0.88, 0.6), 2.5))
+				for k in 8:
+					var a := TAU * k / 8.0
+					WorldKit.sphere(self, 0.12, c + Vector3(cos(a) * 0.9, -0.2, sin(a) * 0.9), Mats.glow(Color(1.0, 0.9, 0.7), 3.0))
+		# Palco central com letreiro
+		WorldKit.cylinder(self, 2.4, 0.3, Vector3(-w / 4.0, 0.15, 2.0), Mats.metal(Color(st.trim), 0.3), 32)
+		var sl := WorldKit.label(self, "GRANDE CASSINO", Vector3(-w / 4.0, 3.2, 2.0), 110, Color(st.trim).lightened(0.2), 10, true)
+		sl.no_depth_test = false
 
 
 func _spread(n: int, width: float) -> Array:
@@ -255,20 +305,25 @@ func _build_items(items: Array, city: City) -> void:
 
 ## Máquinas e mesas em grade na metade direita/frontal.
 func _casino_item(cat: String, idx: int, city: City) -> void:
-	var cols := maxi(2, int((w * 0.55) / 2.2))
+	var cols := maxi(2, int((w * 0.55) / 3.4))
 	var col := idx % cols
 	var row := idx / cols
-	var p := Vector3(-w / 2 + w * 0.42 + col * 2.2, 0.1, -d / 2 + 5.0 + row * 2.6)
+	var p := Vector3(-w / 2 + w * 0.4 + col * 3.4, 0.1, -d / 2 + 5.5 + row * 3.2)
 	if p.z > d / 2 - 3.0:
 		return
 	match cat:
 		"slot":
-			WorldKit.solid(self, Vector3(0.8, 1.8, 0.7), p + Vector3(0, 0.9, 0), WorldKit.mat(Color(0.6, 0.1, 0.15), 0.3, 0.5))
-			WorldKit.box(self, Vector3(0.6, 0.5, 0.05), p + Vector3(0, 1.3, 0.36), WorldKit.mat(Color(0.1, 0.1, 0.1), 0.2, 0.0, Color(1, 0.8, 0.2), 1.5), false)
-			WorldKit.box(self, Vector3(0.82, 0.12, 0.72), p + Vector3(0, 1.86, 0), city.neon_mat, false)
+			for k in 3:
+				var q := p + Vector3(-0.9 + k * 0.9, 0, 0)
+				WorldKit.solid(self, Vector3(0.8, 1.9, 0.7), q + Vector3(0, 0.95, 0), Mats.car_paint(Color(0.55, 0.08, 0.14)))
+				WorldKit.box(self, Vector3(0.62, 0.55, 0.05), q + Vector3(0, 1.35, 0.36), Mats.glow(Color(1.0, 0.75, 0.25), 1.2), false)
+				WorldKit.box(self, Vector3(0.82, 0.14, 0.72), q + Vector3(0, 1.97, 0), Mats.glow(Color(1.0, 0.3, 0.5), 2.5), false)
+				WorldKit.box(self, Vector3(0.5, 0.06, 0.25), q + Vector3(0, 0.95, 0.45), Mats.metal(Color(0.8, 0.8, 0.82), 0.2), false)
 		"table":
-			WorldKit.solid(self, Vector3(1.8, 0.85, 1.1), p + Vector3(0, 0.42, 0), WorldKit.mat(Color(0.3, 0.18, 0.1)))
-			WorldKit.box(self, Vector3(1.6, 0.03, 0.9), p + Vector3(0, 0.87, 0), WorldKit.mat(Color(0.05, 0.4, 0.2)), false)
+			WorldKit.solid(self, Vector3(2.0, 0.85, 1.2), p + Vector3(0, 0.42, 0), Mats.plastic(Color(0.25, 0.14, 0.08), 0.4))
+			WorldKit.box(self, Vector3(1.8, 0.03, 1.0), p + Vector3(0, 0.87, 0), Mats.cloth(Color(0.05, 0.42, 0.22)), false)
+			for k in 4:
+				WorldKit.cylinder(self, 0.22, 0.55, p + Vector3(-0.75 + k * 0.5, 0.28, 0.95), Mats.plastic(Color(0.5, 0.08, 0.1), 0.5), 10)
 		"terminal":
 			WorldKit.solid(self, Vector3(0.7, 1.4, 0.5), p + Vector3(0, 0.7, 0), WorldKit.mat(Color(0.12, 0.12, 0.16), 0.3, 0.4))
 			WorldKit.box(self, Vector3(0.55, 0.45, 0.05), p + Vector3(0, 1.1, 0.26), WorldKit.mat(Color(0.05, 0.05, 0.1), 0.2, 0.0, Color(0.3, 0.9, 1.0), 1.2), false)

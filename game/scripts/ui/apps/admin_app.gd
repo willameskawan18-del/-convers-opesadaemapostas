@@ -213,6 +213,14 @@ func build_bets(body: VBoxContainer) -> void:
 		sh.add_child(UiKit.button(("%+d" % delta), func():
 			b.set_max_stake(b.max_stake + delta * (10 if absi(delta) == 100 and b.max_stake >= 1000 else 1))
 			ui.refresh()))
+	var lh := UiKit.hbox()
+	mc.add_child(lh)
+	lh.add_child(UiKit.expand(UiKit.label("Limite de exposição por resultado: %s" % ("SEM LIMITE" if b.exposure_limit <= 0 else Fmt.pct(b.exposure_limit, 0) + " do caixa"), 16)))
+	for v in [0.1, 0.2, 0.3, 0.5, 1.0, 0.0]:
+		lh.add_child(UiKit.button("Sem limite" if v == 0.0 else Fmt.pct(v, 0), func():
+			b.exposure_limit = v
+			ui.refresh(), is_equal_approx(b.exposure_limit, v)))
+	mc.add_child(UiKit.label("Apostas que fariam o pior cenário de um resultado passar desse limite são reduzidas ou recusadas. Mais seguro, porém alguns clientes ficam insatisfeitos. Recusados hoje: %d" % int(s.customers.today.get("limited", 0)), 13, UiKit.MUTED, true))
 	if s.employees.count_role("analista") > 0:
 		mc.add_child(UiKit.button("Balanceamento automático: " + ("LIGADO" if b.auto_balance else "DESLIGADO"), func():
 			b.auto_balance = not b.auto_balance

@@ -337,7 +337,7 @@ func _complete_service(v: Dictionary) -> void:
 	var patience := float(p.patience) * sim.business.patience_mult()
 	var wait_ratio := clampf(float(v.wait) / maxf(patience, 1.0), 0.0, 1.0)
 	var sat := 6.0 - wait_ratio * 14.0 + sim.business.comfort() * 0.15
-	var rep := 0.08 - wait_ratio * 0.2
+	var rep := 0.035 - wait_ratio * 0.15
 	if str(v.get("server", "")) != "player":
 		var emp := sim.employees.get_employee(str(v.server))
 		if not emp.is_empty():
@@ -382,11 +382,15 @@ func _place_bets(p: Dictionary, t: Dictionary) -> void:
 				if sim.rng.randf() < 0.6:
 					continue
 				stake *= 0.4
-		if stake > sim.business.max_stake:
-			if str(p.type) == "vip":
-				_change_satisfaction(p, -6.0)
-			stake = sim.business.max_stake
-		stake = maxf(5.0, roundf(stake))
+		var allowed := sim.business.max_stake_allowed(ev, i, sim.betting.shop_odds(ev, i))
+		if stake > allowed:
+			if str(p.type) == "vip" or allowed < stake * 0.5:
+				_change_satisfaction(p, -4.0)
+			stake = allowed
+			today["limited"] = int(today.get("limited", 0)) + 1
+		if stake < 5.0:
+			continue
+		stake = roundf(stake)
 		sim.betting.place_book_bet(str(p.id), ev, i, stake)
 		p.staked = float(p.staked) + stake
 		today.stakes = float(today.stakes) + stake
@@ -418,7 +422,7 @@ func _pick_outcome(ev: Dictionary, behavior: String) -> int:
 			"favorite_strong": w = pow(mp, 4.0)
 			"underdog": w = pow(1.0 - mp, 2.0)
 			"value": w = pow(maxf(0.01, float(ev.true_p[i]) * sim.betting.shop_odds(ev, i)), 8.0)
-			"random": w = 1.0
+			"random": w = sqrt(mp)
 		if ev.suspended[i]:
 			w = 0.0
 		weights.append(w)

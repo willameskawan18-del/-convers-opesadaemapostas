@@ -15,6 +15,26 @@ const ORANGE := Color("ff9f43")
 static var _theme: Theme
 
 
+static var _fonts: Dictionary = {}
+
+
+## Poppins (licença OFL) embutida em assets/fonts. weight: Regular, SemiBold, Bold, ExtraBold.
+static func font(weight: String = "Regular") -> Font:
+	if _fonts.has(weight):
+		return _fonts[weight]
+	var path := "res://assets/fonts/Poppins-%s.ttf" % weight
+	var f: Font = load(path) if ResourceLoader.exists(path) else null
+	_fonts[weight] = f
+	return f
+
+
+static func bold(l: Control, weight: String = "SemiBold") -> Control:
+	var f := font(weight)
+	if f:
+		l.add_theme_font_override("font", f)
+	return l
+
+
 static func style(bg: Color, radius: int = 10, border: Color = Color(0, 0, 0, 0), border_w: int = 0, pad: int = 10) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.bg_color = bg
@@ -33,8 +53,14 @@ static func theme() -> Theme:
 		return _theme
 	var t := Theme.new()
 	t.default_font_size = 16
+	var f := font("Regular")
+	if f:
+		t.default_font = f
 	t.set_color("font_color", "Label", TEXT)
-	t.set_stylebox("panel", "PanelContainer", style(PANEL, 12, Color(1, 1, 1, 0.06), 1, 14))
+	var panel_st := style(PANEL, 12, Color(1, 1, 1, 0.06), 1, 14)
+	panel_st.shadow_size = 10
+	panel_st.shadow_color = Color(0, 0, 0, 0.35)
+	t.set_stylebox("panel", "PanelContainer", panel_st)
 	t.set_stylebox("panel", "Panel", style(PANEL, 12))
 	t.set_stylebox("normal", "Button", style(PANEL2, 8, Color(1, 1, 1, 0.08), 1, 12))
 	t.set_stylebox("hover", "Button", style(PANEL2.lightened(0.12), 8, GOLD.darkened(0.2), 1, 12))
@@ -73,7 +99,7 @@ static func label(text: String, size: int = 16, color: Color = TEXT, wrap: bool 
 
 
 static func heading(text: String, size: int = 20) -> Label:
-	return label(text, size, GOLD)
+	return bold(label(text, size, GOLD)) as Label
 
 
 static func button(text: String, cb: Callable, primary: bool = false, enabled: bool = true) -> Button:

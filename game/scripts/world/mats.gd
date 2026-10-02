@@ -226,6 +226,53 @@ void fragment() {
 		return m)
 
 
+## Vitrine de loja: reflexo de dia e interior iluminado (suave) à noite.
+static func storefront() -> Material:
+	return _cached("storefront", func():
+		var m := ShaderMaterial.new()
+		m.shader = _shader("shader_type spatial;\n" + COMMON + VERT + """
+uniform float night = 0.0;
+void fragment() {
+	vec2 p = face_uv(wpos, wnrm);
+	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
+	vec3 sky = mix(vec3(0.2, 0.26, 0.33), vec3(0.6, 0.7, 0.8), 0.5 + 0.5 * fres);
+	ALBEDO = mix(vec3(0.05, 0.07, 0.09), sky, 0.3 + 0.4 * fres);
+	METALLIC = 0.35;
+	ROUGHNESS = 0.05;
+	float shelf = 0.75 + 0.25 * step(0.5, fract(p.y * 1.2));
+	float lamp = 0.6 + 0.4 * smoothstep(0.0, 1.0, fract(p.x * 0.35));
+	EMISSION = vec3(1.0, 0.8, 0.55) * night * 0.28 * shelf * lamp;
+}
+""")
+		_night_targets.append(m)
+		return m)
+
+
+## Carpete estampado de cassino.
+static func carpet(base: Color, accent: Color) -> Material:
+	return _cached("carpet%s%s" % [base.to_html(), accent.to_html()], func():
+		var m := ShaderMaterial.new()
+		m.shader = _shader("shader_type spatial;\n" + COMMON + VERT + """
+uniform vec3 base : source_color;
+uniform vec3 accent : source_color;
+void fragment() {
+	vec2 p = wpos.xz / 1.4;
+	vec2 f = fract(p) - 0.5;
+	float diamond = smoothstep(0.32, 0.28, abs(f.x) + abs(f.y));
+	float ring = smoothstep(0.03, 0.0, abs(length(f) - 0.18));
+	float dots = smoothstep(0.06, 0.03, length(fract(p * 2.0 + 0.25) - 0.5));
+	vec3 c = mix(base, base * 1.35, diamond);
+	c = mix(c, accent, ring * 0.9 + dots * 0.35);
+	c *= 0.9 + 0.15 * vnoise(wpos.xz * 6.0);
+	ALBEDO = c;
+	ROUGHNESS = 0.95;
+}
+""")
+		m.set_shader_parameter("base", Vector3(base.r, base.g, base.b))
+		m.set_shader_parameter("accent", Vector3(accent.r, accent.g, accent.b))
+		return m)
+
+
 static func roof() -> Material:
 	return _cached("roof", func():
 		var m := ShaderMaterial.new()

@@ -39,11 +39,16 @@ func _ready() -> void:
 	var col := UiKit.vbox(14)
 	col.position = Vector2(90, 110)
 	add_child(col)
-	var t := UiKit.label("BET TYCOON", 86, UiKit.GOLD)
+	var t := UiKit.bold(UiKit.label("BET TYCOON", 92, UiKit.GOLD), "ExtraBold") as Label
 	t.add_theme_constant_override("outline_size", 10)
 	t.add_theme_color_override("font_outline_color", Color(0.3, 0.2, 0.0, 0.8))
 	col.add_child(t)
-	col.add_child(UiKit.label("DA BANCA AO CASSINO", 26, UiKit.TEXT))
+	var sub := UiKit.bold(UiKit.label("DA BANCA AO CASSINO", 26, UiKit.TEXT), "SemiBold") as Label
+	sub.add_theme_constant_override("outline_size", 0)
+	col.add_child(sub)
+	var tw := t.create_tween().set_loops()
+	tw.tween_property(t, "modulate", Color(1.15, 1.1, 0.95), 1.6).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(t, "modulate", Color(1, 1, 1), 1.6).set_trans(Tween.TRANS_SINE)
 	col.add_child(UiKit.label("Comece com R$ 100. Construa um império de entretenimento.", 16, UiKit.MUTED))
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 30
@@ -69,6 +74,7 @@ func _menu_button(text: String, cb: Callable) -> Button:
 	var b := UiKit.button(text, cb)
 	b.custom_minimum_size = Vector2(320, 52)
 	b.add_theme_font_size_override("font_size", 20)
+	UiKit.bold(b)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_buttons.add_child(b)
 	return b

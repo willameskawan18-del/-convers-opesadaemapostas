@@ -19,7 +19,7 @@ func _init() -> void:
 	root.add_child(top)
 	var tv := UiKit.vbox(0)
 	top.add_child(UiKit.expand(tv))
-	_title = UiKit.label("", 24, UiKit.GOLD)
+	_title = UiKit.bold(UiKit.label("", 24, UiKit.GOLD), "Bold") as Label
 	tv.add_child(_title)
 	_subtitle = UiKit.label("", 13, UiKit.MUTED)
 	tv.add_child(_subtitle)

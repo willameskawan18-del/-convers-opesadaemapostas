@@ -38,7 +38,7 @@ var customers: CustomerSystem
 var employees: EmployeeSystem
 var properties: PropertySystem
 var competition: CompetitionSystem
-var online = null
+var online: OnlineBusinessSystem
 var events: EventSystem
 var promotions: PromotionSystem
 
@@ -80,6 +80,7 @@ func _create_business_systems() -> void:
 	competition = CompetitionSystem.new(self)
 	events = EventSystem.new(self)
 	promotions = PromotionSystem.new(self)
+	online = OnlineBusinessSystem.new(self)
 
 
 func systems() -> Array:
@@ -333,14 +334,22 @@ func _check_bankruptcy(report: Dictionary) -> void:
 	if economy.cash >= 0.0:
 		negative_days = 0
 		return
-	negative_days += 1
+	# Cheque especial: saldo negativo paga juros diários
+	var interest := roundf(-economy.cash * 0.015)
+	economy.charge(interest, EconomySystem.LOAN)
 	var grace := int(GameData.balance("bankruptcy_grace_days", 3))
-	var debt_crisis := loans.total_debt() > 0 and economy.net_worth() < -loans.total_debt() * 0.5
-	if negative_days >= grace or (debt_crisis and negative_days >= 2):
+	var insolvent := economy.net_worth() < 0.0 or -economy.cash > loans.credit_limit()
+	if not insolvent:
+		negative_days = 0
+		report["warning"] = "Você está no cheque especial (juros de 1,5%% ao dia: %s hoje). Volte ao azul logo." % Fmt.money(interest)
+		notify("Cheque especial: juros de %s hoje." % Fmt.money(interest), "warning")
+		return
+	negative_days += 1
+	if negative_days >= grace:
 		declare_bankruptcy()
 	else:
-		notify("ALERTA: caixa negativo! %d dia(s) até a falência." % (grace - negative_days), "error")
-		report["warning"] = "Caixa negativo: %d dia(s) para regularizar antes da falência." % (grace - negative_days)
+		notify("ALERTA: dívidas maiores que seu patrimônio! %d dia(s) até a falência." % (grace - negative_days), "error")
+		report["warning"] = "Insolvência: %d dia(s) para regularizar antes da falência. Venda ativos, faça empréstimos ou trabalhe." % (grace - negative_days)
 
 
 func declare_bankruptcy() -> void:
@@ -389,7 +398,8 @@ func trigger_victory() -> void:
 
 func request_decision(ev: Dictionary) -> void:
 	if auto_decide:
-		resolve_decision(ev, 0)
+		# Testes automáticos: escolhe a opção mais conservadora (a última)
+		resolve_decision(ev, maxi(0, ev.get("options", []).size() - 1))
 		return
 	paused_for_decision = true
 	decision_requested.emit(ev)

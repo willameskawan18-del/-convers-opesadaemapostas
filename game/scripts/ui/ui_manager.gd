@@ -40,6 +40,18 @@ var _modal_open: Control
 func _ready() -> void:
 	layer = 10
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var vig_layer := CanvasLayer.new()
+	vig_layer.layer = 1
+	add_child(vig_layer)
+	var vig := ColorRect.new()
+	vig.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vig.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vm := ShaderMaterial.new()
+	var vs := Shader.new()
+	vs.code = "shader_type canvas_item;\nvoid fragment() { vec2 uv = UV - 0.5; float v = smoothstep(0.85, 0.25, length(uv * vec2(1.0, 0.8))); COLOR = vec4(0.0, 0.0, 0.02, (1.0 - v) * 0.55); }"
+	vm.shader = vs
+	vig.material = vm
+	vig_layer.add_child(vig)
 	root = Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE

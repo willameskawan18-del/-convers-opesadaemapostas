@@ -21,6 +21,11 @@ func reset() -> void:
 func add(delta: float, reason: String) -> void:
 	if is_nan(delta) or delta == 0.0:
 		return
+	# Retornos decrescentes: subir perto do topo (ou cair perto do fundo) é mais difícil
+	if delta > 0.0:
+		delta *= clampf((100.0 - value) / 45.0, 0.08, 1.0)
+	else:
+		delta *= clampf(value / 40.0, 0.25, 1.0)
 	value = clampf(value + delta, 0.0, 100.0)
 	today_changes[reason] = float(today_changes.get(reason, 0.0)) + delta
 

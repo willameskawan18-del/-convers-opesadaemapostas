@@ -54,7 +54,7 @@ func comp_attractiveness(c: Dictionary) -> float:
 ## Peso de um concorrente: compete mais com quem tem porte parecido com o seu.
 func _weight(c: Dictionary) -> float:
 	var st := maxi(1, sim.business.stage) if sim.has_business() else 1
-	return 1.0 / (1.0 + 0.45 * absi(int(c.size) - st))
+	return 1.0 / (1.0 + 0.9 * absi(int(c.size) - st))
 
 
 func player_share() -> float:

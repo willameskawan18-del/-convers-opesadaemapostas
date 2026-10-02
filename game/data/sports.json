@@ -1,19 +1,98 @@
 {
   "sports": [
-    {"id": "futebol", "name": "Futebol", "type": "1x2", "weight": 45, "duration": 110,
-     "participants": ["Atlético Serrano", "União Litoral", "Real Planalto", "Esporte Vale Verde", "Estrela do Norte", "Ferroviário FC", "Grêmio Ribeira", "Náutico Capital", "Operário do Sul", "Cruzeiro da Serra", "Tupã EC", "Bandeirantes AC"]},
-    {"id": "basquete", "name": "Basquete", "type": "h2h", "weight": 20, "duration": 140,
-     "participants": ["Tubarões", "Falcões", "Leões da Baixada", "Trovões", "Panteras", "Corsários", "Guerreiros", "Dragões"]},
-    {"id": "tenis", "name": "Tênis", "type": "h2h", "weight": 15, "duration": 100,
-     "participants": ["R. Albuquerque", "M. Kovac", "T. Yamada", "L. Ferreira", "A. Duval", "S. Moretti", "J. Lindqvist", "C. Ortega"]},
-    {"id": "corrida", "name": "Corrida de Kart", "type": "race", "weight": 20, "duration": 20,
-     "participants": ["Relâmpago", "Ventania", "Cometa", "Furacão", "Trovoada", "Faísca", "Tempestade", "Raio Dourado", "Ciclone", "Brisa Veloz"]}
+    {
+      "id": "futebol",
+      "name": "Futebol",
+      "type": "1x2",
+      "weight": 45,
+      "duration": 110,
+      "participants": [
+        "Atlético Serrano",
+        "União Litoral",
+        "Real Planalto",
+        "Esporte Vale Verde",
+        "Estrela do Norte",
+        "Ferroviário FC",
+        "Grêmio Ribeira",
+        "Náutico Capital",
+        "Operário do Sul",
+        "Cruzeiro da Serra",
+        "Tupã EC",
+        "Bandeirantes AC"
+      ]
+    },
+    {
+      "id": "basquete",
+      "name": "Basquete",
+      "type": "h2h",
+      "weight": 20,
+      "duration": 140,
+      "participants": [
+        "Tubarões",
+        "Falcões",
+        "Leões da Baixada",
+        "Trovões",
+        "Panteras",
+        "Corsários",
+        "Guerreiros",
+        "Dragões"
+      ]
+    },
+    {
+      "id": "tenis",
+      "name": "Tênis",
+      "type": "h2h",
+      "weight": 15,
+      "duration": 100,
+      "participants": [
+        "R. Albuquerque",
+        "M. Kovac",
+        "T. Yamada",
+        "L. Ferreira",
+        "A. Duval",
+        "S. Moretti",
+        "J. Lindqvist",
+        "C. Ortega"
+      ]
+    },
+    {
+      "id": "corrida",
+      "name": "Corrida de Kart",
+      "type": "race",
+      "weight": 12,
+      "duration": 20,
+      "participants": [
+        "Relâmpago",
+        "Ventania",
+        "Cometa",
+        "Furacão",
+        "Trovoada",
+        "Faísca",
+        "Tempestade",
+        "Raio Dourado",
+        "Ciclone",
+        "Brisa Veloz"
+      ]
+    }
   ],
-  "events_per_day": [9, 13],
+  "events_per_day": [
+    9,
+    13
+  ],
   "first_start_minute": 600,
   "last_start_minute": 1350,
   "news_chance": 0.35,
   "hype_chance": 0.12,
-  "news_up": ["{p} chega embalado após sequência de vitórias", "{p} recupera titular importante", "Clima favorece o estilo de {p}", "Treinos de {p} impressionam a imprensa"],
-  "news_down": ["{p} terá desfalque importante", "Crise interna abala {p}", "{p} chega cansado após viagem longa", "Lesão preocupa a equipe de {p}"]
+  "news_up": [
+    "{p} chega embalado após sequência de vitórias",
+    "{p} recupera titular importante",
+    "Clima favorece o estilo de {p}",
+    "Treinos de {p} impressionam a imprensa"
+  ],
+  "news_down": [
+    "{p} terá desfalque importante",
+    "Crise interna abala {p}",
+    "{p} chega cansado após viagem longa",
+    "Lesão preocupa a equipe de {p}"
+  ]
 }

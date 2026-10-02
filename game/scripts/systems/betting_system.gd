@@ -18,6 +18,8 @@ var ratings: Dictionary = {}
 var scheduled_until_day := 0
 var book_today := {"stakes": 0.0, "payouts": 0.0, "bets": 0}
 var biggest_payout_today := 0.0
+var open_book_stakes := 0.0   # dinheiro de clientes em bilhetes ainda não liquidados
+var _ex_cache: Dictionary = {}  # event_id -> {stakes, payouts[], counts[], bets} (atualizado incrementalmente)
 
 
 func _init(s) -> void:
@@ -30,6 +32,8 @@ func reset() -> void:
 	book_bets = []
 	player_history = []
 	news = []
+	open_book_stakes = 0.0
+	_ex_cache = {}
 	next_event_id = 1
 	next_bet_id = 1
 	scheduled_until_day = 0
@@ -264,32 +268,49 @@ func place_book_bet(customer_id: String, ev: Dictionary, outcome: int, stake: fl
 	sim.economy.earn(stake, EconomySystem.STAKES)
 	book_today.stakes += stake
 	book_today.bets += 1
+	open_book_stakes += stake
+	_cache_add(ev, outcome, stake, odds)
+	sim.add_stat("book_stakes", stake)
+
+
+func _cache_entry(ev: Dictionary) -> Dictionary:
+	if not _ex_cache.has(ev.id):
+		var payouts: Array = []
+		var counts: Array = []
+		for i in ev.outcomes.size():
+			payouts.append(0.0)
+			counts.append(0)
+		_ex_cache[ev.id] = {"stakes": 0.0, "payouts": payouts, "counts": counts, "bets": 0}
+	return _ex_cache[ev.id]
+
+
+func _cache_add(ev: Dictionary, outcome: int, stake: float, odds: float) -> void:
+	var c := _cache_entry(ev)
+	c.stakes = float(c.stakes) + stake
+	c.payouts[outcome] = float(c.payouts[outcome]) + stake * odds
+	c.counts[outcome] = int(c.counts[outcome]) + 1
+	c.bets = int(c.bets) + 1
+
+
+func _rebuild_cache() -> void:
+	_ex_cache = {}
+	for b in book_bets:
+		var ev := get_event(str(b.event_id))
+		if not ev.is_empty():
+			_cache_add(ev, int(b.outcome), float(b.stake), float(b.odds))
 
 
 func exposure(ev: Dictionary) -> Dictionary:
-	var payouts: Array = []
-	var counts: Array = []
-	for i in ev.outcomes.size():
-		payouts.append(0.0)
-		counts.append(0)
-	var stakes := 0.0
-	var n := 0
-	for b in book_bets:
-		if b.event_id != ev.id:
-			continue
-		var o := int(b.outcome)
-		payouts[o] += float(b.stake) * float(b.odds)
-		counts[o] += 1
-		stakes += float(b.stake)
-		n += 1
+	var c := _cache_entry(ev)
+	var payouts: Array = c.payouts
 	var worst := 0.0
 	var worst_i := -1
 	for i in payouts.size():
-		if payouts[i] > worst:
-			worst = payouts[i]
+		if float(payouts[i]) > worst:
+			worst = float(payouts[i])
 			worst_i = i
-	return {"stakes": stakes, "payouts": payouts, "counts": counts, "bets": n,
-		"worst_payout": worst, "worst_outcome": worst_i, "worst_net": worst - stakes}
+	return {"stakes": float(c.stakes), "payouts": payouts, "counts": c.counts, "bets": int(c.bets),
+		"worst_payout": worst, "worst_outcome": worst_i, "worst_net": worst - float(c.stakes)}
 
 
 ## Pior cenário somado de todos os eventos abertos com apostas na banca.
@@ -311,10 +332,15 @@ func total_exposure() -> Dictionary:
 	return {"stakes": stakes, "worst_payout": worst_payout, "worst_net": worst_net, "bets": n}
 
 
+## Caixa livre: o que sobra descontando o dinheiro de bilhetes em aberto.
+func free_cash() -> float:
+	return sim.economy.cash - open_book_stakes
+
+
 func risk_level(worst_net: float = -1.0) -> String:
 	if worst_net < 0.0:
 		worst_net = total_exposure().worst_net
-	var ratio := worst_net / maxf(sim.economy.cash, 200.0)
+	var ratio := worst_net / maxf(free_cash() + open_book_stakes * 0.5, 200.0)
 	if ratio < 0.15: return "BAIXO"
 	if ratio < 0.4: return "MÉDIO"
 	if ratio < 0.8: return "ALTO"
@@ -386,15 +412,18 @@ func _settle(ev: Dictionary) -> void:
 		if b.event_id != ev.id:
 			keep.append(b)
 			continue
+		open_book_stakes = maxf(0.0, open_book_stakes - float(b.stake))
 		var won_b := int(b.outcome) == int(ev.result)
 		var pay := float(b.stake) * float(b.odds) if won_b else 0.0
 		if won_b:
 			sim.economy.charge(pay, EconomySystem.PAYOUTS)
 			paid_total += pay
 			book_today.payouts += pay
+			sim.add_stat("book_payouts", pay)
 		if sim.customers != null:
 			sim.customers.on_bet_result(str(b.customer), won_b, pay - float(b.stake))
 	book_bets = keep
+	_ex_cache.erase(ev.id)
 	biggest_payout_today = maxf(biggest_payout_today, paid_total)
 	if paid_total > 0.0 and paid_total >= maxf(500.0, sim.economy.cash * 0.2):
 		sim.notify("Pagamento alto: %s em prêmios de %s" % [Fmt.money(paid_total), ev.name], "warning")
@@ -424,3 +453,7 @@ func from_dict(d: Dictionary) -> void:
 	scheduled_until_day = int(d.get("scheduled_until_day", 0))
 	book_today = d.get("book_today", {"stakes": 0.0, "payouts": 0.0, "bets": 0})
 	biggest_payout_today = float(d.get("biggest_payout_today", 0.0))
+	open_book_stakes = 0.0
+	for b in book_bets:
+		open_book_stakes += float(b.stake)
+	_rebuild_cache()

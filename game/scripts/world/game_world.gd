@@ -28,6 +28,12 @@ func _ready() -> void:
 	add_child(business_visuals)
 	menu_camera = Camera3D.new()
 	menu_camera.far = 400.0
+	var attrs := CameraAttributesPractical.new()
+	attrs.dof_blur_far_enabled = true
+	attrs.dof_blur_far_distance = 55.0
+	attrs.dof_blur_far_transition = 40.0
+	attrs.dof_blur_amount = 0.08
+	menu_camera.attributes = attrs
 	add_child(menu_camera)
 	menu_camera.current = true
 	job_beacon = Beacon.create(Color(0.3, 0.9, 1.0), "TRABALHO", true)
@@ -72,11 +78,11 @@ func _on_session_ended() -> void:
 
 
 func _process(delta: float) -> void:
-	city.day_night.set_time(float(Game.sim.time.minute) if Game.playing else 1110.0)
+	city.day_night.set_time(float(Game.sim.time.minute) if Game.playing else 1125.0)
 	if not Game.playing:
 		_menu_t += delta * 0.05
-		menu_camera.position = Vector3(cos(_menu_t) * 70.0, 32.0, sin(_menu_t) * 70.0)
-		menu_camera.look_at(Vector3(0, 0, 0))
+		menu_camera.position = Vector3(cos(_menu_t) * 48.0, 14.0, sin(_menu_t) * 30.0)
+		menu_camera.look_at(Vector3(cos(_menu_t + 0.6) * 12.0, 3.0, 0.0))
 		return
 	_update_objective_beacon()
 
@@ -202,7 +208,7 @@ func _empty_lot(v: Node3D, lot_id: String, d: Dictionary) -> void:
 	var h: float = d.h
 	if h <= 0.0:
 		# Terreno vazio cercado
-		WorldKit.box(v, Vector3(w, 0.05, float(d.d)), center + Vector3(0, 0.03, 0), WorldKit.mat(Color(0.45, 0.38, 0.28)), false)
+		WorldKit.box(v, Vector3(w, 0.05, float(d.d)), center + Vector3(0, 0.03, 0), Mats.paving(Color(0.5, 0.44, 0.36)), false)
 		for side in [-1, 1]:
 			WorldKit.solid(v, Vector3(0.15, 1.6, float(d.d)), center + Vector3(side * w / 2, 0.8, 0), WorldKit.mat(Color(0.6, 0.6, 0.62), 0.5, 0.6))
 		WorldKit.solid(v, Vector3(w, 1.6, 0.15), center + Vector3(0, 0.8, -dir * float(d.d) / 2), WorldKit.mat(Color(0.6, 0.6, 0.62), 0.5, 0.6))
@@ -210,11 +216,12 @@ func _empty_lot(v: Node3D, lot_id: String, d: Dictionary) -> void:
 			WorldKit.solid(v, Vector3(w / 2 - 3, 1.6, 0.15), center + Vector3(side * (w / 4 + 1.5), 0.8, dir * float(d.d) / 2), WorldKit.mat(Color(0.6, 0.6, 0.62), 0.5, 0.6))
 		WorldKit.label(v, "FUTURO EMPREENDIMENTO", center + Vector3(0, 6, 0), 140, LOT_SIGN_COLOR, 20, true)
 	else:
-		WorldKit.solid(v, Vector3(w, h, float(d.d)), center + Vector3(0, h / 2, 0), WorldKit.mat(d.color))
-		WorldKit.box(v, Vector3(w + 0.4, 0.4, float(d.d) + 0.4), center + Vector3(0, h + 0.2, 0), WorldKit.mat(Color(d.color).darkened(0.3)))
+		WorldKit.solid(v, Vector3(w, h, float(d.d)), center + Vector3(0, h / 2, 0), Mats.facade(d.color, 0 if h < 8 else 3))
+		WorldKit.box(v, Vector3(w + 0.4, 0.4, float(d.d) + 0.4), center + Vector3(0, h + 0.2, 0), Mats.facade(Color(d.color).darkened(0.3), 2))
+		WorldKit.box(v, Vector3(w + 0.1, 0.5, float(d.d) + 0.1), center + Vector3(0, 0.25, 0), Mats.facade(Color(d.color).darkened(0.5), 2))
 		var fz := float(d.fz) + dir * 0.04
 		# Porta de aço fechada
-		WorldKit.box(v, Vector3(minf(w - 1.0, 6.0), 3.0, 0.08), Vector3(d.x, 1.5, fz), WorldKit.mat(Color(0.5, 0.52, 0.55), 0.4, 0.6), false)
+		WorldKit.box(v, Vector3(minf(w - 1.0, 6.0), 3.0, 0.08), Vector3(d.x, 1.5, fz), Mats.facade(Color(0.55, 0.57, 0.6), 3), false)
 		for i in 8:
 			WorldKit.box(v, Vector3(minf(w - 1.0, 6.0), 0.04, 0.1), Vector3(d.x, 0.3 + i * 0.36, fz), WorldKit.mat(Color(0.35, 0.37, 0.4)), false)
 	_lot_sign(v, lot_id, Vector3(float(d.x) + minf(w / 2.0 - 0.5, 4.0), 0, float(d.fz) + dir * 1.4), dir)

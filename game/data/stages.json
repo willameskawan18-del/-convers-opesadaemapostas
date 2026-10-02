@@ -6,7 +6,7 @@
       "counters": 1,
       "capacity": 6,
       "max_staff": 2,
-      "market_demand": 8,
+      "market_demand": 12,
       "energy": 12,
       "internet": 8,
       "cleaning": 5,
@@ -15,7 +15,7 @@
       "min_level": 1,
       "min_rep": 0,
       "desc": "Um balcão, um computador e muita vontade.",
-      "stake_mult": 0.35
+      "stake_mult": 1.0
     },
     {
       "stage": 2,
@@ -23,7 +23,7 @@
       "counters": 2,
       "capacity": 10,
       "max_staff": 4,
-      "market_demand": 13,
+      "market_demand": 20,
       "energy": 20,
       "internet": 12,
       "cleaning": 10,
@@ -32,7 +32,7 @@
       "min_level": 3,
       "min_rep": 52,
       "desc": "Reforma completa da sala: dois guichês, visual profissional e letreiro em neon.",
-      "stake_mult": 0.5
+      "stake_mult": 1.5
     },
     {
       "stage": 3,
@@ -40,7 +40,7 @@
       "counters": 3,
       "capacity": 18,
       "max_staff": 7,
-      "market_demand": 22,
+      "market_demand": 34,
       "energy": 45,
       "internet": 25,
       "cleaning": 20,
@@ -49,7 +49,7 @@
       "min_level": 5,
       "min_rep": 55,
       "desc": "Mudança para o Salão da Avenida: espaço para crescer.",
-      "stake_mult": 0.7
+      "stake_mult": 2.2
     },
     {
       "stage": 4,
@@ -57,7 +57,7 @@
       "counters": 5,
       "capacity": 30,
       "max_staff": 11,
-      "market_demand": 34,
+      "market_demand": 55,
       "energy": 80,
       "internet": 40,
       "cleaning": 35,
@@ -66,7 +66,7 @@
       "min_level": 8,
       "min_rep": 60,
       "desc": "O salão inteiro ocupado: telões, área VIP e cinco guichês.",
-      "stake_mult": 0.85
+      "stake_mult": 3.0
     },
     {
       "stage": 5,
@@ -74,7 +74,7 @@
       "counters": 7,
       "capacity": 50,
       "max_staff": 18,
-      "market_demand": 52,
+      "market_demand": 80,
       "energy": 160,
       "internet": 70,
       "cleaning": 70,
@@ -83,7 +83,7 @@
       "min_level": 11,
       "min_rep": 62,
       "desc": "Uma operação de grande porte no Galpão do Porto.",
-      "stake_mult": 1.0
+      "stake_mult": 4.0
     },
     {
       "stage": 6,
@@ -91,16 +91,16 @@
       "counters": 10,
       "capacity": 90,
       "max_staff": 30,
-      "market_demand": 85,
+      "market_demand": 120,
       "energy": 400,
       "internet": 150,
       "cleaning": 180,
-      "upgrade_cost": 1000000,
+      "upgrade_cost": 800000,
       "license": "cassino",
       "min_level": 15,
       "min_rep": 68,
       "desc": "O Grande Cassino da cidade, no Terreno Central.",
-      "stake_mult": 1.3
+      "stake_mult": 5.5
     }
   ]
 }

@@ -40,8 +40,15 @@ static func list(file_name: String, key: String) -> Array:
 	return []
 
 
+static var _index: Dictionary = {}
+
+
+## Busca por id com índice em memória (O(1)).
 static func find(file_name: String, key: String, id: String) -> Dictionary:
-	for item in list(file_name, key):
-		if str(item.get("id", "")) == id:
-			return item
-	return {}
+	var ik := file_name + "/" + key
+	if not _index.has(ik):
+		var idx := {}
+		for item in list(file_name, key):
+			idx[str(item.get("id", ""))] = item
+		_index[ik] = idx
+	return _index[ik].get(id, {})

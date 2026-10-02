@@ -71,7 +71,7 @@
   {
    "id": "cassino",
    "name": "Licença de Cassino",
-   "cost": 400000,
+   "cost": 300000,
    "daily_fee": 400,
    "min_level": 13,
    "min_rep": 68,

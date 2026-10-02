@@ -12,6 +12,7 @@ var next_uid := 1
 var margin := 0.10
 var max_stake := 300.0
 var auto_balance := false
+var exposure_limit := 0.5          # pior cenário máximo por evento, em fração do caixa (0 = sem limite)
 var manually_closed := false
 var internet_down_until := 0
 var boosts: Array = []             # {mult, until, label}
@@ -37,12 +38,14 @@ func reset() -> void:
 	margin = float(GameData.balance("default_margin", 0.10))
 	max_stake = float(GameData.balance("default_max_stake", 300))
 	auto_balance = false
+	exposure_limit = 0.5
 	manually_closed = false
 	internet_down_until = 0
 	boosts = []
 	cost_mods = []
 	supplier_discount = {}
 	equipment_revision = 0
+	_fx_rev = -1
 	hype_today = 1.0
 	casino_today = 0.0
 	casino_stats = {}
@@ -101,8 +104,14 @@ func count_item(id: String) -> int:
 	return n
 
 
-## Soma dos efeitos numéricos dos equipamentos funcionando.
+var _fx_cache: Dictionary = {}
+var _fx_rev := -1
+
+
+## Soma dos efeitos numéricos dos equipamentos funcionando (cacheada por revisão).
 func effects() -> Dictionary:
+	if _fx_rev == equipment_revision:
+		return _fx_cache
 	var out := {}
 	for e in equipment:
 		if e.broken:
@@ -110,6 +119,8 @@ func effects() -> Dictionary:
 		var fx: Dictionary = item_data(str(e.id)).get("effects", {})
 		for k in fx:
 			out[k] = float(out.get(k, 0.0)) + float(fx[k])
+	_fx_cache = out
+	_fx_rev = equipment_revision
 	return out
 
 
@@ -408,6 +419,19 @@ func set_margin(m: float) -> void:
 	margin = clampf(snappedf(m, 0.005), float(GameData.balance("min_margin", 0.02)), float(GameData.balance("max_margin", 0.2)))
 
 
+## Quanto ainda cabe apostar neste resultado sem estourar o limite de exposição.
+func max_stake_allowed(ev: Dictionary, outcome: int, odds: float) -> float:
+	if exposure_limit <= 0.0:
+		return max_stake
+	var ex := sim.betting.exposure(ev)
+	var cap := exposure_limit * maxf(sim.betting.free_cash(), 4000.0 * maxi(stage, 1) * maxi(stage, 1))
+	var payout_i := float(ex.payouts[outcome])
+	# líquido se este resultado sair = pagamentos - apostas recebidas
+	var room := cap - (payout_i - float(ex.stakes))
+	var per_real := maxf(odds - 1.0, 0.01)
+	return clampf(room / per_real, 0.0, max_stake)
+
+
 func set_max_stake(v: float) -> void:
 	max_stake = clampf(roundf(v / 10.0) * 10.0, 20.0, 1000000.0)
 
@@ -443,6 +467,9 @@ func open_at(pid: String) -> bool:
 	active = true
 	property_id = pid
 	stage = 1
+	# Marca nova na praça: o público dá uma chance
+	if sim.reputation.value < 45.0:
+		sim.reputation.add(45.0 - sim.reputation.value, "Nova inauguração")
 	manually_closed = false
 	equipment_revision += 1
 	sim.recovery_mode = false
@@ -542,7 +569,7 @@ static func _add(costs: Dictionary, k: String, v: float) -> void:
 
 func to_dict() -> Dictionary:
 	return {"active": active, "property_id": property_id, "stage": stage, "equipment": equipment, "next_uid": next_uid,
-		"margin": margin, "max_stake": max_stake, "auto_balance": auto_balance, "manually_closed": manually_closed,
+		"margin": margin, "max_stake": max_stake, "auto_balance": auto_balance, "exposure_limit": exposure_limit, "manually_closed": manually_closed,
 		"internet_down_until": internet_down_until, "boosts": boosts, "cost_mods": cost_mods,
 		"supplier_discount": supplier_discount, "hype_today": hype_today, "casino_today": casino_today, "casino_stats": casino_stats}
 
@@ -559,6 +586,7 @@ func from_dict(d: Dictionary) -> void:
 	margin = float(d.get("margin", 0.1))
 	max_stake = float(d.get("max_stake", 300))
 	auto_balance = bool(d.get("auto_balance", false))
+	exposure_limit = float(d.get("exposure_limit", 0.5))
 	manually_closed = bool(d.get("manually_closed", false))
 	internet_down_until = int(d.get("internet_down_until", 0))
 	boosts = d.get("boosts", [])

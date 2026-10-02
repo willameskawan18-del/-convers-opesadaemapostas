@@ -97,6 +97,7 @@ func _run() -> void:
 		c.queue_free()
 	ui._modal_closed()
 	var sim = game.sim
+	sim.auto_decide = true
 	sim.economy.earn(5000, EconomySystem.REWARD)
 	_ok(sim.licenses.buy("basica"), "alvará comprado")
 	_ok(sim.properties.rent("sala_comercio"), "sala alugada")
@@ -132,6 +133,8 @@ func _run() -> void:
 	for i in 120:
 		sim.advance(2)
 		await get_tree().process_frame
+	if sim.stat("customers_served") <= served0:
+		print("  DEBUG staff=", sim.employees.staff.map(func(e): return [e.role, e.state]), " bets=", sim.business.can_take_bets(), " open=", sim.business.is_open(), " eq=", sim.business.equipment.map(func(e): return [e.id, e.broken]), " min=", sim.time.minute, " visits=", sim.customers.visits.size(), " today=", sim.customers.today)
 	_ok(sim.stat("customers_served") > served0, "atendente atende sem o jogador: %d" % int(sim.stat("customers_served") - served0))
 	for tab in ["bets", "staff", "equipment", "properties", "risk", "reputation", "customers", "overview", "finance"]:
 		ui.open_app("admin:" + tab)
@@ -171,6 +174,21 @@ func _run() -> void:
 	ui.close_window()
 	print("  rodadas de cassino: ", sim.stat("casino_rounds"), "  resultado: ", Fmt.signed_money(sim.economy.cash - cash_before))
 	_ok(sim.stat("casino_rounds") >= 18, "rodadas registradas")
+	# Decisão com diálogo real
+	sim.auto_decide = false
+	sim.time.minute = 14 * 60
+	sim.events.trigger_by_id("fraude")
+	await _frames(3)
+	_ok(sim.paused_for_decision and ui._modal_open != null, "diálogo de decisão exibido e tempo pausado")
+	var clicked := false
+	for b in ui.modal_layer.find_children("*", "Button", true, false):
+		if b.text.begins_with("Bloquear"):
+			b.pressed.emit()
+			clicked = true
+			break
+	await _frames(3)
+	_ok(clicked and not sim.paused_for_decision, "decisão resolvida pelo botão")
+	sim.auto_decide = true
 	# Salvar / carregar
 	_ok(game.save_game("smoke"), "salvar")
 	var cash: float = game.sim.economy.cash

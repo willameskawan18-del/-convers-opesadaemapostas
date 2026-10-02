@@ -51,7 +51,10 @@ func _ready() -> void:
 
 func _panel(pos: Vector2, min_w: float) -> VBoxContainer:
 	var p := PanelContainer.new()
-	p.add_theme_stylebox_override("panel", UiKit.style(Color(0.05, 0.08, 0.15, 0.82), 12, Color(1, 1, 1, 0.07), 1, 12))
+	var sb := UiKit.style(Color(0.04, 0.06, 0.12, 0.78), 12, Color(1, 1, 1, 0.08), 1, 12)
+	sb.shadow_size = 8
+	sb.shadow_color = Color(0, 0, 0, 0.3)
+	p.add_theme_stylebox_override("panel", sb)
 	p.position = pos
 	p.custom_minimum_size.x = min_w
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -65,7 +68,7 @@ func _build_top_left() -> void:
 	var v := _panel(Vector2(16, 16), 270)
 	var h := UiKit.hbox()
 	v.add_child(h)
-	money_label = UiKit.label("R$ 0", 30, UiKit.GOLD)
+	money_label = UiKit.bold(UiKit.label("R$ 0", 30, UiKit.GOLD), "Bold") as Label
 	h.add_child(money_label)
 	money_delta = UiKit.label("", 16, UiKit.GREEN)
 	h.add_child(money_delta)
@@ -89,7 +92,7 @@ func _build_top_left() -> void:
 
 func _build_objective() -> void:
 	var v := _panel(Vector2(16, 230), 300)
-	obj_title = UiKit.label("", 13, UiKit.GOLD)
+	obj_title = UiKit.bold(UiKit.label("", 13, UiKit.GOLD)) as Label
 	v.add_child(obj_title)
 	obj_text = UiKit.label("", 17, UiKit.TEXT, true)
 	obj_text.custom_minimum_size.x = 280
@@ -243,4 +246,6 @@ func _update_business() -> void:
 	var risk := sim.betting.risk_level(ex.worst_net)
 	UiKit.kv(biz_box, "Exposição", Fmt.money(ex.worst_net))
 	UiKit.kv(biz_box, "Risco", risk, UiKit.risk_color(risk))
+	if ex.worst_net > sim.economy.cash:
+		biz_box.add_child(UiKit.label("ATENÇÃO: o caixa não cobre o pior cenário!", 13, UiKit.RED))
 	UiKit.kv(biz_box, "Lucro hoje", Fmt.money(sim.economy.business_profit_today()), UiKit.money_color(sim.economy.business_profit_today()))
