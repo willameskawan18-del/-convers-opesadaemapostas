@@ -19,7 +19,7 @@ func _ready() -> void:
 	theme = UiKit.theme()
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.03, 0.07, 0.55)
+	shade.color = Color(0.02, 0.03, 0.07, 0.25)
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
 	var grad := TextureRect.new()
@@ -32,6 +32,7 @@ func _ready() -> void:
 	gt.fill_to = Vector2(1, 0)
 	grad.texture = gt
 	grad.set_anchors_preset(Control.PRESET_FULL_RECT)
+	grad.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	grad.stretch_mode = TextureRect.STRETCH_SCALE
 	grad.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(grad)

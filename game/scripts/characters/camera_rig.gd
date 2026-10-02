@@ -9,6 +9,7 @@ const THIRD_LENGTH := 4.2
 const HEIGHT := 1.55
 
 var mode := Mode.THIRD_PERSON
+var indoor := false
 var yaw := 0.0
 var pitch := -0.25
 var camera: Camera3D
@@ -66,8 +67,17 @@ func _apply() -> void:
 		_arm.spring_length = 0.0
 		_arm.position = Vector3(0, 0.12, -0.1)
 	else:
-		_arm.spring_length = THIRD_LENGTH
-		_arm.position = Vector3(0.45, 0.15, 0)
+		_arm.spring_length = 2.6 if indoor else THIRD_LENGTH
+		_arm.position = Vector3(0.35, 0.25, 0) if indoor else Vector3(0.45, 0.15, 0)
+
+
+func set_indoor(v: bool) -> void:
+	if v == indoor:
+		return
+	indoor = v
+	if v:
+		pitch = minf(pitch, -0.45)
+	_apply()
 
 
 func forward_flat() -> Vector3:

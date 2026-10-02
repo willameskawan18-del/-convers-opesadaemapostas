@@ -92,6 +92,51 @@ func _run() -> void:
 	_ok(game.sim.time.day == day + 1, "dormir avança para o próximo dia")
 	await _frames(3)
 	_ok(ui._modal_open != null, "relatório diário exibido")
+	# --- Fase 2: abrir a banca e atender clientes ---
+	for c in ui.modal_layer.get_children():
+		c.queue_free()
+	ui._modal_closed()
+	var sim = game.sim
+	sim.economy.earn(5000, EconomySystem.REWARD)
+	_ok(sim.licenses.buy("basica"), "alvará comprado")
+	_ok(sim.properties.rent("sala_comercio"), "sala alugada")
+	_ok(sim.has_business(), "banca criada")
+	_ok(sim.business.buy_equipment("balcao_simples"), "balcão comprado")
+	_ok(sim.business.buy_equipment("computador"), "computador comprado")
+	sim.business.buy_equipment("cadeiras")
+	sim.business.buy_equipment("tv")
+	await _frames(5)
+	_ok(world.establishment != null, "estabelecimento construído no mundo")
+	sim.time.minute = 10 * 60
+	var ev_view: EstablishmentView = world.establishment
+	world.player.teleport(ev_view.to_global(ev_view.staff_pos[0]) + Vector3(0, 0.3, 0))
+	await _frames(10)
+	_ok(sim.player_at_counter, "jogador atrás do balcão atende")
+	var served0: float = sim.stat("customers_served")
+	for i in 120:
+		sim.advance(2)
+		await get_tree().process_frame
+	_ok(sim.stat("customers_served") > served0, "clientes atendidos pelo jogador: %d" % int(sim.stat("customers_served") - served0))
+	_ok(sim.betting.book_bets.size() > 0, "apostas de clientes registradas no livro (%d)" % sim.betting.book_bets.size())
+	var visible_npcs := 0
+	for c in world.business_visuals._customers:
+		if c.h.visible:
+			visible_npcs += 1
+	print("  NPCs de clientes visíveis: ", visible_npcs, "  fila: ", sim.customers.queue_length())
+	sim.employees.refresh_candidates(true)
+	var cand: Dictionary = sim.employees.candidates[0]
+	_ok(sim.employees.hire(str(cand.id)), "atendente contratado")
+	world.player.teleport(world.city.point("spawn"))
+	await _frames(5)
+	served0 = sim.stat("customers_served")
+	for i in 120:
+		sim.advance(2)
+		await get_tree().process_frame
+	_ok(sim.stat("customers_served") > served0, "atendente atende sem o jogador: %d" % int(sim.stat("customers_served") - served0))
+	for tab in ["bets", "staff", "equipment", "properties", "risk", "reputation", "customers", "overview", "finance"]:
+		ui.open_app("admin:" + tab)
+		await _frames(1)
+	ui.close_window()
 	# Salvar / carregar
 	_ok(game.save_game("smoke"), "salvar")
 	var cash: float = game.sim.economy.cash

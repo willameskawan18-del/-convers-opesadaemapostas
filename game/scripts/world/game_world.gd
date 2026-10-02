@@ -12,6 +12,8 @@ var menu_camera: Camera3D
 var job_beacon: Beacon
 var objective_beacon: Beacon
 var lot_views: Dictionary = {}     # imóvel -> Node3D construído
+var business_visuals: BusinessVisuals
+var establishment: EstablishmentView
 var _menu_t := 0.0
 
 
@@ -22,6 +24,8 @@ func _ready() -> void:
 	add_child(pedestrians)
 	pedestrians.setup(city)
 	_build_interactions()
+	business_visuals = BusinessVisuals.new()
+	add_child(business_visuals)
 	menu_camera = Camera3D.new()
 	menu_camera.far = 400.0
 	add_child(menu_camera)
@@ -110,6 +114,9 @@ func refresh_lots() -> void:
 		if lot_views.has(lot_id) and lot_views[lot_id].get_meta("key", "") == key:
 			continue
 		if lot_views.has(lot_id):
+			if establishment and is_instance_valid(establishment) and establishment.get_parent() == lot_views[lot_id]:
+				business_visuals.detach()
+				establishment = null
 			lot_views[lot_id].queue_free()
 		var v := Node3D.new()
 		v.set_meta("key", key)
@@ -136,10 +143,33 @@ func _build_lot_view(v: Node3D, lot_id: String, d: Dictionary) -> void:
 		_lot_sign(v, lot_id, city.lots[lot_id].get("sign_pos", city.point(d.id)), float(d.dir))
 		return
 	var sim := Game.sim
-	if sim.has_business() and sim.business.property_id == lot_id and has_method("build_establishment"):
-		call("build_establishment", v, lot_id, d)
+	if sim.has_business() and sim.business.property_id == lot_id:
+		build_establishment(v, lot_id, d)
 		return
 	_empty_lot(v, lot_id, d)
+
+
+## Constrói o estabelecimento do jogador no lote e liga os NPCs de clientes/funcionários.
+func build_establishment(v: Node3D, lot_id: String, d: Dictionary) -> void:
+	var sim := Game.sim
+	var ev := EstablishmentView.new()
+	v.add_child(ev)
+	ev.build(d, sim.business.stage, sim.business.equipment, sim.brand_name, sim.business.stage_name(), city)
+	establishment = ev
+	var n := ev.staff_pos.size()
+	_est_interact(ev, ev.staff_pos[0] + Vector3(0, 0, 0.0), "Computador: acessar administração", func(): Game.request_ui("admin", "overview"))
+	_est_interact(ev, (ev.staff_pos[n - 1] + ev.counter_pos[n - 1]) / 2.0 + Vector3(0, 0, 0.9), "Balcão: gerenciar atendimento e apostas", func(): Game.request_ui("admin", "bets"))
+	_est_interact(ev, ev.staff_pos[0] + Vector3(-1.3, 0, 0.8), "Caixa: consultar finanças", func(): Game.request_ui("admin", "finance"))
+	_est_interact(ev, ev.door_inside + Vector3(-1.6, 0, 0), "Quadro: equipamentos e expansão", func(): Game.request_ui("admin", "equipment"))
+	_est_interact(ev, ev.door_outside + Vector3(2.4, 0, 0), "Ver propriedade", func(): Game.request_ui("lot", lot_id))
+	WorldKit.label(ev, "ATENDA AQUI", ev.staff_pos[0] + Vector3(0, 2.4, 0), 36, Color(0.4, 1, 0.6), 8, true)
+	business_visuals.attach(ev)
+
+
+func _est_interact(ev: Node3D, local_pos: Vector3, prompt: String, cb: Callable) -> void:
+	var it := Interactable.create(prompt, cb, 1.0)
+	it.position = local_pos + Vector3(0, 1.0, 0)
+	ev.add_child(it)
 
 
 func _empty_lot(v: Node3D, lot_id: String, d: Dictionary) -> void:

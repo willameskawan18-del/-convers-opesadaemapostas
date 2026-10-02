@@ -29,7 +29,12 @@ func build(body: VBoxContainer) -> void:
 	else:
 		UiKit.kv(c, "Renda de aluguel", Fmt.money(float(p.get("rental_income", 0))) + "/dia")
 	UiKit.kv(c, "Nível mínimo", str(int(p.get("min_level", 1))))
-	if s.properties == null:
-		body.add_child(UiKit.label("Aluguel e compra de imóveis chegam na próxima atualização (Fase 2).", 14, UiKit.ORANGE, true))
-		return
-	s.properties.build_actions(body, str(arg), ui)
+	var contract := str(s.properties.contracts.get(str(arg), ""))
+	if contract != "":
+		body.add_child(UiKit.label("Situação: " + ("alugado por você" if contract == "rented" else "propriedade sua"), 15, UiKit.GREEN))
+	if p.get("type", "") == "business" and not s.has_business() and not s.licenses.has("basica"):
+		body.add_child(UiKit.label("Para abrir uma banca aqui você precisa do Alvará Municipal (celular > Administração > Licenças).", 14, UiKit.ORANGE, true))
+	var h := UiKit.hbox()
+	body.add_child(h)
+	h.add_child(UiKit.spacer())
+	LotActions.add(h, s, str(arg), ui)

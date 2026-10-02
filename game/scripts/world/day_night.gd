@@ -43,7 +43,7 @@ func _apply_settings() -> void:
 	var q := int(Settings.get_value("quality"))
 	env.ssao_enabled = q >= 2
 	env.glow_enabled = q >= 1
-	env.fog_density = [0.012, 0.0065, 0.0035][clampi(int(Settings.get_value("render_distance")), 0, 2)]
+	env.fog_density = [0.009, 0.0045, 0.0025][clampi(int(Settings.get_value("render_distance")), 0, 2)]
 	sun.directional_shadow_max_distance = [50.0, 90.0, 140.0][clampi(q, 0, 2)]
 
 
@@ -71,13 +71,13 @@ func set_time(minute_of_day: float) -> void:
 		n = (h - 18.0) / 1.5
 	night_factor = clampf(n, 0.0, 1.0)
 	var dusk := clampf(1.0 - absf(h - 18.4) / 1.2, 0.0, 1.0) + clampf(1.0 - absf(h - 6.5) / 0.8, 0.0, 1.0)
-	sun.light_energy = lerpf(1.25, 0.05, night_factor)
-	sun.light_color = Color(1.0, 0.95, 0.88).lerp(Color(1.0, 0.6, 0.35), clampf(dusk, 0.0, 1.0))
-	sky_mat.sky_top_color = Color(0.25, 0.45, 0.8).lerp(Color(0.02, 0.03, 0.08), night_factor)
-	sky_mat.sky_horizon_color = Color(0.7, 0.78, 0.9).lerp(Color(0.95, 0.55, 0.35), clampf(dusk, 0.0, 1.0) * 0.8).lerp(Color(0.06, 0.07, 0.14), night_factor)
+	sun.light_energy = lerpf(1.25, 0.3, night_factor)
+	sun.light_color = Color(1.0, 0.95, 0.88).lerp(Color(1.0, 0.6, 0.35), clampf(dusk, 0.0, 1.0)).lerp(Color(0.55, 0.65, 1.0), night_factor)
+	sky_mat.sky_top_color = Color(0.18, 0.38, 0.78).lerp(Color(0.04, 0.06, 0.16), night_factor)
+	sky_mat.sky_horizon_color = Color(0.62, 0.74, 0.9).lerp(Color(0.95, 0.55, 0.35), clampf(dusk, 0.0, 1.0) * 0.8).lerp(Color(0.1, 0.12, 0.24), night_factor)
 	sky_mat.ground_horizon_color = sky_mat.sky_horizon_color
 	sky_mat.ground_bottom_color = Color(0.1, 0.1, 0.12)
-	env.ambient_light_energy = lerpf(0.9, 0.35, night_factor)
+	env.ambient_light_energy = lerpf(0.9, 0.6, night_factor)
 	env.fog_light_color = sky_mat.sky_horizon_color
 	for pair in _materials_night:
 		pair[0].emission_energy_multiplier = lerpf(0.05, pair[1], night_factor)

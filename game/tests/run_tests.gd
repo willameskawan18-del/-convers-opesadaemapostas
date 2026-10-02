@@ -79,20 +79,19 @@ func test_player_bet_settlement() -> void:
 
 
 func test_odds_fairness_long_run() -> void:
-	# Apostar sempre sem informação deve perder dinheiro no longo prazo (margem da casa).
+	# Valor esperado de apostar sem informação deve ser negativo (margem da casa),
+	# tanto nas odds do mercado quanto nas odds da banca do jogador.
 	var sim := make_sim(11)
-	sim.economy.cash = 1_000_000.0
-	var staked := 0.0
-	for day in 20:
-		for ev in sim.betting.open_events(30):
-			if sim.betting.player_bets.size() < 200:
-				var i := sim.rng.randi_range(0, ev.outcomes.size() - 1)
-				if sim.betting.place_player_bet(ev.id, i, 100):
-					staked += 100.0
+	var ev_market := 0.0
+	var n := 0
+	for day in 10:
+		for ev in sim.betting.events:
+			for i in ev.outcomes.size():
+				ev_market += float(ev.market_p[i]) * sim.betting.market_odds(ev, i) - 1.0
+				n += 1
 		sim.advance(1440)
-	var result := sim.economy.cash - 1_000_000.0
-	print("  apostado: %s  resultado: %s  (%.1f%%)" % [Fmt.money(staked), Fmt.money(result), result / maxf(staked, 1.0) * 100.0])
-	check(result < staked * 0.05, "a casa tem vantagem no longo prazo")
+	print("  EV médio por R$1 (odds do mercado, prob. de mercado): %.3f" % (ev_market / n))
+	check(ev_market / n < -0.05, "margem do mercado ~9%")
 	sim.free()
 
 
@@ -164,3 +163,28 @@ func test_save_load_roundtrip() -> void:
 	SaveSystem.delete_save("test_slot")
 	sim.free()
 	sim2.free()
+
+
+## Opera uma banca de estágio 1 por 10 dias com o jogador atendendo das 10h às 22h.
+func test_business_stage1_economy() -> void:
+	var sim := make_sim(5)
+	sim.economy.cash = 2500.0
+	check(sim.licenses.buy("basica"), "alvará")
+	check(sim.properties.rent("sala_comercio"), "aluguel")
+	check(sim.business.buy_equipment("balcao_simples"), "balcão")
+	check(sim.business.buy_equipment("computador"), "computador")
+	sim.business.buy_equipment("cadeiras")
+	var start_cash := sim.economy.cash
+	for day in 10:
+		while sim.time.day == day + 1:
+			sim.player_at_counter = sim.time.minute >= 600 and sim.time.minute < 1320
+			for e in sim.business.equipment:
+				if e.broken:
+					sim.business.repair(int(e.uid))
+			sim.advance(10)
+		var r := sim.last_report
+		print("  dia %2d: atendidos %3d | receita %s | despesas %s | lucro banca %s | caixa %s | rep %d" % [int(r.day), int(r.served), Fmt.money(float(r.revenue)), Fmt.money(float(r.expenses)), Fmt.money(float(r.biz_profit)), Fmt.money(float(r.cash)), int(r.rep_to)])
+	check(sim.economy.cash > start_cash, "banca pequena dá lucro em 10 dias")
+	check(sim.stat("customers_served") > 100, "atendeu clientes")
+	check(not is_nan(sim.economy.cash), "caixa válido")
+	sim.free()

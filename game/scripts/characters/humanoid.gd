@@ -11,6 +11,8 @@ var _legs: Array[Node3D] = []
 var _arms: Array[Node3D] = []
 var _phase := 0.0
 var _head: Node3D
+var _torso: MeshInstance3D
+var _arm_meshes: Array[MeshInstance3D] = []
 var body_color := Color(0.2, 0.4, 0.8)
 
 
@@ -66,6 +68,8 @@ func setup(shirt: Color, pants: Color = Color(0.15, 0.15, 0.2), skin: Color = Co
 	_arms.clear()
 	body_color = shirt
 	var torso := _part("torso", shirt, Vector3(0, 1.15, 0))
+	_torso = torso
+	_arm_meshes.clear()
 	torso.scale = Vector3(1.0, 1.0, 0.75)
 	_head = _part("head", skin, Vector3(0, 1.68, 0))
 	var h := _part("hair", hair, Vector3(0, 1.72, 0))
@@ -89,6 +93,15 @@ func setup(shirt: Color, pants: Color = Color(0.15, 0.15, 0.2), skin: Color = Co
 		arm.position = Vector3(0, -0.28, 0)
 		shoulder.add_child(arm)
 		_arms.append(shoulder)
+		_arm_meshes.append(arm)
+
+
+func set_shirt(c: Color) -> void:
+	body_color = c
+	if _torso:
+		_torso.material_override = mat(c)
+	for a in _arm_meshes:
+		a.material_override = mat(c.darkened(0.1))
 
 
 func _part(kind: String, c: Color, pos: Vector3) -> MeshInstance3D:

@@ -50,9 +50,9 @@ func daily() -> void:
 		var mgr: float = sim.employees.manager_bonus()
 		if mgr > 0.0:
 			add(0.5 * mgr * 5.0, "Gestão profissional")
-	# Tende lentamente à média quando não há atividade
-	if not sim.has_business():
-		value = lerpf(value, 50.0, 0.05)
+	# Memória curta do público: tende lentamente à média
+	var pull := 0.05 if sim.has_business() else 0.1
+	add((50.0 - value) * pull, "Tendência natural")
 
 
 func start_day() -> void:

@@ -33,10 +33,10 @@ var licenses: LicenseSystem
 var loans: LoanSystem
 var missions: MissionSystem
 # Sistemas de negócio (fase 2+)
-var business = null
-var customers = null
-var employees = null
-var properties = null
+var business: BusinessSystem
+var customers: CustomerSystem
+var employees: EmployeeSystem
+var properties: PropertySystem
 var competition = null
 var online = null
 var events = null
@@ -73,7 +73,10 @@ func _init() -> void:
 
 ## Ponto de extensão: cria os sistemas de negócio se os scripts existirem.
 func _create_business_systems() -> void:
-	pass
+	business = BusinessSystem.new(self)
+	customers = CustomerSystem.new(self)
+	employees = EmployeeSystem.new(self)
+	properties = PropertySystem.new(self)
 
 
 func systems() -> Array:

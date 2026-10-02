@@ -1,0 +1,28 @@
+{
+  "items": [
+    {"id": "balcao_simples", "name": "Balcão simples", "category": "counter", "cost": 350, "maintenance": 1, "energy": 0, "min_stage": 1, "min_level": 1, "effects": {}, "desc": "Um guichê de atendimento. Necessário para operar."},
+    {"id": "balcao_pro", "name": "Balcão profissional", "category": "counter", "cost": 1800, "maintenance": 3, "energy": 0, "min_stage": 2, "min_level": 3, "effects": {"service_speed": 0.1, "comfort": 1}, "desc": "Guichê ergonômico: atendimento 10% mais rápido."},
+    {"id": "computador", "name": "Computador básico", "category": "computer", "cost": 900, "maintenance": 2, "energy": 3, "min_stage": 1, "min_level": 1, "effects": {}, "desc": "Registra as apostas. Sem computador funcionando a banca para."},
+    {"id": "computador_rapido", "name": "Computador rápido", "category": "computer", "cost": 3000, "maintenance": 4, "energy": 5, "min_stage": 1, "min_level": 3, "effects": {"service_speed": 0.2}, "desc": "Mais capacidade operacional: atendimento 20% mais rápido."},
+    {"id": "cadeiras", "name": "Cadeiras de espera", "category": "chair", "cost": 180, "maintenance": 0, "energy": 0, "min_stage": 1, "min_level": 1, "max": 6, "effects": {"comfort": 3, "patience": 0.12}, "desc": "Clientes esperam mais na fila."},
+    {"id": "sofa", "name": "Sofá de espera", "category": "chair", "cost": 1200, "maintenance": 1, "energy": 0, "min_stage": 3, "min_level": 4, "max": 6, "effects": {"comfort": 7, "patience": 0.2}, "desc": "Conforto de verdade para quem espera."},
+    {"id": "tv", "name": "Televisão", "category": "tv", "cost": 700, "maintenance": 1, "energy": 2, "min_stage": 1, "min_level": 1, "max": 4, "effects": {"attract": 4, "comfort": 2}, "desc": "Clientes gostam de ver os jogos. Atrai mais gente."},
+    {"id": "telao", "name": "Telão", "category": "tv", "cost": 6000, "maintenance": 5, "energy": 8, "min_stage": 3, "min_level": 5, "max": 4, "effects": {"attract": 12, "comfort": 4}, "desc": "Experiência de estádio. Atrai muito mais clientes."},
+    {"id": "caixa", "name": "Caixa registradora", "category": "cashier", "cost": 500, "maintenance": 1, "energy": 1, "min_stage": 1, "min_level": 1, "max": 2, "effects": {"error_reduction": 0.4}, "desc": "Reduz erros de pagamento."},
+    {"id": "impressora", "name": "Impressora de bilhetes", "category": "printer", "cost": 350, "maintenance": 1, "energy": 1, "min_stage": 1, "min_level": 1, "max": 2, "effects": {"service_speed": 0.08}, "desc": "Bilhetes impressos: atendimento 8% mais rápido."},
+    {"id": "camera", "name": "Câmera de segurança", "category": "camera", "cost": 1500, "maintenance": 2, "energy": 1, "min_stage": 1, "min_level": 2, "max": 8, "effects": {"security": 12}, "desc": "Reduz risco de fraude e roubo."},
+    {"id": "alarme", "name": "Sistema de segurança", "category": "security", "cost": 6000, "maintenance": 6, "energy": 2, "min_stage": 3, "min_level": 5, "max": 1, "effects": {"security": 30}, "desc": "Alarme monitorado e controle de acesso."},
+    {"id": "terminal", "name": "Terminal de autoatendimento", "category": "terminal", "cost": 4500, "maintenance": 4, "energy": 3, "min_stage": 3, "min_level": 5, "max": 6, "effects": {"station": 0.7}, "desc": "Atende clientes sozinho (70% da velocidade de um atendente)."},
+    {"id": "servidor", "name": "Servidor", "category": "server", "cost": 12000, "maintenance": 15, "energy": 10, "min_stage": 3, "min_level": 7, "max": 10, "effects": {"online_capacity": 400}, "desc": "Sustenta mais usuários na operação online."},
+    {"id": "sistema_gestao", "name": "Sistema de gestão", "category": "management", "cost": 15000, "maintenance": 10, "energy": 2, "min_stage": 3, "min_level": 6, "max": 1, "effects": {"service_speed": 0.1, "pricing_error": -0.3}, "desc": "Melhora a precificação das odds e a eficiência geral."},
+    {"id": "area_vip", "name": "Área VIP", "category": "vip", "cost": 40000, "maintenance": 25, "energy": 6, "min_stage": 4, "min_level": 8, "max": 1, "effects": {"attract": 10, "comfort": 10, "vip": 1}, "desc": "Atrai clientes VIP com mais frequência."},
+    {"id": "caca_niquel", "name": "Máquina caça-níquel", "category": "slot", "cost": 25000, "maintenance": 20, "energy": 4, "min_stage": 5, "min_level": 10, "license": "entretenimento", "max": 30,
+     "casino": {"plays": 9, "avg_bet": 12, "edge": 0.08, "jackpot_chance": 0.0}, "effects": {"attract": 2}, "desc": "Jogo fictício de máquina. Receita estável, demanda constante."},
+    {"id": "mesa_21", "name": "Mesa de 21", "category": "table", "cost": 60000, "maintenance": 40, "energy": 2, "min_stage": 5, "min_level": 10, "license": "entretenimento", "max": 12,
+     "casino": {"plays": 20, "avg_bet": 60, "edge": 0.025, "jackpot_chance": 0.0}, "effects": {"attract": 4}, "desc": "Mesa de cartas fictícia. Margem baixa, volume alto."},
+    {"id": "roleta", "name": "Mesa de roleta", "category": "table", "cost": 90000, "maintenance": 50, "energy": 2, "min_stage": 6, "min_level": 15, "license": "cassino", "max": 8,
+     "casino": {"plays": 26, "avg_bet": 70, "edge": 0.027, "jackpot_chance": 0.0}, "effects": {"attract": 6}, "desc": "Clássico dos cassinos. Atrai clientes de alto valor."},
+    {"id": "jackpot", "name": "Jackpot progressivo", "category": "jackpot", "cost": 150000, "maintenance": 60, "energy": 6, "min_stage": 6, "min_level": 15, "license": "cassino", "max": 4,
+     "casino": {"plays": 30, "avg_bet": 25, "edge": 0.12, "jackpot_chance": 0.002, "jackpot": 60000}, "effects": {"attract": 10}, "desc": "Alta margem, mas de vez em quando paga um prêmio enorme."}
+  ]
+}
