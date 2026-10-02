@@ -1,88 +1,343 @@
 {
   "chapters": [
-    {"id": "cap1", "title": "Capítulo 1 — Sobreviver", "ordered": true, "reward_cash": 150,
-     "intro": "Você tem R$ 100 no bolso e muita vontade. Comece conhecendo a cidade.",
-     "objectives": [
-       {"type": "bets_placed", "target": 1, "text": "Faça sua primeira aposta na Banca do Zé", "hint": "Siga o feixe de luz até a Banca do Zé e aperte [E] no balcão."},
-       {"type": "jobs_done", "target": 1, "text": "Encontre um trabalho", "hint": "O Depósito, o Mercado e a Loja oferecem trabalhos. Aperte [E] no quadro de trabalhos."},
-       {"type": "cash", "target": 500, "text": "Junte R$ 500", "hint": "Trabalhe e aposte com cuidado. Use o celular [TAB] para ver os trabalhos."}
-     ]},
-    {"id": "cap2", "title": "Capítulo 2 — Juntar capital", "ordered": true, "reward_cash": 300,
-     "intro": "Para abrir uma banca você vai precisar de capital e de um alvará.",
-     "objectives": [
-       {"type": "jobs_done", "target": 6, "text": "Complete 6 trabalhos", "hint": "Trabalhos têm tempo de espera. Alterne entre eles."},
-       {"type": "cash", "target": 2500, "text": "Alcance R$ 2.500", "hint": "O banco também oferece microcrédito, mas cuidado com os juros."},
-       {"type": "license", "id": "basica", "text": "Obtenha o Alvará Municipal de Apostas", "hint": "Celular > Administração > Licenças."}
-     ]},
-    {"id": "cap3", "title": "Capítulo 3 — Abrir a primeira banca", "ordered": true, "reward_cash": 300,
-     "intro": "Hora de virar dono. A Sala Comercial ao lado do mercado está para alugar.",
-     "objectives": [
-       {"type": "property_contract", "text": "Alugue a Sala Comercial", "hint": "Vá até a placa ALUGA-SE da Sala Comercial e aperte [E]."},
-       {"type": "equipment_category", "id": "counter", "target": 1, "text": "Compre um balcão", "hint": "Use o computador da banca ou a Loja de Eletrônicos > Equipamentos."},
-       {"type": "equipment_category", "id": "computer", "target": 1, "text": "Compre um computador", "hint": "Sem computador não é possível registrar apostas."},
-       {"type": "business_open", "text": "Abra a banca", "hint": "A banca abre das 09:00 às 23:00 quando tem balcão e computador."}
-     ]},
-    {"id": "cap4", "title": "Capítulo 4 — Conquistar clientes", "ordered": true, "reward_cash": 500,
-     "intro": "Clientes não esperam para sempre. Fique atrás do balcão para atendê-los.",
-     "objectives": [
-       {"type": "customers_served", "target": 10, "text": "Atenda 10 clientes", "hint": "Fique na área atrás do balcão: você atende automaticamente."},
-       {"type": "customers_served", "target": 40, "text": "Atenda 40 clientes", "hint": "Filas longas derrubam a reputação."},
-       {"type": "reputation", "target": 55, "text": "Alcance reputação 55", "hint": "Atendimento rápido e cadeiras de espera ajudam."}
-     ]},
-    {"id": "cap5", "title": "Capítulo 5 — Tornar a banca lucrativa", "ordered": false, "reward_cash": 1000,
-     "intro": "Receita não é lucro. Acompanhe o relatório diário.",
-     "objectives": [
-       {"type": "profitable_days", "target": 3, "text": "Tenha 3 dias com lucro na operação", "hint": "Margens maiores reduzem risco mas afastam clientes."},
-       {"type": "staff_count", "target": 1, "text": "Contrate seu primeiro funcionário", "hint": "Administração > Funcionários. Um atendente libera você do balcão."}
-     ]},
-    {"id": "cap6", "title": "Capítulo 6 — Expandir", "ordered": true, "reward_cash": 3000,
-     "intro": "A banca ficou pequena. Hora de crescer.",
-     "objectives": [
-       {"type": "stage", "target": 2, "text": "Transforme em Banca Profissional", "hint": "Administração > Propriedades > Expansão."},
-       {"type": "license", "id": "comercial", "text": "Obtenha a Licença Comercial", "hint": "Exige nível, reputação e câmera de segurança."},
-       {"type": "stage", "target": 3, "text": "Abra o Salão de Apostas", "hint": "Alugue o Salão da Avenida e expanda para lá."}
-     ]},
-    {"id": "cap7", "title": "Capítulo 7 — Comprar propriedade", "ordered": false, "reward_cash": 5000,
-     "intro": "Aluguel é dinheiro que não volta. Patrimônio é poder.",
-     "objectives": [
-       {"type": "own_property", "target": 1, "text": "Compre um imóvel", "hint": "Comprar remove o aluguel e aumenta o patrimônio."}
-     ]},
-    {"id": "cap8", "title": "Capítulo 8 — Enfrentar a concorrência", "ordered": false, "reward_cash": 15000,
-     "intro": "Lucky Bet e Royal Apostas não vão facilitar.",
-     "objectives": [
-       {"type": "market_share", "target": 0.45, "text": "Conquiste 45% do mercado", "hint": "Reputação, odds, promoções e conforto disputam clientes."},
-       {"type": "reputation", "target": 65, "text": "Alcance reputação 65", "hint": "Segurança e bom atendimento contam muito."}
-     ]},
-    {"id": "cap9", "title": "Capítulo 9 — Operação online", "ordered": true, "reward_cash": 30000,
-     "intro": "A cidade é pequena. A internet não.",
-     "objectives": [
-       {"type": "license", "id": "digital", "text": "Obtenha a Licença Digital", "hint": "Administração > Licenças."},
-       {"type": "online_open", "text": "Lance seu site", "hint": "Celular > Operação Online."},
-       {"type": "online_users", "target": 250, "text": "Alcance 250 usuários online", "hint": "Marketing e servidores atraem e sustentam usuários."}
-     ]},
-    {"id": "cap10", "title": "Capítulo 10 — Grande operação", "ordered": false, "reward_cash": 100000,
-     "intro": "Você joga na primeira divisão agora.",
-     "objectives": [
-       {"type": "stage", "target": 5, "text": "Abra o Galpão de Entretenimento", "hint": "Exige Licença de Grande Operação."},
-       {"type": "net_worth", "target": 1500000, "text": "Patrimônio líquido de R$ 1.500.000", "hint": "Imóveis, equipamentos e caixa contam."}
-     ]},
-    {"id": "final", "title": "Capítulo Final — O Grande Cassino", "ordered": true, "reward_cash": 0, "final": true,
-     "intro": "Um último passo: o Grande Cassino da cidade.",
-     "objectives": [
-       {"type": "license", "id": "cassino", "text": "Obtenha a Licença de Cassino", "hint": "Exige Licença de Entretenimento."},
-       {"type": "stage", "target": 6, "text": "Inaugure o Grande Cassino", "hint": "Compre o Terreno Central e expanda."}
-     ]}
+    {
+      "id": "cap1",
+      "title": "Capítulo 1 — Sobreviver",
+      "ordered": true,
+      "reward_cash": 150,
+      "intro": "Você tem R$ 100 no bolso e muita vontade. Comece conhecendo a cidade.",
+      "objectives": [
+        {
+          "type": "bets_placed",
+          "target": 1,
+          "text": "Faça sua primeira aposta na Banca do Zé",
+          "hint": "Siga o feixe de luz até a Banca do Zé e aperte [E] no balcão."
+        },
+        {
+          "type": "jobs_done",
+          "target": 1,
+          "text": "Encontre um trabalho",
+          "hint": "O Depósito, o Mercado e a Loja oferecem trabalhos. Aperte [E] no quadro de trabalhos."
+        },
+        {
+          "type": "cash",
+          "target": 500,
+          "text": "Junte R$ 500",
+          "hint": "Trabalhe e aposte com cuidado. Use o celular [TAB] para ver os trabalhos."
+        }
+      ]
+    },
+    {
+      "id": "cap2",
+      "title": "Capítulo 2 — Juntar capital",
+      "ordered": true,
+      "reward_cash": 300,
+      "intro": "Para abrir uma banca você vai precisar de capital e de um alvará.",
+      "objectives": [
+        {
+          "type": "jobs_done",
+          "target": 10,
+          "text": "Complete 10 trabalhos",
+          "hint": "Trabalhos têm tempo de espera. Alterne entre eles."
+        },
+        {
+          "type": "cash",
+          "target": 6000,
+          "text": "Alcance R$ 6.000",
+          "hint": "Abrir a banca custa caro: alvará, contrato da sala e equipamentos. Trabalhe ou arrisque um empréstimo."
+        },
+        {
+          "type": "license",
+          "id": "basica",
+          "text": "Obtenha o Alvará Municipal de Apostas",
+          "hint": "Celular > Administração > Licenças."
+        }
+      ]
+    },
+    {
+      "id": "cap3",
+      "title": "Capítulo 3 — Abrir a primeira banca",
+      "ordered": true,
+      "reward_cash": 300,
+      "intro": "Hora de virar dono. A Sala Comercial ao lado do mercado está para alugar.",
+      "objectives": [
+        {
+          "type": "property_contract",
+          "text": "Alugue a Sala Comercial",
+          "hint": "Vá até a placa ALUGA-SE da Sala Comercial e aperte [E]."
+        },
+        {
+          "type": "equipment_category",
+          "id": "counter",
+          "target": 1,
+          "text": "Compre um balcão",
+          "hint": "Use o computador da banca ou a Loja de Eletrônicos > Equipamentos."
+        },
+        {
+          "type": "equipment_category",
+          "id": "computer",
+          "target": 1,
+          "text": "Compre um computador",
+          "hint": "Sem computador não é possível registrar apostas."
+        },
+        {
+          "type": "business_open",
+          "text": "Abra a banca",
+          "hint": "A banca abre das 09:00 às 23:00 quando tem balcão e computador."
+        }
+      ]
+    },
+    {
+      "id": "cap4",
+      "title": "Capítulo 4 — Conquistar clientes",
+      "ordered": true,
+      "reward_cash": 500,
+      "intro": "Clientes não esperam para sempre. Fique atrás do balcão para atendê-los.",
+      "objectives": [
+        {
+          "type": "customers_served",
+          "target": 10,
+          "text": "Atenda 10 clientes",
+          "hint": "Fique na área atrás do balcão: você atende automaticamente."
+        },
+        {
+          "type": "customers_served",
+          "target": 40,
+          "text": "Atenda 40 clientes",
+          "hint": "Filas longas derrubam a reputação."
+        },
+        {
+          "type": "reputation",
+          "target": 55,
+          "text": "Alcance reputação 55",
+          "hint": "Atendimento rápido e cadeiras de espera ajudam."
+        }
+      ]
+    },
+    {
+      "id": "cap5",
+      "title": "Capítulo 5 — Tornar a banca lucrativa",
+      "ordered": false,
+      "reward_cash": 1000,
+      "intro": "Receita não é lucro. Acompanhe o relatório diário.",
+      "objectives": [
+        {
+          "type": "profitable_days",
+          "target": 3,
+          "text": "Tenha 3 dias com lucro na operação",
+          "hint": "Margens maiores reduzem risco mas afastam clientes."
+        },
+        {
+          "type": "staff_count",
+          "target": 1,
+          "text": "Contrate seu primeiro funcionário",
+          "hint": "Administração > Funcionários. Um atendente libera você do balcão."
+        }
+      ]
+    },
+    {
+      "id": "cap6",
+      "title": "Capítulo 6 — Expandir",
+      "ordered": true,
+      "reward_cash": 3000,
+      "intro": "A banca ficou pequena. Hora de crescer.",
+      "objectives": [
+        {
+          "type": "stage",
+          "target": 2,
+          "text": "Transforme em Banca Profissional",
+          "hint": "Administração > Propriedades > Expansão."
+        },
+        {
+          "type": "license",
+          "id": "comercial",
+          "text": "Obtenha a Licença Comercial",
+          "hint": "Exige nível, reputação e câmera de segurança."
+        },
+        {
+          "type": "stage",
+          "target": 3,
+          "text": "Abra o Salão de Apostas",
+          "hint": "Alugue o Salão da Avenida e expanda para lá."
+        }
+      ]
+    },
+    {
+      "id": "cap7",
+      "title": "Capítulo 7 — Comprar propriedade",
+      "ordered": false,
+      "reward_cash": 5000,
+      "intro": "Aluguel é dinheiro que não volta. Patrimônio é poder.",
+      "objectives": [
+        {
+          "type": "own_property",
+          "target": 1,
+          "text": "Compre um imóvel",
+          "hint": "Comprar remove o aluguel e aumenta o patrimônio."
+        }
+      ]
+    },
+    {
+      "id": "cap8",
+      "title": "Capítulo 8 — Enfrentar a concorrência",
+      "ordered": false,
+      "reward_cash": 15000,
+      "intro": "Lucky Bet e Royal Apostas não vão facilitar.",
+      "objectives": [
+        {
+          "type": "market_share",
+          "target": 0.45,
+          "text": "Conquiste 45% do mercado",
+          "hint": "Reputação, odds, promoções e conforto disputam clientes."
+        },
+        {
+          "type": "reputation",
+          "target": 65,
+          "text": "Alcance reputação 65",
+          "hint": "Segurança e bom atendimento contam muito."
+        }
+      ]
+    },
+    {
+      "id": "cap9",
+      "title": "Capítulo 9 — Operação online",
+      "ordered": true,
+      "reward_cash": 30000,
+      "intro": "A cidade é pequena. A internet não.",
+      "objectives": [
+        {
+          "type": "license",
+          "id": "digital",
+          "text": "Obtenha a Licença Digital",
+          "hint": "Administração > Licenças."
+        },
+        {
+          "type": "online_open",
+          "text": "Lance seu site",
+          "hint": "Celular > Operação Online."
+        },
+        {
+          "type": "online_users",
+          "target": 250,
+          "text": "Alcance 250 usuários online",
+          "hint": "Marketing e servidores atraem e sustentam usuários."
+        }
+      ]
+    },
+    {
+      "id": "cap10",
+      "title": "Capítulo 10 — Grande operação",
+      "ordered": false,
+      "reward_cash": 100000,
+      "intro": "Você joga na primeira divisão agora.",
+      "objectives": [
+        {
+          "type": "stage",
+          "target": 5,
+          "text": "Abra o Galpão de Entretenimento",
+          "hint": "Exige Licença de Grande Operação."
+        },
+        {
+          "type": "net_worth",
+          "target": 1500000,
+          "text": "Patrimônio líquido de R$ 1.500.000",
+          "hint": "Imóveis, equipamentos e caixa contam."
+        }
+      ]
+    },
+    {
+      "id": "final",
+      "title": "Capítulo Final — O Grande Cassino",
+      "ordered": true,
+      "reward_cash": 0,
+      "final": true,
+      "intro": "Um último passo: o Grande Cassino da cidade.",
+      "objectives": [
+        {
+          "type": "license",
+          "id": "cassino",
+          "text": "Obtenha a Licença de Cassino",
+          "hint": "Exige Licença de Entretenimento."
+        },
+        {
+          "type": "stage",
+          "target": 6,
+          "text": "Inaugure o Grande Cassino",
+          "hint": "Compre o Terreno Central e expanda."
+        }
+      ]
+    }
   ],
   "secondary": [
-    {"id": "s_vitorias", "type": "bets_won", "target": 5, "text": "Ganhe 5 apostas pessoais", "reward_cash": 200},
-    {"id": "s_trabalhador", "type": "jobs_done", "target": 20, "text": "Complete 20 trabalhos", "reward_cash": 400},
-    {"id": "s_gerente", "type": "staff_role", "id": "gerente", "target": 1, "text": "Contrate um gerente", "reward_cash": 2000},
-    {"id": "s_equipe", "type": "staff_count", "target": 5, "text": "Tenha 5 funcionários", "reward_cash": 3000},
-    {"id": "s_rep80", "type": "reputation", "target": 80, "text": "Alcance reputação 80", "reward_cash": 10000},
-    {"id": "s_caixa100k", "type": "cash", "target": 100000, "text": "Tenha R$ 100.000 em caixa", "reward_cash": 5000},
-    {"id": "s_casa", "type": "own_investment", "target": 1, "text": "Compre uma casa para alugar", "reward_cash": 2000},
-    {"id": "s_seguranca", "type": "frauds_blocked", "target": 3, "text": "Bloqueie 3 tentativas de exploração", "reward_cash": 1500},
-    {"id": "s_concorrente", "type": "competitors_defeated", "target": 1, "text": "Adquira ou supere um concorrente", "reward_cash": 20000},
-    {"id": "s_atender500", "type": "customers_served", "target": 500, "text": "Atenda 500 clientes", "reward_cash": 8000}
+    {
+      "id": "s_vitorias",
+      "type": "bets_won",
+      "target": 5,
+      "text": "Ganhe 5 apostas pessoais",
+      "reward_cash": 200
+    },
+    {
+      "id": "s_trabalhador",
+      "type": "jobs_done",
+      "target": 20,
+      "text": "Complete 20 trabalhos",
+      "reward_cash": 400
+    },
+    {
+      "id": "gerente",
+      "type": "staff_role",
+      "target": 1,
+      "text": "Contrate um gerente",
+      "reward_cash": 2000
+    },
+    {
+      "id": "s_equipe",
+      "type": "staff_count",
+      "target": 5,
+      "text": "Tenha 5 funcionários",
+      "reward_cash": 3000
+    },
+    {
+      "id": "s_rep80",
+      "type": "reputation",
+      "target": 80,
+      "text": "Alcance reputação 80",
+      "reward_cash": 10000
+    },
+    {
+      "id": "s_caixa100k",
+      "type": "cash",
+      "target": 100000,
+      "text": "Tenha R$ 100.000 em caixa",
+      "reward_cash": 5000
+    },
+    {
+      "id": "s_casa",
+      "type": "own_investment",
+      "target": 1,
+      "text": "Compre uma casa para alugar",
+      "reward_cash": 2000
+    },
+    {
+      "id": "s_seguranca",
+      "type": "frauds_blocked",
+      "target": 3,
+      "text": "Bloqueie 3 tentativas de exploração",
+      "reward_cash": 1500
+    },
+    {
+      "id": "s_concorrente",
+      "type": "competitors_defeated",
+      "target": 1,
+      "text": "Adquira ou supere um concorrente",
+      "reward_cash": 20000
+    },
+    {
+      "id": "s_atender500",
+      "type": "customers_served",
+      "target": 500,
+      "text": "Atenda 500 clientes",
+      "reward_cash": 8000
+    }
   ]
 }

@@ -66,6 +66,18 @@ func _run() -> void:
 		await _frames(2)
 		_ok(game.sim.betting.place_player_bet(ev.id, 0, 20), "aposta pelo app")
 		ui.close_window()
+	# Cassino Estrela: entra e joga numa máquina pelo [E]
+	var cas: CornerCasino = world.city.get_node("cassino_estrela")
+	world.player.teleport(cas.to_global(Vector3(-CornerCasino.W / 2 + 2.3, 0.4, CornerCasino.D / 2 - 5.0)))
+	await _frames(15)
+	var ct = world.player.current_target()
+	_ok(ct != null and ct.get_prompt().begins_with("Jogar"), "máquina do cassino interativa: " + (ct.get_prompt() if ct else "nenhuma"))
+	if ct:
+		ct.interact()
+		await _frames(3)
+		_ok(ui.window.visible and ui.current_app.game != "", "jogo aberto direto pela máquina: " + str(ui.current_app.game))
+		ui.close_window()
+	_ok(not cas.roof.visible, "teto some dentro do cassino")
 	# Trabalho de entrega: aceita e completa caminhando até o marcador
 	game.sim.time.minute = 600
 	_ok(game.sim.jobs.start("carregar"), "trabalho de carga aceito")
@@ -98,7 +110,8 @@ func _run() -> void:
 	ui._modal_closed()
 	var sim = game.sim
 	sim.auto_decide = true
-	sim.economy.earn(5000, EconomySystem.REWARD)
+	sim.economy.earn(9000, EconomySystem.REWARD)
+	sim.progression.add_xp(200)
 	_ok(sim.licenses.buy("basica"), "alvará comprado")
 	_ok(sim.properties.rent("sala_comercio"), "sala alugada")
 	_ok(sim.has_business(), "banca criada")
@@ -131,6 +144,13 @@ func _run() -> void:
 	await _frames(5)
 	served0 = sim.stat("customers_served")
 	for i in 120:
+		# neutraliza eventos aleatórios que parariam a banca durante o teste
+		for e in sim.business.equipment:
+			e.broken = false
+		sim.business.internet_down_until = 0
+		sim.business.equipment_revision += 1
+		for e in sim.employees.staff:
+			e.absent = false
 		sim.advance(2)
 		await get_tree().process_frame
 	if sim.stat("customers_served") <= served0:

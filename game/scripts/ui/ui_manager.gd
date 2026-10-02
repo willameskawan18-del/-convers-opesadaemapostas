@@ -121,10 +121,10 @@ func _on_new_game(p_name: String, brand: String) -> void:
 	Game.new_game(p_name, brand)
 	_enter_game()
 	_queue_modal(func(): return Dialogs.message(modal_layer, "BEM-VINDO À CIDADE", [
-		"Você tem R$ 100 no bolso. Nada de banca, nada de clientes — ainda.",
-		"Aposte com cuidado, faça trabalhos e junte capital para abrir sua primeira banca.",
-		"WASD andar  |  SHIFT correr  |  E interagir  |  TAB celular  |  T velocidade do tempo",
-		"Siga o feixe de luz dourado: ele aponta para o seu objetivo."], "VAMOS LÁ", func(): _modal_closed(), UiKit.GOLD, 28))
+		"Você começa com R$ 100. O objetivo é virar dono de um grande cassino.",
+		"Siga o feixe de luz dourado: ele mostra o próximo passo.",
+		"Quer se divertir? O CASSINO ESTRELA, na avenida, está sempre aberto.",
+		"WASD anda  ·  SHIFT corre  ·  E interage  ·  TAB abre o celular"], "COMEÇAR", func(): _modal_closed(), UiKit.GOLD, 28))
 
 
 func _enter_game() -> void:
@@ -214,6 +214,7 @@ func _on_ui_request(kind: String, arg: Variant) -> void:
 		"lot": open_app("lot", arg)
 		"competitor": open_app("competitor", arg)
 		"casino_hall": open_app("cassino", arg)
+		"casino_game": open_app("cassino", arg)
 		"shop": open_app("admin:equipment")
 		"admin": open_app("admin", arg)
 		_: open_app(kind, arg)

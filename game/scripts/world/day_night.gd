@@ -106,7 +106,7 @@ func _ready() -> void:
 	env.fog_enabled = true
 	env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
 	env.fog_sun_scatter = 0.25
-	env.fog_aerial_perspective = 0.4
+	env.fog_aerial_perspective = 0.25
 	env.adjustment_enabled = true
 	env.adjustment_contrast = 1.06
 	env.adjustment_saturation = 1.12
@@ -126,7 +126,7 @@ func _apply_settings() -> void:
 	env.ssao_enabled = q >= 1
 	env.ssil_enabled = q >= 2
 	env.glow_enabled = true
-	env.fog_density = [0.007, 0.0038, 0.0022][clampi(int(Settings.get_value("render_distance")), 0, 2)]
+	env.fog_density = [0.005, 0.0026, 0.0015][clampi(int(Settings.get_value("render_distance")), 0, 2)]
 	RenderingServer.directional_shadow_atlas_set_size([2048, 4096, 4096][clampi(q, 0, 2)], true)
 
 

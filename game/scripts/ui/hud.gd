@@ -37,7 +37,9 @@ func _ready() -> void:
 	_build_prompt()
 	_build_business()
 	_build_work()
-	var help := UiKit.label("[TAB] Celular   [E] Interagir   [SHIFT] Correr   [T] Velocidade   [V] Câmera   [ESC] Pausa", 13, Color(1, 1, 1, 0.55))
+	var mm := Minimap.new()
+	add_child(mm)
+	var help := UiKit.label("TAB celular   ·   E interagir   ·   ESC menu", 13, Color(1, 1, 1, 0.5))
 	help.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	help.position = Vector2(16, -28)
 	help.anchor_top = 1.0
@@ -163,7 +165,7 @@ func _process(delta: float) -> void:
 	if _delta_t > 0.0:
 		_delta_t -= delta
 		money_delta.modulate.a = clampf(_delta_t, 0.0, 1.0)
-	clock_label.text = "Dia %d (%s)  %s" % [sim.time.day, sim.time.weekday_name(), sim.time.clock_text()]
+	clock_label.text = "Dia %d  ·  %s  ·  %s" % [sim.time.day, sim.time.weekday_name(), sim.time.clock_text()]
 	speed_label.text = "TRABALHANDO" if sim.jobs.is_shift() else ("DORMINDO" if Game.sleeping else "x%d" % int(Game.time_speed()))
 	var vs := get_viewport_rect().size
 	prompt_panel.position = Vector2((vs.x - prompt_panel.size.x) / 2.0, vs.y - 120)
@@ -174,8 +176,10 @@ func _process(delta: float) -> void:
 		return
 	_tick = 0.25
 	rep_bar.value = sim.reputation.value
-	rep_label.text = "Reputação: %d (%s)" % [int(sim.reputation.value), sim.reputation.label()]
-	level_label.text = "Nível %d — %s   (%d/%d XP)" % [sim.progression.level, sim.progression.title(), sim.progression.xp, sim.progression.xp_to_next()]
+	rep_label.text = "Reputação da banca: %d (%s)" % [int(sim.reputation.value), sim.reputation.label()]
+	rep_label.visible = sim.has_business()
+	rep_bar.visible = sim.has_business()
+	level_label.text = "Nível %d · %s" % [sim.progression.level, sim.progression.title()]
 	xp_bar.max_value = sim.progression.xp_to_next()
 	xp_bar.value = sim.progression.xp
 	var st := ""
@@ -199,16 +203,16 @@ func _update_objective() -> void:
 		obj_bar.visible = false
 		obj_hint.visible = false
 		return
-	obj_title.text = str(ch.get("title", "")).to_upper()
+	obj_title.text = str(ch.get("title", "")).split("—")[-1].strip_edges().to_upper()
 	var o := sim.missions.current_objective()
 	if o.is_empty():
 		return
-	obj_text.text = "OBJETIVO: " + str(o.text)
+	obj_text.text = str(o.text)
 	var p := sim.missions.progress(o)
 	obj_bar.visible = float(p[1]) > 1.0
 	obj_bar.max_value = maxf(float(p[1]), 0.001)
 	obj_bar.value = clampf(float(p[0]), 0.0, float(p[1]))
-	obj_hint.visible = sim.missions.hints_enabled and o.has("hint")
+	obj_hint.visible = sim.missions.hints_enabled and o.has("hint") and sim.missions.chapter_index < 4
 	obj_hint.text = str(o.get("hint", ""))
 
 
@@ -235,17 +239,20 @@ func _update_business() -> void:
 	for c in biz_box.get_children():
 		c.queue_free()
 	var b = sim.business
-	biz_box.add_child(UiKit.label(sim.brand_name.to_upper(), 15, UiKit.GOLD))
+	biz_box.add_child(UiKit.bold(UiKit.label(sim.brand_name.to_upper(), 15, UiKit.GOLD)))
 	var open_txt := "ABERTA" if b.is_open() else "FECHADA"
 	if b.is_open() and not b.can_take_bets():
-		open_txt = "SEM SISTEMA"
+		open_txt = "PARADA"
 	UiKit.kv(biz_box, "Status", open_txt, UiKit.GREEN if open_txt == "ABERTA" else UiKit.RED)
-	UiKit.kv(biz_box, "Fila / no local", "%d / %d (máx %d)" % [sim.customers.queue_length(), sim.customers.inside_count(), b.capacity()])
-	UiKit.kv(biz_box, "Atendendo", "%d guichê(s)%s" % [sim.customers.active_servers(), "  + VOCÊ" if sim.player_at_counter else ""])
+	UiKit.kv(biz_box, "Fila", "%d pessoa(s)%s" % [sim.customers.queue_length(), " · você atende" if sim.player_at_counter else ""])
+	UiKit.kv(biz_box, "Lucro hoje", Fmt.money(sim.economy.business_profit_today()), UiKit.money_color(sim.economy.business_profit_today()))
 	var ex := sim.betting.total_exposure()
 	var risk := sim.betting.risk_level(ex.worst_net)
-	UiKit.kv(biz_box, "Exposição", Fmt.money(ex.worst_net))
-	UiKit.kv(biz_box, "Risco", risk, UiKit.risk_color(risk))
-	if ex.worst_net > sim.economy.cash:
-		biz_box.add_child(UiKit.label("ATENÇÃO: o caixa não cobre o pior cenário!", 13, UiKit.RED))
-	UiKit.kv(biz_box, "Lucro hoje", Fmt.money(sim.economy.business_profit_today()), UiKit.money_color(sim.economy.business_profit_today()))
+	if risk == "ALTO" or risk == "CRÍTICO":
+		UiKit.kv(biz_box, "Risco", risk, UiKit.risk_color(risk))
+	if ex.worst_net > sim.economy.cash and ex.bets > 0:
+		biz_box.add_child(UiKit.label("Cuidado: caixa não cobre o pior cenário", 12, UiKit.RED))
+	if not b.has_required_equipment():
+		biz_box.add_child(UiKit.label("Compre balcão e computador (tecla B)", 12, UiKit.ORANGE))
+	elif b.is_open() and not b.can_take_bets():
+		biz_box.add_child(UiKit.label("Equipamento quebrado: conserte (tecla B)", 12, UiKit.ORANGE))

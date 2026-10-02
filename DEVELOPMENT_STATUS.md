@@ -32,7 +32,7 @@ Jogo 3D de simulação/tycoon em **Godot 4.7** (projeto em `game/`). Dinheiro, a
 - **Vida na cidade:** 18 pedestres com IA (andar, parar, conversar, entrar em lojas), trânsito na avenida que para no sinal vermelho, atrás de outros carros e diante do jogador.
 - **Personagem:** terceira pessoa com SpringArm (não atravessa paredes), câmera mais próxima em ambientes internos, alternância para primeira pessoa, correr, pular, interagir, passos com som.
 - **Economia central** (`EconomySystem`): toda entrada e saída tem categoria; receitas, despesas, investimentos e financiamento separados; patrimônio líquido; relatório diário com análise (maior custo, maior problema, melhor resultado).
-- **Apostas simuladas:** futebol (1x2), basquete, tênis e corrida de kart; probabilidade interna, odds com margem, notícias que mudam as chances reais (apostas de valor), clássicos/finais com mais procura.
+- **Apostas simuladas:** futebol (1x2), basquete, tênis, vôlei, MMA, e-sports, corrida de kart e **corrida de cavalos rápida a cada 30 minutos** (animada); app com abas por esporte e bilhete em 3 passos; probabilidade interna, odds com margem, notícias que mudam as chances reais (apostas de valor), clássicos/finais com mais procura.
 - **Trabalhos:** 6 trabalhos (entregas com marcador no mapa, carga, turnos com tempo acelerado), recompensa variável, prazo, dificuldade, horários e tempo de espera.
 - **Banca e expansão:** 6 estágios (Pequena Banca → Banca Profissional → Salão → Grande Salão → Galpão → Grande Cassino), cada um com visual 3D próprio, capacidade, guichês, limite de funcionários, demanda, custos e requisitos (nível, reputação, licença, imóvel).
 - **Equipamentos:** 16 equipamentos de banca + 21 jogos de cassino, com custo, manutenção, energia, efeitos, quebras e conserto.
@@ -60,6 +60,12 @@ Jogo 3D de simulação/tycoon em **Godot 4.7** (projeto em `game/`). Dinheiro, a
 - **Áudio:** sons sintetizados (placeholders funcionais) para interface, notificações, caixa, passos, máquinas, vitória/derrota, música e ambiente; arquivos em `game/audio/<nome>.ogg|wav` substituem automaticamente.
 - **Debug (F12):** dinheiro, XP, avançar hora/dia, completar objetivo, reputação, falência, empréstimo, licenças, gerar evento, gerar cliente.
 
+- **Cassino Estrela (aberto desde o início):** cassino de esquina onde se entra a pé, com 5 áreas sinalizadas (Máquinas, Mesas de Cartas, Roleta & Roda, Jogos Rápidos, Sorte & Bingo), cada máquina/mesa com placa do jogo; aperte E para jogar.
+- **Minimapa** no canto superior direito com ruas, prédios, locais e objetivo.
+- **Movimento:** o personagem sobe degraus e meio-fios sozinho (até 45 cm); só precisa pular obstáculos maiores.
+- **Dificuldade inicial:** licença, aluguel e equipamentos mais caros; só 1 empréstimo ativo até o nível 6 (2 até o 12, 3 depois).
+- **Bairro brasileiro:** padaria, farmácia, lanchonete, mercadinho, caixas d'água, postes com fiação, palmeiras, ônibus circular, quintais, estacionamento, telões e letreiro de lâmpadas na banca.
+
 ## Parcialmente implementado
 
 - **Cassino 3D:** as máquinas e mesas aparecem no estabelecimento, mas os clientes do cassino são simulados (receita por hora), sem NPCs sentados nas mesas.
@@ -71,7 +77,6 @@ Jogo 3D de simulação/tycoon em **Godot 4.7** (projeto em `game/`). Dinheiro, a
 
 - Apostas múltiplas e ao vivo (a estrutura de bilhete já guarda o campo `market`).
 - Cooperativo (a simulação é separada do personagem para facilitar no futuro).
-- Mapa com minimapa no HUD (existe o app Mapa no celular).
 - Localização para outros idiomas.
 
 ## Como testar
@@ -98,5 +103,4 @@ Os testes cobrem economia, apostas, liquidação, RTP dos jogos de cassino, trab
 2. Apostas múltiplas e ao vivo.
 3. Interior visitável dos concorrentes.
 4. Trilha sonora e efeitos gravados.
-5. Minimapa e marcadores de navegação no HUD.
 6. Conquistas e estatísticas de carreira.

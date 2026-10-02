@@ -8,11 +8,11 @@
         1,
         2
       ],
-      "rent": 50,
-      "deposit": 300,
+      "rent": 80,
+      "deposit": 1500,
       "price": 30000,
       "upkeep": 8,
-      "min_level": 1,
+      "min_level": 2,
       "desc": "Uma salinha de 8x8m ao lado do mercado. Pequena, mas é um começo."
     },
     {

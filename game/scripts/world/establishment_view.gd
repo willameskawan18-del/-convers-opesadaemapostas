@@ -89,6 +89,8 @@ func build(def: Dictionary, p_stage: int, items: Array, brand: String, stage_nam
 		_interior_decor(st, city)
 	# Letreiro
 	_sign(brand.to_upper() if stage < 6 else "GRANDE CASSINO " + brand.to_upper(), stage_name.to_upper(), st, city)
+	if stage <= 2:
+		_facade_screens(st, city)
 	_layout_anchors()
 	_build_counters(items, trim_m)
 	_build_items(items, city)
@@ -96,6 +98,27 @@ func build(def: Dictionary, p_stage: int, items: Array, brand: String, stage_nam
 		_columns(trim_m)
 	if stage == 6:
 		_casino_facade(trim_m)
+
+
+## Banca de esquina: TVs na fachada (futebol e corrida de cavalos) e lâmpadas no letreiro.
+func _facade_screens(st: Dictionary, city: City) -> void:
+	var y := 2.5
+	var fz := d / 2 + 0.06
+	var field := Mats.glow(Color(0.15, 0.6, 0.2), 1.1)
+	var track := Mats.glow(Color(0.6, 0.4, 0.2), 1.0)
+	for sgn in [-1.0, 1.0]:
+		var x: float = sgn * (w / 2 - 1.1)
+		WorldKit.box(self, Vector3(1.4, 0.9, 0.08), Vector3(x, y, fz), Mats.plastic(Color(0.05, 0.05, 0.06), 0.3), false)
+		WorldKit.box(self, Vector3(1.25, 0.75, 0.03), Vector3(x, y, fz + 0.05), field if sgn < 0 else track, false)
+		WorldKit.box(self, Vector3(0.03, 0.75, 0.01), Vector3(x, y, fz + 0.07), Mats.glow(Color(1, 1, 1), 1.2), false)
+		WorldKit.label(self, "AO VIVO" if sgn < 0 else "TURFE", Vector3(x, y + 0.6, fz + 0.06), 24, Color(1, 1, 1), 4)
+	# lâmpadas em volta do letreiro
+	var sy := h + 0.9
+	var bulbs := Mats.glow(Color(1.0, 0.85, 0.45), 4.0)
+	for i in 14:
+		var bx := -w / 2 + 0.6 + i * (w - 1.2) / 13.0
+		WorldKit.sphere(self, 0.07, Vector3(bx, sy + 0.62, d / 2 + 0.2), bulbs)
+		WorldKit.sphere(self, 0.07, Vector3(bx, sy - 0.62, d / 2 + 0.2), bulbs)
 
 
 func _interior_decor(st: Dictionary, city: City) -> void:

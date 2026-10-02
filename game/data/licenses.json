@@ -3,8 +3,8 @@
   {
    "id": "basica",
    "name": "Alvará Municipal de Apostas",
-   "cost": 600,
-   "daily_fee": 3,
+   "cost": 1500,
+   "daily_fee": 8,
    "min_level": 1,
    "min_rep": 0,
    "min_stage": 0,

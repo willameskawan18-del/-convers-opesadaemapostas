@@ -8,6 +8,7 @@ const WALK := 4.2
 const RUN := 7.5
 const JUMP := 4.6
 const GRAVITY := 14.0
+const STEP_HEIGHT := 0.45    # sobe sozinho degraus/calçadas até esta altura
 
 var rig: CameraRig
 var model: Humanoid
@@ -28,6 +29,9 @@ func _ready() -> void:
 	col.shape = cap
 	col.position.y = 0.9
 	add_child(col)
+	floor_snap_length = 0.5
+	floor_max_angle = deg_to_rad(50.0)
+	floor_constant_speed = true
 	model = Humanoid.new()
 	add_child(model)
 	model.setup(Color(0.95, 0.75, 0.2), Color(0.12, 0.14, 0.22), Color(0.82, 0.6, 0.45), Color(0.08, 0.05, 0.03))
@@ -78,8 +82,16 @@ func _physics_process(delta: float) -> void:
 	var accel := 12.0 if is_on_floor() else 3.0
 	velocity.x = lerpf(velocity.x, target_v.x, minf(1.0, accel * delta))
 	velocity.z = lerpf(velocity.z, target_v.z, minf(1.0, accel * delta))
-	velocity.y -= GRAVITY * delta
+	if is_on_floor() and velocity.y <= 0.0:
+		velocity.y = -0.5
+	else:
+		velocity.y -= GRAVITY * delta
+	var was_on_floor := is_on_floor()
+	var pre_pos := global_position
+	var horiz := Vector3(velocity.x, 0, velocity.z)
 	move_and_slide()
+	if horiz.length() > 0.3 and (was_on_floor or is_on_floor()):
+		_try_step_up(pre_pos, horiz * delta)
 	if global_position.y < -20.0:
 		global_position = Vector3(global_position.x, 2.0, global_position.z)
 		velocity = Vector3.ZERO
@@ -92,6 +104,37 @@ func _physics_process(delta: float) -> void:
 			Audio.play("step", -14.0, randf_range(0.9, 1.1))
 	model.animate(flat.length(), delta)
 	_update_target()
+
+
+## Se bateu num obstáculo baixo (meio-fio, degrau, soleira), sobe nele sem precisar pular.
+func _try_step_up(pre_pos: Vector3, motion: Vector3) -> void:
+	var blocked := false
+	for i in get_slide_collision_count():
+		var c := get_slide_collision(i)
+		if c.get_normal().y < 0.72:
+			blocked = true
+			break
+	if not blocked:
+		return
+	var moved := Vector3(global_position.x - pre_pos.x, 0, global_position.z - pre_pos.z)
+	if moved.length() > motion.length() * 0.8:
+		return
+	var fwd := motion.normalized() * maxf(motion.length(), 0.12)
+	var t := global_transform
+	t.origin = pre_pos
+	var up := Vector3(0, STEP_HEIGHT, 0)
+	if test_move(t, up):
+		return
+	var t_up := t.translated(up)
+	if test_move(t_up, fwd):
+		return
+	var t_fwd := t_up.translated(fwd)
+	var hit := KinematicCollision3D.new()
+	if test_move(t_fwd, Vector3(0, -STEP_HEIGHT - 0.05, 0), hit):
+		if hit.get_normal().y < 0.7:
+			return
+		global_position = t_fwd.origin + hit.get_travel()
+		velocity.y = 0.0
 
 
 func _update_target() -> void:

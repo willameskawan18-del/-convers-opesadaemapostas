@@ -157,6 +157,10 @@ func asset_value() -> float:
 	return v
 
 
+func minute_fraction() -> float:
+	return _minute_acc
+
+
 ## Custos fixos que serão cobrados no fechamento do dia (sem aplicar).
 func forecast_daily_costs() -> Dictionary:
 	var costs: Dictionary = {}

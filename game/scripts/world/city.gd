@@ -120,17 +120,15 @@ func _build_bounds() -> void:
 	for z in range(-108, 109, 7):
 		for x in [-HALF - 7.0, HALF + 7.0]:
 			WorldKit.sphere(self, rng.randf_range(2.0, 3.2), Vector3(x + rng.randf_range(-1, 1), 1.2, z + rng.randf_range(-1.5, 1.5)), leaves)
-	var far_cols := [Color(0.62, 0.66, 0.72), Color(0.7, 0.68, 0.64), Color(0.55, 0.6, 0.68)]
-	for i in 26:
-		var ang := TAU * i / 26.0 + rng.randf_range(-0.05, 0.05)
-		var r := rng.randf_range(150.0, 185.0)
-		var h := rng.randf_range(18.0, 55.0)
-		var w := rng.randf_range(10.0, 22.0)
-		var p := Vector3(cos(ang) * r, h / 2, sin(ang) * r)
-		var b := WorldKit.box(self, Vector3(w, h, w), p, Mats.facade(far_cols[i % 3], 2), false)
-		b.rotation.y = -ang
-		var g := WorldKit.box(self, Vector3(w * 0.9, h * 0.85, 0.1), p + Vector3(cos(ang), 0, sin(ang)) * (-w / 2 - 0.06), Mats.window_glass(0.5), false)
-		g.rotation.y = -ang + PI / 2
+	# Morros verdes ao fundo (silhueta suave em vez de prédios soltos)
+	var hill := Mats.leaves(Color(0.24, 0.4, 0.2))
+	for i in 34:
+		var ang := TAU * i / 34.0 + rng.randf_range(-0.04, 0.04)
+		var r := rng.randf_range(150.0, 175.0)
+		var rad := rng.randf_range(16.0, 28.0)
+		var m := WorldKit.sphere(self, rad, Vector3(cos(ang) * r, -rad * 0.55, sin(ang) * r), hill)
+		m.scale = Vector3(1.6, 1.0, 1.6)
+		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 # --- Prédios -----------------------------------------------------------------
@@ -163,6 +161,20 @@ func _defs() -> Array:
 		{"id": "casa_6", "kind": "house", "lot": "casa_verde", "x": -5, "fz": 51.5, "dir": 1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.55, 0.78, 0.55)},
 		{"id": "casa_7", "kind": "house", "x": 15, "fz": 51.5, "dir": 1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.95, 0.94, 0.86)},
 		{"id": "casa_8", "kind": "house", "x": -85, "fz": 51.5, "dir": 1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.9, 0.74, 0.58)},
+		# Mais casas (bairro denso)
+		{"id": "casa_9", "kind": "house", "x": -75, "fz": -51.5, "dir": -1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.96, 0.82, 0.55)},
+		{"id": "casa_10", "kind": "house", "x": -55, "fz": -51.5, "dir": -1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.85, 0.6, 0.5)},
+		{"id": "casa_11", "kind": "house", "x": -27, "fz": -51.5, "dir": -1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.7, 0.85, 0.8)},
+		{"id": "casa_12", "kind": "house", "x": 18, "fz": -51.5, "dir": -1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.98, 0.9, 0.62)},
+		{"id": "casa_13", "kind": "house", "x": 27, "fz": -51.5, "dir": -1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.82, 0.74, 0.9)},
+		{"id": "casa_14", "kind": "house", "x": -65, "fz": 51.5, "dir": 1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.94, 0.7, 0.5)},
+		{"id": "casa_15", "kind": "house", "x": -15, "fz": 51.5, "dir": 1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.75, 0.88, 0.95)},
+		{"id": "casa_16", "kind": "house", "x": 25, "fz": 51.5, "dir": 1, "w": 9, "d": 9, "h": 5.5, "color": Color(0.95, 0.85, 0.75)},
+		# Comércio de bairro
+		{"id": "padaria", "kind": "shop", "name": "PADARIA PÃO QUENTE", "x": -2.5, "fz": 9.5, "dir": -1, "w": 8, "d": 9, "h": 6.5, "color": Color(0.88, 0.55, 0.32), "facade": 0, "awning": Color(0.85, 0.35, 0.15), "awning2": Color(0.98, 0.92, 0.8), "tables": true, "sign_color": Color(1.0, 0.8, 0.45)},
+		{"id": "farmacia", "kind": "shop", "name": "FARMÁCIA", "x": 1, "fz": -9.5, "dir": 1, "w": 5.6, "d": 8, "h": 7.5, "color": Color(0.92, 0.94, 0.95), "facade": 2, "awning": Color(0.1, 0.6, 0.35), "awning2": Color(0.95, 0.98, 0.95), "cross": true, "sign_color": Color(0.3, 1.0, 0.55)},
+		{"id": "lanchonete", "kind": "shop", "name": "LANCHONETE", "x": 27, "fz": 9.5, "dir": -1, "w": 8, "d": 9, "h": 5.5, "color": Color(0.95, 0.78, 0.35), "facade": 0, "awning": Color(0.8, 0.15, 0.15), "awning2": Color(0.98, 0.95, 0.85), "tables": true, "sign_color": Color(1.0, 0.5, 0.35)},
+		{"id": "mercadinho", "kind": "shop", "name": "MERCADINHO", "x": 65, "fz": -9.5, "dir": 1, "w": 8, "d": 10, "h": 5.5, "color": Color(0.7, 0.82, 0.88), "facade": 0, "awning": Color(0.15, 0.4, 0.75), "awning2": Color(0.95, 0.95, 0.95), "sign_color": Color(0.6, 0.85, 1.0)},
 	]
 
 
@@ -182,6 +194,9 @@ func _build_buildings() -> void:
 		match str(d.get("kind", "")):
 			"kiosk":
 				_kiosk(node, d)
+			"shop":
+				_generic(node, d)
+				_shop_extras(node, d)
 			"house":
 				_house(node, d)
 			_:
@@ -195,6 +210,13 @@ func _build_buildings() -> void:
 	points["ponto_onibus"] = Vector3(30, 0, 7.8)
 	points["spawn"] = Vector3(-80, 0.2, -7.0)
 	_truck(Vector3(-32, 0, -4.9))
+	# Cassino Estrela (aberto desde o início, interior visitável)
+	var casino := CornerCasino.new()
+	casino.name = "cassino_estrela"
+	add_child(casino)
+	casino.build(25.5, -9.5, 1.0, self)
+	points["cassino"] = Vector3(25.5, 0, -7.6)
+	door_points.append(points["cassino"])
 
 
 func _facade_basis(d: Dictionary) -> Dictionary:
@@ -284,6 +306,39 @@ func _generic(node: Node3D, d: Dictionary) -> void:
 	var sc: Color = d.get("sign_color", Color(1, 0.85, 0.3))
 	var sl := _sign(node, str(d.name), Vector3(d.x, 4.2, fz + dir * 0.14), dir, sc, 60)
 	comp_signs[d.id] = sl
+
+
+## Detalhes de comércio de bairro: mesinhas com guarda-sol, cruz da farmácia, caixa d'água.
+func _shop_extras(node: Node3D, d: Dictionary) -> void:
+	var b := _facade_basis(d)
+	var dir: float = b.dir
+	var fz: float = b.fz
+	if d.get("tables", false):
+		var umbrella_cols := [Color(0.9, 0.3, 0.15), Color(0.95, 0.85, 0.3)]
+		for k in 2:
+			var tp := Vector3(float(d.x) - 2.0 + k * 4.0, 0.15, fz + dir * 2.2)
+			WorldKit.cylinder(node, 0.45, 0.05, tp + Vector3(0, 0.75, 0), Mats.plastic(Color(0.95, 0.95, 0.92)), 14)
+			WorldKit.cylinder(node, 0.04, 0.75, tp + Vector3(0, 0.37, 0), Mats.metal(), 6)
+			WorldKit.cylinder(node, 0.025, 2.2, tp + Vector3(0, 1.1, 0), Mats.metal(), 6)
+			var umb := MeshInstance3D.new()
+			var cone := CylinderMesh.new()
+			cone.top_radius = 0.05
+			cone.bottom_radius = 1.2
+			cone.height = 0.45
+			cone.radial_segments = 8
+			umb.mesh = cone
+			umb.material_override = Mats.awning(umbrella_cols[k], Color(0.98, 0.95, 0.88))
+			umb.position = tp + Vector3(0, 2.25, 0)
+			node.add_child(umb)
+			for sgn in [-1.0, 1.0]:
+				WorldKit.cylinder(node, 0.2, 0.45, tp + Vector3(sgn * 0.75, 0.23, 0), Mats.plastic(Color(0.9, 0.9, 0.88)), 8)
+	if d.get("cross", false):
+		var cp := Vector3(float(d.x) + float(d.w) / 2.0 - 0.2, 4.6, fz + dir * 0.6)
+		var gm := Mats.glow(Color(0.15, 1.0, 0.45), 3.0)
+		WorldKit.box(node, Vector3(0.12, 1.1, 0.35), cp, gm, false)
+		WorldKit.box(node, Vector3(0.12, 0.35, 1.1), cp, gm, false)
+	var tank: Vector3 = b.center + Vector3(float(d.w) * 0.2, float(d.h) + 1.2, 0)
+	WorldKit.cylinder(node, 0.6, 0.85, tank, Mats.plastic(Color(0.15, 0.4, 0.75), 0.5), 14)
 
 
 func _sign(node: Node3D, text: String, pos: Vector3, dir: float, glow_col: Color, size: int = 60) -> Label3D:
@@ -379,6 +434,11 @@ func _house(node: Node3D, d: Dictionary) -> void:
 	var bush := Mats.leaves(Color(0.22, 0.45, 0.2))
 	for side in [-1, 1]:
 		WorldKit.sphere(node, 0.6, Vector3(float(d.x) + side * 3.3, 0.55, fz + dir * 1.2), bush)
+	# Caixa d'água azul no telhado (bem brasileiro)
+	if hash(str(d.id)) % 3 != 0:
+		var tank := c + Vector3(-w * 0.22, wall_h + 1.6, -dir * depth * 0.15)
+		WorldKit.cylinder(node, 0.55, 0.8, tank, Mats.plastic(Color(0.15, 0.4, 0.75), 0.5), 14)
+		WorldKit.cylinder(node, 0.58, 0.08, tank + Vector3(0, 0.44, 0), Mats.plastic(Color(0.1, 0.32, 0.62), 0.5), 14)
 	if d.has("lot"):
 		lots[d.lot]["sign_pos"] = Vector3(float(d.x) + 3.0, 0, fz + dir * 1.9)
 
@@ -522,6 +582,26 @@ func _build_street_props() -> void:
 		car.rotation.y = 0.0 if i % 2 == 0 else PI
 		props.add_child(car)
 		i += 1
+	# Postes de energia com fiação (calçadas da avenida)
+	for z in [-8.6, 8.6]:
+		var prev := Vector3.INF
+		for x in range(-96, 97, 18):
+			if absf(x - CROSS_X[0]) < 7 or absf(x - CROSS_X[1]) < 7:
+				prev = Vector3.INF
+				continue
+			var top := _utility_pole(props, Vector3(x + 4, 0.15, z))
+			if prev != Vector3.INF:
+				_wire(props, prev, top)
+				_wire(props, prev + Vector3(0, -0.5, 0.4), top + Vector3(0, -0.5, 0.4))
+			prev = top
+	# Palmeiras
+	for pp in [Vector3(-29, 0.1, 11.5), Vector3(-7, 0.1, 11.5), Vector3(-29, 0.1, 25.5), Vector3(-7, 0.1, 25.5), Vector3(33.5, 0.15, -14), Vector3(-33.5, 0.15, 14), Vector3(33.5, 0.15, 30), Vector3(-33.5, 0.15, -30)]:
+		_palm(props, pp)
+	# Bueiros
+	var manhole := Mats.metal(Color(0.18, 0.18, 0.19), 0.6)
+	for x in range(-90, 91, 23):
+		WorldKit.cylinder(props, 0.42, 0.03, Vector3(x + 5, 0.03, -2.6 if (x / 23) % 2 == 0 else 2.6), manhole, 16)
+	_build_backyards(props)
 	# Outdoors
 	_billboard(props, Vector3(-40, 0, -24), PI / 2, "LUCKY BET", "ODDS TURBINADAS TODO DIA", Color(0.15, 0.55, 0.3), Color(1.0, 0.85, 0.2))
 	_billboard(props, Vector3(40, 0, 24), -PI / 2, "ROYAL APOSTAS", "SALÃO DE JOGOS ABERTO 24H", Color(0.35, 0.12, 0.4), Color(1.0, 0.82, 0.35))
@@ -544,6 +624,110 @@ func _lamp(parent: Node, pos: Vector3, side: float, with_light: bool) -> void:
 		l.shadow_enabled = false
 		parent.add_child(l)
 		day_night.register_light(l)
+
+
+## Fundo dos quarteirões: quintais com árvores, muros, varais e um estacionamento.
+func _build_backyards(props: Node3D) -> void:
+	var wall := Mats.facade(Color(0.82, 0.78, 0.7), 0)
+	# Faixas entre os prédios da avenida e as casas da rua de trás
+	for zr in [[-40.0, -26.0], [26.0, 40.0]]:
+		for x in range(-92, 93, 7):
+			if absf(x - CROSS_X[0]) < 9 or absf(x - CROSS_X[1]) < 9:
+				continue
+			if zr[0] > 0 and x > 48:
+				continue  # terreno central
+			if zr[0] > 0 and x > -72 and x < -48:
+				continue  # galpão
+			if zr[0] < 0 and x >= 19 and x <= 32:
+				continue  # cassino
+			var z := rng.randf_range(float(zr[0]), float(zr[1]))
+			var r := rng.randf()
+			if r < 0.45:
+				_tree(props, Vector3(x + rng.randf_range(-2, 2), 0, z), rng.randf_range(0.8, 1.3))
+			elif r < 0.6:
+				_palm(props, Vector3(x, 0, z))
+			elif r < 0.75:
+				WorldKit.box(props, Vector3(3.0, 2.4, 2.6), Vector3(x, 1.2, z), Mats.facade(Color(0.9, 0.85, 0.75).darkened(rng.randf() * 0.2), 0))
+				WorldKit.box(props, Vector3(3.3, 0.15, 2.9), Vector3(x, 2.45, z), Mats.metal(Color(0.6, 0.6, 0.62), 0.5))
+			else:
+				WorldKit.sphere(props, rng.randf_range(0.7, 1.1), Vector3(x, 0.6, z), Mats.leaves(Color(0.25, 0.45, 0.2)))
+		# muros de divisa
+		for x in range(-90, 91, 14):
+			if absf(x - CROSS_X[0]) < 9 or absf(x - CROSS_X[1]) < 9:
+				continue
+			if zr[0] > 0 and (x > 48 or (x > -72 and x < -48)):
+				continue
+			if zr[0] < 0 and x >= 16 and x <= 34:
+				continue
+			WorldKit.box(props, Vector3(0.2, 1.6, 12.0), Vector3(x + 3.5, 0.8, (float(zr[0]) + float(zr[1])) / 2.0), wall)
+	# Estacionamento atrás da loja e do mercado
+	var lot_c := Vector3(-2.0, 0.03, -32.0)
+	WorldKit.box(props, Vector3(18.0, 0.04, 9.0), lot_c, Mats.asphalt(), false)
+	for k in 6:
+		WorldKit.box(props, Vector3(0.12, 0.02, 4.0), lot_c + Vector3(-7.5 + k * 3.0, 0.03, -2.0), c_line, false)
+	for k in 4:
+		var car := CarModel.build(CarModel.COLORS[(k * 3 + 1) % CarModel.COLORS.size()], true)
+		car.position = lot_c + Vector3(-6.0 + k * 3.0 + (1.5 if k > 1 else 0.0), 0.0, -2.0)
+		car.rotation.y = PI / 2
+		props.add_child(car)
+
+
+func _utility_pole(parent: Node, pos: Vector3) -> Vector3:
+	var wood := Mats.facade(Color(0.55, 0.55, 0.52), 2)
+	WorldKit.cylinder(parent, 0.13, 8.0, pos + Vector3(0, 4.0, 0), wood, 8)
+	WorldKit.box(parent, Vector3(0.12, 0.12, 1.4), pos + Vector3(0, 7.6, 0.2), wood)
+	for k in 3:
+		WorldKit.cylinder(parent, 0.05, 0.12, pos + Vector3(0, 7.72, -0.4 + k * 0.4), Mats.plastic(Color(0.85, 0.85, 0.8)), 6)
+	if hash(pos) % 3 == 0:
+		WorldKit.cylinder(parent, 0.28, 0.7, pos + Vector3(0, 6.6, 0.25), Mats.metal(Color(0.5, 0.52, 0.55), 0.5), 10)
+	return pos + Vector3(0, 7.75, 0)
+
+
+## Fio com barriga entre dois postes (segmentos finos).
+func _wire(parent: Node, a: Vector3, b: Vector3) -> void:
+	var segs := 6
+	var m := Mats.plastic(Color(0.06, 0.06, 0.07), 0.6)
+	var prev := a
+	for i in range(1, segs + 1):
+		var t := float(i) / segs
+		var p := a.lerp(b, t) + Vector3(0, -sin(t * PI) * 0.7, 0)
+		var mid := (prev + p) / 2.0
+		var len := prev.distance_to(p)
+		var mi := MeshInstance3D.new()
+		var c := CylinderMesh.new()
+		c.top_radius = 0.015
+		c.bottom_radius = 0.015
+		c.height = len
+		c.radial_segments = 4
+		c.rings = 1
+		mi.mesh = c
+		mi.material_override = m
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		parent.add_child(mi)
+		mi.position = mid
+		mi.look_at_from_position(mid, p, Vector3.UP if absf((p - prev).normalized().y) < 0.99 else Vector3.RIGHT)
+		mi.rotate_object_local(Vector3.RIGHT, PI / 2)
+		prev = p
+
+
+func _palm(parent: Node, pos: Vector3) -> void:
+	var trunk := Mats.bark()
+	var lean := Vector3(rng.randf_range(-0.25, 0.25), 0, rng.randf_range(-0.25, 0.25))
+	var p := pos
+	for i in 6:
+		var seg := WorldKit.cylinder(parent, 0.2 - i * 0.015, 1.1, p + Vector3(0, 0.55, 0), trunk, 8)
+		seg.rotation = Vector3(lean.z * 0.3, 0, -lean.x * 0.3)
+		p += Vector3(lean.x * 0.25, 1.05, lean.z * 0.25)
+	var leaves := Mats.leaves(Color(0.22, 0.48, 0.18))
+	for k in 9:
+		var a := TAU * k / 9.0
+		var frond := Node3D.new()
+		frond.position = p
+		frond.rotation = Vector3(0, a, 0)
+		parent.add_child(frond)
+		var leaf := WorldKit.box(frond, Vector3(0.5, 0.05, 2.6), Vector3(0, -0.35, 1.2), leaves)
+		leaf.rotation.x = 0.45
+	WorldKit.sphere(parent, 0.35, p, Mats.plastic(Color(0.35, 0.25, 0.12), 0.8))
 
 
 func _trash(parent: Node, pos: Vector3) -> void:

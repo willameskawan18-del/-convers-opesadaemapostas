@@ -2,8 +2,8 @@ class_name Notifications
 extends VBoxContainer
 ## Notificações discretas no canto superior direito (não ocupam a tela).
 
-const MAX := 5
-const DURATION := 5.0
+const MAX := 3
+const DURATION := 4.5
 
 const KIND_COLORS := {
 	"error": UiKit.RED, "lose": UiKit.RED, "warning": UiKit.ORANGE,
@@ -28,7 +28,7 @@ func _ready() -> void:
 
 func _process(_d: float) -> void:
 	var vs := get_viewport_rect().size
-	position = Vector2(vs.x - 380, 16)
+	position = Vector2(vs.x - 380 - 226, 16)
 	custom_minimum_size.x = 364
 
 

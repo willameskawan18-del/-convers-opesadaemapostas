@@ -14,6 +14,7 @@ var _by_vid: Dictionary = {}       # vid -> índice no pool
 var _staff_npcs: Dictionary = {}   # id -> Humanoid
 var _staff_labels: Dictionary = {}
 var _type_colors: Dictionary = {}
+var _was_inside := false
 
 
 func _ready() -> void:
@@ -60,8 +61,9 @@ func _process(delta: float) -> void:
 		sim.player_at_counter = view.is_behind_counter(player.global_position) and sim.business.is_open()
 		var inside := view.is_inside(player.global_position)
 		view.roof.visible = not inside
-		if player is PlayerController:
+		if player is PlayerController and inside != _was_inside:
 			player.rig.set_indoor(inside)
+		_was_inside = inside
 	_sync_customers(delta)
 	_sync_staff(delta)
 

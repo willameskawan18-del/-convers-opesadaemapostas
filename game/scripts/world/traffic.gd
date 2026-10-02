@@ -27,9 +27,42 @@ func _ready() -> void:
 			node.position = Vector3(x, 0.02, lane.z)
 			node.rotation.y = 0.0 if lane.dir > 0 else PI
 			cars.append({"node": node, "lane": lane, "speed": SPEED * rng.randf_range(0.8, 1.1), "v": 0.0})
+	# Ônibus amarelo que para no ponto
+	var bus := _build_bus()
+	add_child(bus)
+	bus.position = Vector3(80, 0.02, LANES[1].z)
+	bus.rotation.y = PI
+	cars.append({"node": bus, "lane": LANES[1], "speed": 7.0, "v": 0.0, "bus": true, "stop_t": 0.0, "stopped_lap": false})
 	for x in LIGHT_X:
 		for side in [-1.0, 1.0]:
 			_build_light(Vector3(x - side * 6.5, 0, side * 7.6), side)
+
+
+func _build_bus() -> Node3D:
+	var b := Node3D.new()
+	var yellow := Mats.car_paint(Color(0.98, 0.75, 0.1))
+	WorldKit.box(b, Vector3(10.0, 2.4, 2.5), Vector3(0, 1.6, 0), yellow)
+	WorldKit.box(b, Vector3(9.4, 0.9, 2.52), Vector3(-0.2, 2.15, 0), Mats.window_glass(0.0), false)
+	WorldKit.box(b, Vector3(10.05, 0.18, 2.55), Vector3(0, 1.25, 0), Mats.car_paint(Color(0.1, 0.45, 0.25)), false)
+	WorldKit.box(b, Vector3(0.06, 1.3, 2.2), Vector3(5.02, 2.0, 0), Mats.window_glass(0.0), false)
+	WorldKit.box(b, Vector3(0.08, 0.3, 1.6), Vector3(5.03, 2.85, 0), Mats.glow(Color(1.0, 0.6, 0.1), 2.0), false)
+	for z in [-0.85, 0.85]:
+		WorldKit.box(b, Vector3(0.06, 0.18, 0.4), Vector3(5.03, 0.8, z), Mats.glow(Color(1, 0.97, 0.85), 2.5), false)
+		WorldKit.box(b, Vector3(0.06, 0.18, 0.4), Vector3(-5.03, 0.8, z), Mats.glow(Color(1, 0.1, 0.08), 2.0), false)
+	var tire := Mats.plastic(Color(0.05, 0.05, 0.05), 0.85)
+	var wheels: Array = []
+	for x in [-3.3, 3.3]:
+		for z in [-1.15, 1.15]:
+			var w := Node3D.new()
+			w.position = Vector3(x, 0.5, z)
+			b.add_child(w)
+			var t := WorldKit.cylinder(w, 0.5, 0.3, Vector3.ZERO, tire, 14)
+			t.rotation.x = PI / 2
+			wheels.append(w)
+	var l := WorldKit.label(b, "CIRCULAR - CENTRO", Vector3(0, 2.75, 1.27), 40, Color(0.1, 0.3, 0.15), 0)
+	l.modulate = Color(0.08, 0.3, 0.15)
+	b.set_meta("wheels", wheels)
+	return b
 
 
 func _build_light(pos: Vector3, side: float) -> void:
@@ -91,6 +124,18 @@ func _process(delta: float) -> void:
 				var dist: float = (stop_x - x) * dir
 				if dist > 0.0 and dist < 14.0:
 					target_v = minf(target_v, maxf(0.0, dist - 1.0) * 1.2)
+		# Ônibus para no ponto (x = 30) uma vez por volta
+		if c.get("bus", false):
+			var dist_stop: float = (30.0 - x) * dir
+			if not c.stopped_lap and dist_stop > 0.0 and dist_stop < 12.0:
+				target_v = minf(target_v, maxf(0.0, dist_stop - 0.5) * 0.9)
+				if dist_stop < 1.0:
+					c.stop_t = float(c.stop_t) + delta
+					if float(c.stop_t) > 4.0:
+						c.stopped_lap = true
+						c.stop_t = 0.0
+			if dist_stop < -20.0:
+				c.stopped_lap = false
 		# Jogador na pista
 		if player:
 			var dz: float = absf(player.global_position.z - c.lane.z)

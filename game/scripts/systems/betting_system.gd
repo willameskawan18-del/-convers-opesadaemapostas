@@ -71,10 +71,20 @@ func _generate_day(d: int) -> void:
 	var last := int(cfg.get("last_start_minute", 1350))
 	var sports: Array = cfg.sports
 	var created: Array = []
+	var daily_sports: Array = sports.filter(func(x): return float(x.get("weight", 0)) > 0.0)
 	for i in count:
-		var sp: Dictionary = _weighted_sport(sports)
+		var sp: Dictionary = _weighted_sport(daily_sports)
 		var start_min := int(round(sim.rng.randf_range(first, last) / 15.0)) * 15
 		created.append(_create_event(sp, d * 1440 + start_min, d, cfg))
+	# Modalidades rápidas com horário fixo (ex.: corrida de cavalos a cada 30 min)
+	for sp in sports:
+		if not sp.has("interval"):
+			continue
+		var m := int(sp.get("first", 540))
+		while m <= int(sp.get("last", 1380)):
+			var ev := _create_event(sp, d * 1440 + m, d, cfg, true)
+			created.append(ev)
+			m += int(sp.interval)
 	created.sort_custom(func(a, b): return int(a.start) < int(b.start))
 	events.append_array(created)
 
@@ -101,7 +111,7 @@ func _pick_distinct(pool: Array, n: int) -> Array:
 	return out
 
 
-func _create_event(sp: Dictionary, start_abs: int, d: int, cfg: Dictionary) -> Dictionary:
+func _create_event(sp: Dictionary, start_abs: int, d: int, cfg: Dictionary, quick: bool = false) -> Dictionary:
 	var participants: Array = []
 	var outcomes: Array = []
 	var p: Array = []
@@ -119,7 +129,7 @@ func _create_event(sp: Dictionary, start_abs: int, d: int, cfg: Dictionary) -> D
 			p = [pa, 1.0 - pa]
 			outcomes = participants.duplicate()
 		_:
-			participants = _pick_distinct(sp.participants, sim.rng.randi_range(4, 6))
+			participants = _pick_distinct(sp.participants, int(sp.get("runners", sim.rng.randi_range(4, 6))))
 			var tot := 0.0
 			for part in participants:
 				var w := exp(_rating(part) / 8.0)
@@ -128,18 +138,21 @@ func _create_event(sp: Dictionary, start_abs: int, d: int, cfg: Dictionary) -> D
 			for i in p.size():
 				p[i] = p[i] / tot
 			outcomes = participants.duplicate()
-	var name := " x ".join(participants) if participants.size() == 2 else "Grande Prêmio — %d pilotos" % participants.size()
+	var name := " x ".join(participants) if participants.size() == 2 else ("Páreo das %s" % Fmt.hm(start_abs % 1440) if quick else "Grande Prêmio — %d pilotos" % participants.size())
 	var ev := {
 		"id": "E%d" % next_event_id, "sport": sp.id, "sport_name": sp.name, "name": name,
 		"participants": participants, "outcomes": outcomes,
 		"true_p": p.duplicate(), "market_p": p.duplicate(), "noise": [],
 		"start": start_abs, "duration": int(sp.duration), "status": "scheduled",
-		"result": -1, "hype": 1.0, "suspended": [], "day": d, "news": "",
+		"result": -1, "hype": 1.0, "suspended": [], "day": d, "news": "", "quick": quick, "pre_result": -1,
 	}
 	next_event_id += 1
 	for i in outcomes.size():
 		ev.noise.append(sim.rng.randf_range(-1.0, 1.0))
 		ev.suspended.append(false)
+	if quick:
+		ev.pre_result = _pick_result(ev.true_p)
+		return ev
 	if sim.rng.randf() < float(cfg.get("hype_chance", 0.12)):
 		ev.hype = sim.rng.randf_range(1.5, 2.2)
 		ev.name = ("CLÁSSICO: " if sp.type == "1x2" else "FINAL: ") + ev.name
@@ -198,6 +211,27 @@ func get_event(id: String) -> Dictionary:
 func open_events(lead: int = 5) -> Array:
 	var now: int = sim.time.abs_minute()
 	return events.filter(func(e): return e.status == "scheduled" and int(e.start) > now + lead)
+
+
+func next_quick_race() -> Dictionary:
+	var now: int = sim.time.abs_minute()
+	for e in events:
+		if e.get("quick", false) and e.status == "scheduled" and int(e.start) > now + 1:
+			return e
+	return {}
+
+
+func live_quick_race() -> Dictionary:
+	for e in events:
+		if e.get("quick", false) and e.status == "live":
+			return e
+	return {}
+
+
+## Progresso de 0 a 1 de um evento ao vivo (inclui a fração do minuto atual).
+func live_progress(ev: Dictionary) -> float:
+	var now := float(sim.time.abs_minute()) + sim.minute_fraction()
+	return clampf((now - float(ev.start)) / maxf(float(ev.duration), 1.0), 0.0, 1.0)
 
 
 func upcoming_events(limit: int = 30) -> Array:
@@ -379,7 +413,7 @@ func _pick_result(p: Array) -> int:
 
 
 func _settle(ev: Dictionary) -> void:
-	ev.result = _pick_result(ev.true_p)
+	ev.result = int(ev.get("pre_result", -1)) if int(ev.get("pre_result", -1)) >= 0 else _pick_result(ev.true_p)
 	ev.status = "finished"
 	# Apostas do jogador
 	var remaining: Array = []
@@ -443,6 +477,7 @@ func from_dict(d: Dictionary) -> void:
 		e.duration = int(e.duration)
 		e.result = int(e.result)
 		e.day = int(e.day)
+		e.pre_result = int(e.get("pre_result", -1))
 	next_event_id = int(d.get("next_event_id", 1))
 	next_bet_id = int(d.get("next_bet_id", 1))
 	player_bets = d.get("player_bets", [])

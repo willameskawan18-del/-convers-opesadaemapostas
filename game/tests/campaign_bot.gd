@@ -66,7 +66,7 @@ func _act() -> void:
 			s.betting.place_player_bet(evs[0].id, 0, 10)
 	if not s.licenses.has("basica"):
 		s.licenses.buy("basica")
-	if not s.has_business() and s.licenses.has("basica") and s.economy.cash > 3500:
+	if not s.has_business() and s.licenses.has("basica") and s.economy.cash > 7000:
 		s.properties.rent("sala_comercio")
 	if not s.has_business():
 		return

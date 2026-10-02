@@ -4,6 +4,7 @@ extends AppBase
 ## liquidado, mesmo se a janela for fechada no meio (on_close).
 
 const VENUES := {
+	"estrela": {"name": "Cassino Estrela", "max": 1000.0, "games": []},
 	"royal": {"name": "Salão de Jogos — Royal Apostas", "max": 5000.0, "games": []},
 	"lucky": {"name": "Lucky Games — Lucky Bet", "max": 500.0, "games": ["caca_niquel", "video_slot", "aviaozinho", "minas", "plinko", "dados", "raspadinha", "keno", "hilo", "roleta", "dragao_tigre"]},
 	"online": {"name": "Cassino Online (Royal)", "max": 1000.0, "games": []},
@@ -23,8 +24,22 @@ func _init() -> void:
 	rng.randomize()
 
 
+var _venue_id := ""
+
+
+func venue_id() -> String:
+	if _venue_id == "":
+		if arg is Dictionary:
+			_venue_id = str(arg.get("venue", "estrela"))
+			if str(arg.get("game", "")) != "":
+				game = str(arg.game)
+		else:
+			_venue_id = str(arg) if arg != null else "estrela"
+	return _venue_id
+
+
 func venue() -> Dictionary:
-	return VENUES.get(str(arg), VENUES.royal)
+	return VENUES.get(venue_id(), VENUES.estrela)
 
 
 func title() -> String:
@@ -91,7 +106,8 @@ func _pay(amount: float, msg: String = "") -> void:
 # --- Estrutura -----------------------------------------------------------------------
 
 func build(body: VBoxContainer) -> void:
-	if str(arg) == "online" and sim().progression.level < 3:
+	venue_id()
+	if _venue_id == "online" and sim().progression.level < 3:
 		body.add_child(UiKit.label("O cassino online é liberado no nível 3. Até lá, visite o salão de jogos da Royal Apostas ou da Lucky Bet.", 17, UiKit.TEXT, true))
 		return
 	if game == "":

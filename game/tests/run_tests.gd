@@ -114,6 +114,8 @@ func test_jobs() -> void:
 func test_loans() -> void:
 	var sim := make_sim()
 	check(sim.loans.take("micro"), "microcrédito aprovado")
+	check(not sim.loans.take("micro"), "não pega o mesmo empréstimo duas vezes")
+	check(sim.loans.max_active_loans() == 1, "só um empréstimo por vez no começo")
 	check(is_equal_approx(sim.economy.cash, 1600.0), "principal creditado")
 	var debt := sim.loans.total_debt()
 	check(debt > 1500.0, "dívida inclui juros")
@@ -168,7 +170,8 @@ func test_save_load_roundtrip() -> void:
 ## Opera uma banca de estágio 1 por 10 dias com o jogador atendendo das 10h às 22h.
 func test_business_stage1_economy() -> void:
 	var sim := make_sim(5)
-	sim.economy.cash = 2500.0
+	sim.economy.cash = 8000.0
+	sim.progression.add_xp(200)
 	check(sim.licenses.buy("basica"), "alvará")
 	check(sim.properties.rent("sala_comercio"), "aluguel")
 	check(sim.business.buy_equipment("balcao_simples"), "balcão")
@@ -263,6 +266,7 @@ func test_casino_rtp() -> void:
 func test_competition_and_events() -> void:
 	var sim := make_sim(8)
 	sim.economy.cash = 50000.0
+	sim.progression.add_xp(200)
 	sim.licenses.buy("basica")
 	sim.properties.rent("sala_comercio")
 	sim.business.buy_equipment("balcao_simples")

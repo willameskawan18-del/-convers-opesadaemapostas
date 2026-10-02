@@ -49,8 +49,20 @@ func _ready() -> void:
 	v.add_child(UiKit.label("[TAB] fecha o celular", 12, UiKit.MUTED))
 
 
+## Mostra só os apps úteis para a fase atual do jogo.
+func _app_visible(id: String) -> bool:
+	var sim: Simulation = Game.sim
+	match id:
+		"online": return sim.has_business() and sim.business.stage >= 3
+		"contatos": return sim.time.day >= 2
+		"mercado": return sim.has_business()
+	return true
+
+
 func _process(_d: float) -> void:
 	if visible:
+		for i in _grid.get_child_count():
+			_grid.get_child(i).visible = _app_visible(APPS[i][0])
 		_clock.text = "Dia %d  %s" % [Game.sim.time.day, Game.sim.time.clock_text()]
 		var vs := get_viewport_rect().size
 		position = Vector2(vs.x - size.x - 30, vs.y - size.y - 30)

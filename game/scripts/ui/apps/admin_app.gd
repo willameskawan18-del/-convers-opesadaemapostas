@@ -32,13 +32,15 @@ func build(body: VBoxContainer) -> void:
 	if arg is String and arg != "":
 		tab = arg
 		arg = null
+	if not _tab_visible(tab):
+		tab = "overview"
 	var bar := HFlowContainer.new()
 	bar.add_theme_constant_override("h_separation", 4)
 	bar.add_theme_constant_override("v_separation", 4)
 	body.add_child(bar)
 	for t in TABS:
 		var id: String = t[0]
-		if not has_method("build_" + id):
+		if not has_method("build_" + id) or not _tab_visible(id):
 			continue
 		var b := UiKit.button(t[1], func():
 			tab = id
@@ -47,6 +49,21 @@ func build(body: VBoxContainer) -> void:
 	UiKit.sep(body)
 	if has_method("build_" + tab):
 		call("build_" + tab, body)
+
+
+## Revela as abas aos poucos, conforme o negócio cresce.
+func _tab_visible(id: String) -> bool:
+	var s := sim()
+	match id:
+		"overview", "finance", "licenses", "properties":
+			return true
+		"bets", "equipment", "staff", "customers":
+			return s.has_business()
+		"promotions", "risk", "reputation", "competition":
+			return s.has_business() and (s.business.stage >= 2 or s.time.day >= 5)
+		"casino":
+			return s.has_business() and s.business.stage >= 4
+	return true
 
 
 func _need_business(body: VBoxContainer) -> bool:
