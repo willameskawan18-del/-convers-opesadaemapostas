@@ -18,6 +18,7 @@ var lamp_mat: StandardMaterial3D
 var sidewalk_nodes: Array = []    # Vector3
 var sidewalk_edges: Dictionary = {}  # índice -> [índices vizinhos]
 var door_points: Array = []       # portas visitáveis por pedestres
+var comp_signs: Dictionary = {}   # id do concorrente -> Label3D do letreiro
 
 var c_asphalt := WorldKit.mat(Color(0.16, 0.17, 0.19), 0.95)
 var c_sidewalk := WorldKit.mat(Color(0.62, 0.6, 0.57), 0.9)
@@ -213,7 +214,8 @@ func _generic(node: Node3D, d: Dictionary) -> void:
 	if d.get("columns", false):
 		for side in [-1, 1]:
 			WorldKit.cylinder(node, 0.35, h - 0.5, Vector3(float(d.x) + side * (w / 2.0 - 1.0), (h - 0.5) / 2.0, fz + dir * 0.5), WorldKit.mat(col.lightened(0.3)))
-	_sign(node, str(d.name), Vector3(d.x, 3.9, fz + dir * 0.12), dir, d.get("neon", false), 56)
+	var sl := _sign(node, str(d.name), Vector3(d.x, 3.9, fz + dir * 0.12), dir, d.get("neon", false), 56)
+	comp_signs[d.id] = sl
 
 
 func _sign(node: Node3D, text: String, pos: Vector3, dir: float, neon: bool, size: int = 56) -> Label3D:
@@ -241,7 +243,7 @@ func _kiosk(node: Node3D, d: Dictionary) -> void:
 	WorldKit.solid(node, Vector3(w - 0.6, 1.1, 0.6), c + Vector3(0, 0.55, dir * (depth / 2 - 0.5)), WorldKit.mat(Color(0.35, 0.22, 0.12)))
 	# TV com jogos
 	WorldKit.box(node, Vector3(2.2, 1.2, 0.1), c + Vector3(0, 2.3, -dir * (depth / 2 - 0.2)), WorldKit.mat(Color(0.1, 0.3, 0.5), 0.3, 0.0, Color(0.3, 0.6, 1.0), 0.8), false)
-	_sign(node, str(d.name), c + Vector3(0, h + 0.7, dir * (depth / 2 + 0.6)), dir, true, 60)
+	comp_signs[d.id] = _sign(node, str(d.name), c + Vector3(0, h + 0.7, dir * (depth / 2 + 0.6)), dir, true, 60)
 	# Zé atrás do balcão
 	var ze := Humanoid.new()
 	node.add_child(ze)

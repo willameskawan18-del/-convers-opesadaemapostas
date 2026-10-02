@@ -6,7 +6,7 @@ const TABS := [
 	["overview", "Visão Geral"], ["finance", "Finanças"], ["bets", "Apostas"], ["customers", "Clientes"],
 	["staff", "Funcionários"], ["equipment", "Equipamentos"], ["properties", "Propriedades"],
 	["licenses", "Licenças"], ["promotions", "Promoções"], ["risk", "Risco"], ["reputation", "Reputação"],
-	["competition", "Concorrência"],
+	["competition", "Concorrência"], ["casino", "Cassino"],
 ]
 
 var tab := "overview"
@@ -366,6 +366,8 @@ func build_equipment(body: VBoxContainer) -> void:
 			ui.refresh()))
 	body.add_child(UiKit.heading("Comprar", 17))
 	for d in b.all_items():
+		if d.has("casino"):
+			continue
 		var why := b.buy_block_reason(str(d.id))
 		if why.begins_with("Requer estágio") and int(d.get("min_stage", 1)) > b.stage + 1:
 			continue
@@ -478,3 +480,104 @@ func build_reputation(body: VBoxContainer) -> void:
 		UiKit.kv(body, "Satisfação média dos clientes", "%d%%" % int(sat / maxf(1, n)))
 		UiKit.kv(body, "Clientes perdidos (total)", str(int(s.stat("customers_lost"))))
 		UiKit.kv(body, "Desistências na fila (total)", str(int(s.stat("customers_abandoned"))))
+
+
+# --- Concorrência -----------------------------------------------------------------
+
+func build_competition(body: VBoxContainer) -> void:
+	var s := sim()
+	if s.has_business():
+		var c := UiKit.card(body)
+		c.add_child(UiKit.heading("Participação de mercado", 17))
+		for row in s.competition.market_shares():
+			var h := UiKit.hbox()
+			c.add_child(h)
+			var l := UiKit.label(str(row[0]), 14, UiKit.GOLD if str(row[0]).ends_with("(você)") else UiKit.TEXT)
+			l.custom_minimum_size.x = 220
+			h.add_child(l)
+			var b := UiKit.bar(float(row[1]), 1.0, UiKit.GOLD if str(row[0]).ends_with("(você)") else UiKit.BLUE, 12)
+			b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			h.add_child(b)
+			h.add_child(UiKit.label(Fmt.pct(float(row[1]), 0), 14))
+		c.add_child(UiKit.label("Você compete mais com casas de porte parecido com o seu. Reputação, odds, conforto e promoções decidem quem leva o cliente.", 13, UiKit.MUTED, true))
+	for comp in s.competition.comps:
+		CompetitorCard.build(body, s, str(comp.id), ui, false)
+	var br := s.competition.branches()
+	if br.size() > 0:
+		body.add_child(UiKit.heading("Suas filiais", 17))
+		for c2 in br:
+			UiKit.kv(body, str(c2.name), Fmt.money(s.competition.branch_income(c2)) + "/dia", UiKit.GREEN)
+
+
+# --- Promoções -------------------------------------------------------------------
+
+func build_promotions(body: VBoxContainer) -> void:
+	if not _need_business(body):
+		return
+	var s := sim()
+	var ps := s.promotions
+	body.add_child(UiKit.label("Fator de clientes por promoções agora: x%.2f" % ps.arrival_mult(), 15, UiKit.GOLD))
+	for p in ps.all():
+		var id := str(p.id)
+		var c := UiKit.card(body, UiKit.PANEL2, UiKit.GREEN if ps.is_active(id) else Color(1, 1, 1, 0.05))
+		var h := UiKit.hbox()
+		c.add_child(h)
+		var info := UiKit.vbox(2)
+		h.add_child(UiKit.expand(info))
+		info.add_child(UiKit.label("%s%s" % [p.name, "  [ATIVA]" if ps.is_active(id) else ""], 16, UiKit.GREEN if ps.is_active(id) else UiKit.TEXT))
+		info.add_child(UiKit.label(str(p.desc), 13, UiKit.MUTED, true))
+		var est := ps.estimated_return(id)
+		var line := "Custo %s | %d dia(s) | Alcance +%d%% clientes | Reputação +%.1f | Retorno estimado %s" % [Fmt.money(float(p.cost)), int(p.days), int(float(p.reach) * 100), float(p.get("rep", 0)), Fmt.signed_money(est)]
+		if float(p.get("per_customer", 0)) > 0:
+			line += " | Custo por cliente atendido %s" % Fmt.money(float(p.per_customer))
+		info.add_child(UiKit.label(line, 13, UiKit.TEXT, true))
+		var why := ps.block_reason(id)
+		if why != "" and not ps.is_active(id):
+			info.add_child(UiKit.label(why, 13, UiKit.ORANGE))
+		h.add_child(UiKit.button("Lançar", func():
+			ps.launch(id)
+			ui.refresh(), true, why == ""))
+
+
+# --- Cassino (dono) ------------------------------------------------------------------
+
+func build_casino(body: VBoxContainer) -> void:
+	if not _need_business(body):
+		return
+	var s := sim()
+	var b := s.business
+	body.add_child(UiKit.label("Jogos de cassino do seu estabelecimento geram receita por hora, com a margem e a volatilidade de cada jogo. Mesas só funcionam com um crupiê trabalhando.", 14, UiKit.MUTED, true))
+	if not s.licenses.has("entretenimento"):
+		body.add_child(UiKit.label("Requer a Licença de Entretenimento (e estágio 4: Grande Salão).", 15, UiKit.ORANGE, true))
+	var owned := 0
+	for e in b.equipment:
+		var d := b.item_data(str(e.id))
+		if not d.has("casino"):
+			continue
+		owned += 1
+		var stt: Dictionary = b.casino_stats.get(str(e.id), {})
+		UiKit.kv(body, "%s%s%s" % [d.name, "  (QUEBRADO)" if e.broken else "", "  [mesa]" if d.get("dealer", false) else ""], "hoje %s  |  total %s" % [Fmt.signed_money(float(stt.get("today", 0.0))), Fmt.signed_money(float(stt.get("total", 0.0)))], UiKit.money_color(float(stt.get("total", 0.0))))
+	if owned == 0:
+		body.add_child(UiKit.label("Você ainda não tem jogos de cassino.", 15, UiKit.MUTED))
+	var missing := b.casino_tables_without_dealer()
+	if missing > 0:
+		body.add_child(UiKit.label("%d mesa(s) parada(s) sem crupiê! Contrate em Funcionários." % missing, 15, UiKit.RED))
+	UiKit.kv(body, "Resultado do cassino hoje", Fmt.signed_money(b.casino_today), UiKit.money_color(b.casino_today))
+	body.add_child(UiKit.heading("Catálogo de jogos", 17))
+	for d in b.all_items():
+		if not d.has("casino"):
+			continue
+		var why := b.buy_block_reason(str(d.id))
+		var c := UiKit.card(body)
+		var h := UiKit.hbox()
+		c.add_child(h)
+		var info := UiKit.vbox(2)
+		h.add_child(UiKit.expand(info))
+		var cz: Dictionary = d.casino
+		info.add_child(UiKit.label("%s — %s%s" % [d.name, Fmt.money(b.price_of(str(d.id))), "  (precisa de crupiê)" if d.get("dealer", false) else ""], 16))
+		info.add_child(UiKit.label("%s  Vantagem da casa %s | %d jogadas/h | aposta média %s | manutenção %s/dia" % [d.desc, Fmt.pct(float(cz.edge)), int(cz.plays), Fmt.money(float(cz.avg_bet)), Fmt.money(float(d.maintenance))], 13, UiKit.MUTED, true))
+		if why != "":
+			info.add_child(UiKit.label(why, 13, UiKit.ORANGE))
+		h.add_child(UiKit.button("Comprar", func():
+			b.buy_equipment(str(d.id))
+			ui.refresh(), true, why == ""))

@@ -248,8 +248,8 @@ func _build_items(items: Array, city: City) -> void:
 				WorldKit.label(self, "ÁREA VIP", vc + Vector3(0, 2.6, -2.4), 60, Color(1, 0.85, 0.3), 8)
 				for k in 3:
 					WorldKit.box(self, Vector3(1.6, 0.5, 0.7), vc + Vector3(-1.6 + k * 1.6, 0.25, 1.6), WorldKit.mat(Color(0.15, 0.1, 0.1)), true)
-			"slot", "table", "jackpot":
-				_casino_item(cat, casino, city)
+			"casino":
+				_casino_item(str(GameData.find("equipment", "items", str(e.id)).get("visual", "slot")), casino, city)
 				casino += 1
 
 
@@ -269,6 +269,17 @@ func _casino_item(cat: String, idx: int, city: City) -> void:
 		"table":
 			WorldKit.solid(self, Vector3(1.8, 0.85, 1.1), p + Vector3(0, 0.42, 0), WorldKit.mat(Color(0.3, 0.18, 0.1)))
 			WorldKit.box(self, Vector3(1.6, 0.03, 0.9), p + Vector3(0, 0.87, 0), WorldKit.mat(Color(0.05, 0.4, 0.2)), false)
+		"terminal":
+			WorldKit.solid(self, Vector3(0.7, 1.4, 0.5), p + Vector3(0, 0.7, 0), WorldKit.mat(Color(0.12, 0.12, 0.16), 0.3, 0.4))
+			WorldKit.box(self, Vector3(0.55, 0.45, 0.05), p + Vector3(0, 1.1, 0.26), WorldKit.mat(Color(0.05, 0.05, 0.1), 0.2, 0.0, Color(0.3, 0.9, 1.0), 1.2), false)
+		"screen":
+			WorldKit.solid(self, Vector3(1.8, 0.9, 0.4), p + Vector3(0, 0.45, 0), WorldKit.mat(Color(0.15, 0.15, 0.2)))
+			WorldKit.box(self, Vector3(1.8, 1.1, 0.08), p + Vector3(0, 1.6, -0.1), WorldKit.mat(Color(0.05, 0.05, 0.1), 0.2, 0.0, Color(1.0, 0.35, 0.3), 1.4), false)
+		"wheel":
+			WorldKit.solid(self, Vector3(1.6, 0.85, 1.2), p + Vector3(0, 0.42, 0), WorldKit.mat(Color(0.3, 0.18, 0.1)))
+			var wh := WorldKit.cylinder(self, 0.55, 0.12, p + Vector3(0, 0.95, 0), WorldKit.mat(Color(0.6, 0.1, 0.1), 0.3, 0.3), 24)
+			wh.rotation.x = 0.0
+			WorldKit.cylinder(self, 0.12, 0.2, p + Vector3(0, 1.05, 0), WorldKit.mat(Color(0.9, 0.75, 0.3), 0.3, 0.8))
 		"jackpot":
 			WorldKit.solid(self, Vector3(1.2, 2.6, 1.0), p + Vector3(0, 1.3, 0), WorldKit.mat(Color(0.8, 0.65, 0.15), 0.3, 0.8))
 			WorldKit.label(self, "JACKPOT", p + Vector3(0, 2.9, 0.5), 48, Color(1, 0.9, 0.3), 8)

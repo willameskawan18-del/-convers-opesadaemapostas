@@ -8,7 +8,7 @@ const APPS := [
 	["banco", "Banco", Color("2e86de")], ["apostas", "Apostas", Color("10ac84")], ["noticias", "Notícias", Color("ee5253")],
 	["empregos", "Empregos", Color("ff9f43")], ["admin", "Administração", Color("f5c542")], ["mercado", "Mercado", Color("8854d0")],
 	["mensagens", "Mensagens", Color("0abde3")], ["contatos", "Contatos", Color("576574")], ["objetivos", "Objetivos", Color("feca57")],
-	["mapa", "Mapa", Color("1dd1a1")], ["online", "Operação Online", Color("5f27cd")], ["internet", "Internet", Color("54a0ff")],
+	["mapa", "Mapa", Color("1dd1a1")], ["online", "Operação Online", Color("5f27cd")], ["cassino", "Cassino", Color("e84393")],
 ]
 
 var _clock: Label

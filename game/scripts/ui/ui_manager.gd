@@ -19,6 +19,7 @@ const APPS := {
 	"online": "res://scripts/ui/apps/online_app.gd",
 	"internet": "res://scripts/ui/apps/internet_app.gd",
 	"debug": "res://scripts/ui/apps/debug_app.gd",
+	"cassino": "res://scripts/ui/apps/casino_app.gd",
 }
 
 var root: Control
@@ -51,7 +52,9 @@ func _ready() -> void:
 	phone = Phone.new()
 	root.add_child(phone)
 	phone.visible = false
-	phone.app_chosen.connect(func(id): open_app(_map_phone_app(id)))
+	phone.app_chosen.connect(func(id):
+		var mapped := _map_phone_app(id)
+		open_app(mapped, "online" if mapped == "cassino" else null))
 	window = UiWindow.new()
 	root.add_child(window)
 	window.visible = false
@@ -83,6 +86,8 @@ func _ready() -> void:
 
 
 func _map_phone_app(id: String) -> String:
+	if id == "cassino":
+		return "cassino"
 	if id == "mercado":
 		return "admin:equipment" if Game.sim.has_business() else "admin:properties"
 	return id
@@ -148,21 +153,39 @@ func open_app(id: String, arg: Variant = null) -> void:
 	window.layout(app.window_size())
 
 
+var _refreshing := false
+var _refresh_again := false
+
+
 func refresh() -> void:
 	if current_app == null:
 		return
+	if _refreshing:
+		_refresh_again = true
+		return
+	_refreshing = true
 	var scroll_v := window.scroll.scroll_vertical
 	window.set_title(current_app.title(), current_app.subtitle())
 	window.clear_body()
-	current_app.build(window.body)
+	if current_app:
+		current_app.build(window.body)
+	_refreshing = false
+	if _refresh_again:
+		_refresh_again = false
+		refresh.call_deferred()
+		return
 	await get_tree().process_frame
 	if is_instance_valid(window):
 		window.scroll.scroll_vertical = scroll_v
 
 
 func close_window() -> void:
+	var app := current_app
 	window.visible = false
 	current_app = null
+	if app:
+		app.on_close()
+	window.clear_body()
 
 
 func open_settings() -> void:
@@ -178,6 +201,7 @@ func _on_ui_request(kind: String, arg: Variant) -> void:
 		"home": open_app("home")
 		"lot": open_app("lot", arg)
 		"competitor": open_app("competitor", arg)
+		"casino_hall": open_app("cassino", arg)
 		"shop": open_app("admin:equipment")
 		"admin": open_app("admin", arg)
 		_: open_app(kind, arg)

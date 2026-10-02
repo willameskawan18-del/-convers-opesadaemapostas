@@ -97,8 +97,11 @@ func _build_interactions() -> void:
 	_add_interact(city.point("mercado") + Vector3(3, 0, 0), "Quadro de trabalhos do Mercado", func(): Game.request_ui("jobs", "mercado"))
 	_add_interact(city.point("loja") + Vector3(-2.5, 0, 0), "Quadro de trabalhos da Loja", func(): Game.request_ui("jobs", "loja"))
 	_add_interact(city.point("loja") + Vector3(2.5, 0, 0), "Comprar equipamentos", func(): Game.request_ui("shop", null))
-	_add_interact(city.point("lucky"), "Observar concorrente: Lucky Bet", func(): Game.request_ui("competitor", "lucky"))
-	_add_interact(city.point("royal"), "Observar concorrente: Royal Apostas", func(): Game.request_ui("competitor", "royal"))
+	_add_interact(city.point("lucky") + Vector3(-3, 0, 0), "Observar concorrente: Lucky Bet", func(): Game.request_ui("competitor", "lucky"))
+	_add_interact(city.point("lucky") + Vector3(3, 0, 0), "Jogar no Lucky Games (cassino)", func(): Game.request_ui("casino_hall", "lucky"))
+	_add_interact(city.point("royal") + Vector3(-3.5, 0, 0), "Observar concorrente: Royal Apostas", func(): Game.request_ui("competitor", "royal"))
+	_add_interact(city.point("royal") + Vector3(3.5, 0, 0), "Entrar no Salão de Jogos da Royal", func(): Game.request_ui("casino_hall", "royal"))
+	_add_interact(city.point("ze") + Vector3(-4, 0, 0), "Observar concorrente: Banca do Zé", func(): Game.request_ui("competitor", "ze"))
 	# Rótulos flutuantes de orientação
 	for id in ["deposito", "mercado", "loja"]:
 		WorldKit.label(self, "TRABALHOS", city.point(id) + Vector3(3 if id != "loja" else -2.5, 2.6, 0), 40, Color(0.4, 0.9, 1.0), 10, true)
@@ -108,6 +111,7 @@ func _build_interactions() -> void:
 
 ## Reconstrói a aparência dos lotes conforme contratos/estágio do negócio.
 func refresh_lots() -> void:
+	_refresh_competitor_signs()
 	for lot_id in city.lots:
 		var info: Dictionary = city.lots[lot_id]
 		var key := _lot_state_key(lot_id)
@@ -123,6 +127,25 @@ func refresh_lots() -> void:
 		info.node.add_child(v)
 		lot_views[lot_id] = v
 		_build_lot_view(v, lot_id, info.def)
+
+
+func _refresh_competitor_signs() -> void:
+	var sim := Game.sim
+	if sim.competition == null:
+		return
+	for c in sim.competition.comps:
+		var lbl: Label3D = city.comp_signs.get(c.id)
+		if lbl == null:
+			continue
+		match str(c.status):
+			"closed":
+				lbl.text = "FECHADO"
+				lbl.modulate = Color(0.6, 0.6, 0.6)
+			"acquired":
+				lbl.text = "FILIAL " + sim.brand_name.to_upper()
+				lbl.modulate = Color(0.4, 1.0, 0.6)
+			_:
+				lbl.text = str(c.name).to_upper()
 
 
 func _lot_state_key(lot_id: String) -> String:

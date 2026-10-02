@@ -188,3 +188,109 @@ func test_business_stage1_economy() -> void:
 	check(sim.stat("customers_served") > 100, "atendeu clientes")
 	check(not is_nan(sim.economy.cash), "caixa válido")
 	sim.free()
+
+
+func test_casino_rtp() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 2024
+	var n := 200000
+	var rtps := {}
+	var t := 0.0
+	for i in n: t += CasinoLogic.slot_spin(rng).mult
+	rtps["caca_niquel"] = t / n
+	t = 0.0
+	for i in n: t += CasinoLogic.video_slot_spin(rng).mult
+	rtps["video_slot"] = t / n
+	t = 0.0
+	for i in n: t += CasinoLogic.roulette_payout("vermelho", rng.randi_range(0, 36))
+	rtps["roleta"] = t / n
+	t = 0.0
+	for i in n / 2: t += CasinoLogic.baccarat_payout("banca", CasinoLogic.baccarat_deal(rng).winner)
+	rtps["bacara_banca"] = t / (n / 2)
+	t = 0.0
+	for i in n: t += CasinoLogic.bac_dice_payout("jogador", CasinoLogic.bac_dice(rng).winner)
+	rtps["bac_dados"] = t / n
+	t = 0.0
+	for i in n: t += CasinoLogic.dragon_tiger_payout("dragao", CasinoLogic.dragon_tiger(rng).winner)
+	rtps["dragao_tigre"] = t / n
+	t = 0.0
+	for i in n: t += CasinoLogic.sic_bo_payout("grande", CasinoLogic.sic_bo_roll(rng))
+	rtps["sic_bo"] = t / n
+	t = 0.0
+	for i in n: t += 2.0 if CasinoLogic.crash_point(rng) >= 2.0 else 0.0
+	rtps["aviaozinho_2x"] = t / n
+	t = 0.0
+	for i in n:
+		var p := CasinoLogic.plinko_drop(rng)
+		t += CasinoLogic.PLINKO_MULTS[p.reduce(func(a, b): return a + b, 0)]
+	rtps["plinko"] = t / n
+	t = 0.0
+	for i in n: t += CasinoLogic.scratch(rng).mult
+	rtps["raspadinha"] = t / n
+	t = 0.0
+	for i in n / 4: t += CasinoLogic.keno_payout([3, 17, 22], CasinoLogic.keno_draw(rng))
+	rtps["keno_3"] = t / (n / 4)
+	t = 0.0
+	for i in n / 4:
+		var p2 := [CasinoLogic.draw(rng), CasinoLogic.draw(rng)]
+		var d := [CasinoLogic.draw(rng), CasinoLogic.draw(rng)]
+		while CasinoLogic.bj_value(p2) < 17: p2.append(CasinoLogic.draw(rng))
+		CasinoLogic.bj_dealer_play(rng, d)
+		t += CasinoLogic.bj_settle(p2, d)
+	rtps["blackjack_simples"] = t / (n / 4)
+	t = 0.0
+	var cnt := 0
+	for i in n / 10:
+		var card := CasinoLogic.bingo_card(rng)
+		var balls := CasinoLogic.bingo_balls(rng)
+		t += float(CasinoLogic.BINGO_PAY.get(card.filter(func(x): return x in balls).size(), 0.0))
+		cnt += 1
+	rtps["bingo"] = t / cnt
+	t = 0.0
+	for i in n / 4:
+		var deck := CasinoLogic.shuffled_deck(rng)
+		t += float(CasinoLogic.VP_PAY.get(CasinoLogic.vp_evaluate(deck.slice(0, 5)), 0.0))
+	rtps["video_poker_sem_troca"] = t / (n / 4)
+	for k in rtps:
+		print("  RTP %-22s %.3f" % [k, rtps[k]])
+		check(rtps[k] < 1.0 and rtps[k] > 0.25, "RTP de %s abaixo de 100%%" % k)
+	check(CasinoLogic.vp_evaluate([0, 12, 11, 10, 9]) == "Royal Flush", "royal flush reconhecido")
+	check(CasinoLogic.vp_evaluate([0, 13, 1, 14, 5]) == "Dois Pares", "dois pares reconhecido")
+	check(CasinoLogic.bj_value([0, 12]) == 21 and CasinoLogic.bj_value([0, 0, 8]) == 21, "valores do 21")
+	check(absf(CasinoLogic.mines_multiplier(3, 1) - 0.97 / (22.0 / 25.0)) < 0.02, "multiplicador do campo minado")
+
+
+func test_competition_and_events() -> void:
+	var sim := make_sim(8)
+	sim.economy.cash = 50000.0
+	sim.licenses.buy("basica")
+	sim.properties.rent("sala_comercio")
+	sim.business.buy_equipment("balcao_simples")
+	sim.business.buy_equipment("computador")
+	sim.time.minute = 12 * 60
+	var share := sim.competition.player_share()
+	print("  participação inicial: ", Fmt.pct(share))
+	check(share > 0.05 and share < 0.95, "participação de mercado válida")
+	for d in 15:
+		sim.player_at_counter = true
+		sim.advance(1440)
+	for c in sim.competition.comps:
+		print("  %s: capital %s, rep %d, estado %s, status %s" % [c.name, Fmt.money(float(c.capital)), int(c.reputation), c.state, c.status])
+		check(not is_nan(float(c.capital)), "capital válido")
+	sim.economy.cash = 10000000.0
+	sim.progression.add_xp(20000)
+	var ze := sim.competition.get_comp("ze")
+	if ze.status == "active":
+		check(sim.competition.acquire("ze"), "aquisição do Zé")
+	var cash := sim.economy.cash
+	sim.advance(1440)
+	check(sim.economy.today_income.has(EconomySystem.BRANCHES) or sim.economy.history[-1].revenue > 0, "filial gera renda")
+	# Eventos: dispara todos e resolve
+	sim.time.minute = 14 * 60
+	for e in GameData.list("events", "events"):
+		sim.events.trigger(e)
+	check(sim.stat("events_survived") > 10, "eventos resolvidos: %d" % int(sim.stat("events_survived")))
+	check(not is_nan(sim.economy.cash), "caixa válido após eventos")
+	check(sim.promotions.launch("panfletos"), "promoção lançada")
+	check(sim.promotions.arrival_mult() > 1.0, "promoção aumenta clientes")
+	sim.free()

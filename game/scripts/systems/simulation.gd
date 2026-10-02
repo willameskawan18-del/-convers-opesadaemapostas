@@ -37,10 +37,10 @@ var business: BusinessSystem
 var customers: CustomerSystem
 var employees: EmployeeSystem
 var properties: PropertySystem
-var competition = null
+var competition: CompetitionSystem
 var online = null
-var events = null
-var promotions = null
+var events: EventSystem
+var promotions: PromotionSystem
 
 var stats: Dictionary = {}
 var messages: Array = []
@@ -77,6 +77,9 @@ func _create_business_systems() -> void:
 	customers = CustomerSystem.new(self)
 	employees = EmployeeSystem.new(self)
 	properties = PropertySystem.new(self)
+	competition = CompetitionSystem.new(self)
+	events = EventSystem.new(self)
+	promotions = PromotionSystem.new(self)
 
 
 func systems() -> Array:

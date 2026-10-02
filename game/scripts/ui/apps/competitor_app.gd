@@ -1,18 +1,19 @@
 extends AppBase
-## Observação de um concorrente.
+## Observação de um concorrente (placa na fachada).
 
 
 func title() -> String:
-	return "Concorrente"
+	var c := sim().competition.get_comp(str(arg))
+	return str(c.get("name", "Concorrente"))
+
+
+func subtitle() -> String:
+	return "Inteligência de mercado"
 
 
 func window_size() -> Vector2:
-	return Vector2(600, 440)
+	return Vector2(640, 520)
 
 
 func build(body: VBoxContainer) -> void:
-	var s := sim()
-	if s.competition == null:
-		body.add_child(UiKit.label("Uma casa de apostas concorrente. Quando você abrir sua banca, poderá acompanhar capital, reputação, odds e estratégia dela.", 15, UiKit.MUTED, true))
-		return
-	s.competition.build_info(body, str(arg), ui)
+	CompetitorCard.build(body, sim(), str(arg), ui, true)

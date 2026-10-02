@@ -20,6 +20,7 @@ var supplier_discount: Dictionary = {}
 var equipment_revision := 0
 var hype_today := 1.0
 var casino_today := 0.0
+var casino_stats: Dictionary = {}   # jogo -> {today, total, wager}
 var _warned_no_system := false
 
 
@@ -44,6 +45,7 @@ func reset() -> void:
 	equipment_revision = 0
 	hype_today = 1.0
 	casino_today = 0.0
+	casino_stats = {}
 
 
 # --- Dados -----------------------------------------------------------------------
@@ -199,6 +201,8 @@ func demand_per_hour() -> float:
 
 func start_day() -> void:
 	casino_today = 0.0
+	for k in casino_stats:
+		casino_stats[k].today = 0.0
 	var today: int = sim.time.day
 	var extra := 0.0
 	for e in sim.betting.events:
@@ -247,26 +251,49 @@ func _casino_hour() -> void:
 	var demand := (float(curve[h]) if h < curve.size() else 1.0) * clampf(sim.reputation.value / 60.0, 0.3, 1.6)
 	if sim.time.is_weekend():
 		demand *= float(GameData.balance("weekend_mult", 1.25))
+	if sim.promotions != null:
+		demand *= sim.promotions.casino_mult()
+	demand *= boost_mult()
+	var dealers := sim.employees.working("crupie").size()
 	var net := 0.0
 	for e in equipment:
 		if e.broken:
 			continue
-		var c: Dictionary = item_data(str(e.id)).get("casino", {})
+		var d := item_data(str(e.id))
+		var c: Dictionary = d.get("casino", {})
 		if c.is_empty():
 			continue
+		if d.get("dealer", false):
+			if dealers <= 0:
+				continue
+			dealers -= 1
 		var plays := float(c.plays) * demand * sim.employees.specialist_casino_mult()
 		var wager := plays * float(c.avg_bet)
-		var result := wager * float(c.edge) + sim.rng.randfn(0.0, float(c.avg_bet) * sqrt(maxf(plays, 1.0)) * 0.9)
+		var result := wager * float(c.edge) + sim.rng.randfn(0.0, float(c.avg_bet) * sqrt(maxf(plays, 1.0)) * float(c.get("vol", 1.0)))
 		if float(c.get("jackpot_chance", 0.0)) > 0.0 and sim.rng.randf() < float(c.jackpot_chance):
 			result -= float(c.get("jackpot", 50000))
-			sim.notify("JACKPOT! Um cliente ganhou %s no %s." % [Fmt.money(float(c.jackpot)), item_data(str(e.id)).name], "warning")
+			sim.notify("JACKPOT! Um cliente ganhou %s no %s." % [Fmt.money(float(c.jackpot)), d.name], "warning")
 			sim.reputation.add(1.0, "Jackpot pago")
 		net += result
+		var gid := str(e.id)
+		var st: Dictionary = casino_stats.get(gid, {"today": 0.0, "total": 0.0, "wager": 0.0})
+		st.today = float(st.today) + result
+		st.total = float(st.total) + result
+		st.wager = float(st.wager) + wager
+		casino_stats[gid] = st
 	if net > 0.0:
 		sim.economy.earn(net, EconomySystem.CASINO)
 	elif net < 0.0:
 		sim.economy.charge(-net, EconomySystem.CASINO_PAYOUTS)
 	casino_today += net
+
+
+func casino_tables_without_dealer() -> int:
+	var tables := 0
+	for e in equipment:
+		if not e.broken and item_data(str(e.id)).get("dealer", false):
+			tables += 1
+	return maxi(0, tables - sim.employees.working("crupie").size())
 
 
 # --- Ações -----------------------------------------------------------------------
@@ -289,6 +316,8 @@ func buy_block_reason(id: String) -> String:
 		return "Requer estágio %d (%s)" % [int(d.min_stage), stage_data(int(d.min_stage)).get("name", "")]
 	if sim.progression.level < int(d.get("min_level", 1)):
 		return "Requer nível %d" % int(d.min_level)
+	if d.has("requires_item") and count_item(str(d.requires_item)) == 0:
+		return "Requer " + str(item_data(str(d.requires_item)).get("name", d.requires_item))
 	if d.has("license") and not sim.licenses.has(str(d.license)):
 		return "Requer " + str(sim.licenses.data(str(d.license)).get("name", d.license))
 	if str(d.category) == "counter" and count_category("counter") >= counters():
@@ -515,7 +544,7 @@ func to_dict() -> Dictionary:
 	return {"active": active, "property_id": property_id, "stage": stage, "equipment": equipment, "next_uid": next_uid,
 		"margin": margin, "max_stake": max_stake, "auto_balance": auto_balance, "manually_closed": manually_closed,
 		"internet_down_until": internet_down_until, "boosts": boosts, "cost_mods": cost_mods,
-		"supplier_discount": supplier_discount, "hype_today": hype_today, "casino_today": casino_today}
+		"supplier_discount": supplier_discount, "hype_today": hype_today, "casino_today": casino_today, "casino_stats": casino_stats}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -537,4 +566,5 @@ func from_dict(d: Dictionary) -> void:
 	supplier_discount = d.get("supplier_discount", {})
 	hype_today = float(d.get("hype_today", 1.0))
 	casino_today = float(d.get("casino_today", 0.0))
+	casino_stats = d.get("casino_stats", {})
 	equipment_revision += 1

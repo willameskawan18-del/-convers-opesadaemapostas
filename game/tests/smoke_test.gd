@@ -137,6 +137,40 @@ func _run() -> void:
 		ui.open_app("admin:" + tab)
 		await _frames(1)
 	ui.close_window()
+	# --- Cassino: abre cada jogo e aperta o botão principal ---
+	sim.economy.earn(100000, EconomySystem.REWARD)
+	sim.time.minute = 15 * 60
+	ui.open_app("cassino", "royal")
+	await _frames(2)
+	var app = ui.current_app
+	var actions := ["GIRAR", "DAR CARTAS", "DISTRIBUIR", "ROLAR", "REVELAR", "APOSTAR E DECOLAR", "COMEÇAR", "SOLTAR", "SORTEAR", "JOGAR", "COMPRAR RASPADINHA", "GIRAR A RODA", "GIRAR A ROLETA"]
+	var cash_before: float = sim.economy.cash
+	for gid in CasinoLogic.GAMES.keys():
+		app.game = gid
+		app.st = {}
+		app.bet = 10
+		if gid == "keno":
+			app.st = {"picks": [1, 2, 3]}
+		ui.refresh()
+		await _frames(2)
+		var pressed := false
+		for b in ui.window.body.find_children("*", "Button", true, false):
+			for a in actions:
+				if b.text.begins_with(a) and not b.disabled:
+					b.pressed.emit()
+					pressed = true
+					break
+			if pressed:
+				break
+		var c0: float = sim.economy.cash
+		await _frames(150)
+		app.on_close()
+		if absf(sim.economy.cash - c0) > 200:
+			print("  ALERTA ", gid, " delta ", sim.economy.cash - c0)
+		_ok(pressed, "jogo jogado: " + gid)
+	ui.close_window()
+	print("  rodadas de cassino: ", sim.stat("casino_rounds"), "  resultado: ", Fmt.signed_money(sim.economy.cash - cash_before))
+	_ok(sim.stat("casino_rounds") >= 18, "rodadas registradas")
 	# Salvar / carregar
 	_ok(game.save_game("smoke"), "salvar")
 	var cash: float = game.sim.economy.cash

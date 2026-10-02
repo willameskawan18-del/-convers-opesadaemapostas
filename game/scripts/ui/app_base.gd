@@ -29,3 +29,8 @@ func build(_body: VBoxContainer) -> void:
 
 func sim() -> Simulation:
 	return Game.sim
+
+
+## Chamado quando a janela do app é fechada (liquidar jogadas pendentes etc.).
+func on_close() -> void:
+	pass
