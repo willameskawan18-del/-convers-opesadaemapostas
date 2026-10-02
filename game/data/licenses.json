@@ -1,0 +1,16 @@
+{
+  "licenses": [
+    {"id": "basica", "name": "Alvará Municipal de Apostas", "cost": 600, "daily_fee": 3, "min_level": 1, "min_rep": 0, "min_stage": 0,
+     "desc": "Permite abrir uma pequena banca de apostas esportivas fictícias."},
+    {"id": "comercial", "name": "Licença Comercial de Apostas", "cost": 12000, "daily_fee": 25, "min_level": 4, "min_rep": 55, "min_stage": 2, "equipment": ["camera"], "requires": ["basica"],
+     "desc": "Necessária para operar salões de apostas (estágios 3 e 4)."},
+    {"id": "digital", "name": "Licença de Operação Digital", "cost": 45000, "daily_fee": 60, "min_level": 7, "min_rep": 58, "min_stage": 3, "requires": ["comercial"],
+     "desc": "Permite lançar o site e o aplicativo de apostas da sua marca."},
+    {"id": "grande", "name": "Licença de Grande Operação", "cost": 80000, "daily_fee": 90, "min_level": 8, "min_rep": 60, "min_stage": 4, "equipment": ["security"], "requires": ["comercial"],
+     "desc": "Necessária para estabelecimentos de grande porte (galpão)."},
+    {"id": "entretenimento", "name": "Licença de Entretenimento", "cost": 150000, "daily_fee": 150, "min_level": 10, "min_rep": 63, "min_stage": 4, "requires": ["grande"],
+     "desc": "Libera máquinas e mesas de jogos de cassino (versões fictícias)."},
+    {"id": "cassino", "name": "Licença de Cassino", "cost": 400000, "daily_fee": 400, "min_level": 13, "min_rep": 68, "min_stage": 5, "requires": ["entretenimento"],
+     "desc": "A licença máxima: permite inaugurar o Grande Cassino."}
+  ]
+}

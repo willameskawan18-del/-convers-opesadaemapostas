@@ -1,0 +1,17 @@
+{
+  "jobs": [
+    {"id": "entrega", "name": "Entregas do Depósito", "giver": "deposito", "type": "delivery", "reward": [70, 110], "difficulty": 1, "stops": ["casa_random"], "time_limit": 90, "cooldown_hours": 2, "hours": [8, 20], "xp": 15, "min_level": 1,
+     "desc": "Leve um pacote do depósito até um endereço na cidade."},
+    {"id": "carregar", "name": "Carregar mercadorias", "giver": "mercado", "type": "delivery", "reward": [60, 90], "difficulty": 1, "stops": ["mercado_caminhao", "mercado_porta", "mercado_caminhao", "mercado_porta"], "time_limit": 60, "cooldown_hours": 3, "hours": [7, 19], "xp": 12, "min_level": 1,
+     "desc": "Descarregue caixas do caminhão até a porta do mercado."},
+    {"id": "limpeza", "name": "Limpeza do mercado", "giver": "mercado", "type": "shift", "duration": 120, "reward": [80, 100], "difficulty": 1, "cooldown_hours": 6, "hours": [7, 21], "xp": 12, "min_level": 1,
+     "desc": "Turno de 2 horas limpando o mercado."},
+    {"id": "auxiliar", "name": "Auxiliar de loja", "giver": "loja", "type": "shift", "duration": 180, "reward": [110, 150], "difficulty": 1, "cooldown_hours": 8, "hours": [9, 18], "xp": 18, "min_level": 1,
+     "desc": "Turno de 3 horas ajudando na loja de eletrônicos."},
+    {"id": "panfletos", "name": "Distribuir panfletos", "giver": "loja", "type": "delivery", "reward": [90, 130], "difficulty": 1, "stops": ["praca", "casa_random", "ponto_onibus"], "time_limit": 120, "cooldown_hours": 4, "hours": [8, 20], "xp": 15, "min_level": 1,
+     "desc": "Passe por três pontos da cidade distribuindo panfletos."},
+    {"id": "transporte", "name": "Transporte de mercadoria", "giver": "deposito", "type": "delivery", "reward": [130, 180], "difficulty": 2, "stops": ["galpao_porta", "casa_random"], "time_limit": 100, "cooldown_hours": 5, "hours": [8, 19], "xp": 22, "min_level": 2,
+     "desc": "Busque uma carga no galpão e entregue no destino."}
+  ],
+  "houses": ["casa_1", "casa_2", "casa_3", "casa_4", "casa_5", "casa_6"]
+}
