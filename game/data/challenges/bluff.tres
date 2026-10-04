@@ -9,9 +9,10 @@ id = "bluff"
 title = "BLUFF"
 tagline = "Pegue a oferta... ou dobre."
 rules = "Você recebe uma oferta SECRETA.
-PEGAR: leva o valor.
-DOBRAR: 50% de ganhar o dobro, 50% de perder pesado."
+PEGAR: leva o valor. DOBRAR: 50% de ganhar o dobro, 50% de perder pesado."
 color = Color(0.690196, 0.447059, 1.000000, 1)
 logic = ExtResource("2")
 input = "choice"
-in_rotation = true
+category = "risco"
+in_rotation = false
+min_round = 1

@@ -6,6 +6,8 @@ extends Control
 var round_lbl: Label
 var challenge_lbl: Label
 var timer: TimerRing
+var jackpot_lbl: Label
+var mission_lbl: Label
 var cards_box: HBoxContainer
 var cards: Dictionary = {}   # pid -> PlayerCard
 var float_layer: Control
@@ -27,6 +29,21 @@ func _ready() -> void:
 	top.add_child(chip)
 	challenge_lbl = AW.label("", 18, AW.TEXT, "Bold", 4)
 	top.add_child(challenge_lbl)
+	var jp := PanelContainer.new()
+	jp.add_theme_stylebox_override("panel", AW.glow_style(Color(AW.BG, 0.85), AW.GOLD, 12, 2, 10))
+	jackpot_lbl = AW.label("", 18, AW.GOLD, "ExtraBold", 3)
+	jp.add_child(jackpot_lbl)
+	jp.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	jp.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	jp.position.y = 14
+	jp.name = "Jackpot"
+	add_child(jp)
+	mission_lbl = AW.label("", 14, AW.GOLD, "Bold", 3)
+	mission_lbl.position = Vector2(22, 58)
+	mission_lbl.custom_minimum_size.x = 420
+	mission_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(mission_lbl)
+	Game.mission_received.connect(func(_pid, _t): _update_mission())
 	timer = TimerRing.new()
 	timer.custom_minimum_size = Vector2(96, 96)
 	timer.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -36,8 +53,8 @@ func _ready() -> void:
 	cards_box = AW.hbox(8)
 	cards_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	cards_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	cards_box.offset_top = -118
-	cards_box.offset_bottom = -12
+	cards_box.offset_top = -146
+	cards_box.offset_bottom = -8
 	cards_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(cards_box)
 	float_layer = Control.new()
@@ -58,9 +75,11 @@ func rebuild() -> void:
 	for id in ids:
 		if not cards.has(id):
 			same = false
+	_update_jackpot()
 	if same:
 		for p in players:
 			cards[int(p.id)].set_money(int(p.money))
+			cards[int(p.id)].set_badges(p)
 		_refresh_places()
 		return
 	AW.clear(cards_box)
@@ -72,6 +91,24 @@ func rebuild() -> void:
 		cards_box.add_child(c)
 		cards[int(p.id)] = c
 	_refresh_places()
+
+
+func _update_jackpot() -> void:
+	var jp := int(Game.view.get("jackpot", 0))
+	jackpot_lbl.text = "JACKPOT  " + Fmt.money(jp)
+	var old: int = int(jackpot_lbl.get_meta("v", 0))
+	if jp != int(old):
+		jackpot_lbl.set_meta("v", jp)
+		AW.pop(jackpot_lbl, 1.5)
+
+
+## Missão secreta visível só quando há um único humano nesta máquina (senão aparece na cortina).
+func _update_mission() -> void:
+	var local := Game.local_players()
+	if local.size() == 1 and Game.missions.has(int(local[0].id)):
+		mission_lbl.text = "MISSÃO SECRETA: " + str(Game.missions[int(local[0].id)])
+	else:
+		mission_lbl.text = ""
 
 
 func _refresh_places() -> void:
@@ -86,11 +123,17 @@ func _on_phase(phase: String, info: Dictionary) -> void:
 		round_lbl.text = "RODADA FINAL"
 	elif r > 0:
 		round_lbl.text = "RODADA %d/%d" % [r, tot]
+		if str(info.get("category_name", "")) != "" and phase == "round_intro":
+			challenge_lbl.text = "%s  ·  %s" % [info.category_name, info.title]
 	else:
 		round_lbl.text = "COMEÇANDO"
-	if info.has("title") and phase != "round_results" and phase != "intro":
-		challenge_lbl.text = str(info.title)
+	if info.has("title") and phase != "round_results" and phase != "intro" and phase != "round_intro":
+		challenge_lbl.text = (str(info.get("category_name", "")) + "  ·  " if str(info.get("category_name", "")) != "" else "") + str(info.title)
 	timer.visible = phase == "decision" or phase == "allwin_decision"
+	if phase == "intro":
+		mission_lbl.text = ""
+	if phase.begins_with("allwin") or phase == "missions":
+		mission_lbl.text = ""
 	timer.total = float(info.get("deadline_in", 1.0))
 	for c in cards.values():
 		c.set_status("")

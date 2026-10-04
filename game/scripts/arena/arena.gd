@@ -466,6 +466,7 @@ func sync_players(players: Array) -> void:
 		pod.position = podium_position(i, players.size())
 		pod.look_at(Vector3(pod.position.x * 0.4, pod.position.y, 18.0), Vector3.UP, true)
 		pod.set_money(int(p.money))
+		pod.set_flags(p)
 	_update_board(players)
 
 

@@ -66,7 +66,22 @@ func show_summary(s: Dictionary) -> void:
 		row.add_child(AW.label(Fmt.money(int(r.money)), 20, Color.WHITE, "ExtraBold", 3))
 		rv.add_child(row)
 		var rs: Dictionary = r.get("stats", {})
-		rv.add_child(AW.label("   desafios %d · mult. %s · risco %s" % [int(rs.get("challenges_won", 0)), Fmt.mult(float(rs.get("best_mult", 0.0))), Fmt.money(int(rs.get("max_risk", 0)))], 13, AW.MUTED))
+		var ms := str(r.get("mission", ""))
+		rv.add_child(AW.label("   rodadas %d · mult. %s · risco %s%s" % [int(rs.get("challenges_won", 0)), Fmt.mult(float(rs.get("best_mult", 0.0))), Fmt.money(int(rs.get("max_risk", 0))), ("  · missão: " + ms) if ms != "" and i < 3 else ""], 12, AW.MUTED))
+	var awards: Array = s.get("awards", [])
+	if not awards.is_empty():
+		rv.add_child(HSeparator.new())
+		rv.add_child(AW.label("PRÊMIOS DA NOITE", 20, AW.CYAN, "ExtraBold", 3))
+		for a in awards:
+			var ar := AW.hbox(8)
+			var t := AW.label(str(a.title), 14, AW.GOLD, "ExtraBold", 2)
+			t.custom_minimum_size.x = 170
+			ar.add_child(t)
+			var nm := AW.label(str(a.name), 14, GameData.character_color(str(a.character)), "Bold", 2)
+			nm.custom_minimum_size.x = 100
+			ar.add_child(nm)
+			ar.add_child(AW.label(str(a.value), 13, AW.TEXT, "SemiBold"))
+			rv.add_child(ar)
 	var bg: Dictionary = s.get("biggest_gain", {})
 	var bl: Dictionary = s.get("biggest_loss", {})
 	if not bg.is_empty() and int(bg.get("delta", 0)) > 0:

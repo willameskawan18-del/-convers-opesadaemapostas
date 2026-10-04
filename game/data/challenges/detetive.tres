@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/detetive.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "detetive"
+title = "DETETIVE"
+tagline = "Alguém roubou o cofre do show!"
+rules = "Quatro suspeitos e algumas pistas.
+Descubra o culpado: acertar +3.000 · errar -2.000."
+color = Color(0.454902, 0.560784, 0.988235, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "conhecimento"
+in_rotation = true
+min_round = 1

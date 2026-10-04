@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/cartas.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "cartas"
+title = "CARTAS"
+tagline = "Espie... e decida se troca."
+rules = "Escolha uma carta, espie em segredo e decida: MANTER ou TROCAR.
+Ganho, perda, multiplicador, proteção, troca... ou JACKPOT!"
+color = Color(1.000000, 0.529412, 0.529412, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "risco"
+in_rotation = true
+min_round = 1

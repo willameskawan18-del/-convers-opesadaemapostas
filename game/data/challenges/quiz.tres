@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/quiz.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "quiz"
+title = "QUIZ"
+tagline = "Quanto você confia no que sabe?"
+rules = "1) Escolha a dificuldade: FÁCIL +500 · MÉDIO +1.500 (erro -500) · DIFÍCIL +3.000 (erro -1.500).
+2) Responda a pergunta."
+color = Color(0.301961, 0.670588, 0.968627, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "conhecimento"
+in_rotation = true
+min_round = 1

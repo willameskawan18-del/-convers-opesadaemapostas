@@ -118,6 +118,11 @@ func _on_phase(phase: String, info: Dictionary) -> void:
 			clear()
 			letterbox(true)
 			_allwin_intro(info)
+		"missions":
+			clear()
+			var v := _center_panel(AW.GOLD, 680)
+			v.add_child(AW.title("MISSÕES SECRETAS", 62, AW.GOLD))
+			v.add_child(AW.center(AW.label("Quem cumpriu a sua missão ganha um bônus antes do ALL WIN!", 20, AW.TEXT, "Bold", 4)))
 		"final":
 			clear()
 			letterbox(false)
@@ -128,7 +133,19 @@ func _challenge_card(phase: String, info: Dictionary) -> void:
 	var v := _center_panel(col, 760, -40)
 	var r := int(Game.view.get("round", 0))
 	var top := "EVENTO ESPECIAL!" if phase == "event_intro" else "RODADA %d DE %d" % [r, int(Game.view.get("total_rounds", 0))]
-	v.add_child(AW.center(AW.label(top, 24, AW.CYAN, "ExtraBold", 4)))
+	var head := AW.hbox(12)
+	head.alignment = BoxContainer.ALIGNMENT_CENTER
+	head.add_child(AW.label(top, 24, AW.CYAN, "ExtraBold", 4))
+	if phase == "round_intro" and str(info.get("category_name", "")) != "":
+		var chip := PanelContainer.new()
+		chip.add_theme_stylebox_override("panel", AW.style(Color(str(info.get("category_color", "ffffff"))), 10, Color(0, 0, 0, 0), 0, 12))
+		chip.add_child(AW.label(str(info.category_name), 20, Color("12052b"), "ExtraBold"))
+		head.add_child(chip)
+	v.add_child(head)
+	if info.get("high_stakes", false):
+		v.add_child(AW.center(AW.label("RODADA DE GRANDE RISCO: VALORES EM DOBRO!", 22, AW.GOLD, "ExtraBold", 4)))
+	if info.get("inflation", false):
+		v.add_child(AW.center(AW.label("INFLAÇÃO: PRÊMIOS EM DOBRO NESTA RODADA!", 22, AW.ORANGE, "ExtraBold", 4)))
 	var title_text := str(info.get("title", ""))
 	if phase == "event_intro":
 		title_text = str(info.get("public", {}).get("title", title_text))
@@ -136,7 +153,7 @@ func _challenge_card(phase: String, info: Dictionary) -> void:
 	v.add_child(t)
 	# "roleta" de nomes antes de cravar o desafio
 	if phase == "round_intro":
-		var names := ["AS PORTAS", "RISCO", "REAÇÃO", "LEILÃO", "BLUFF"]
+		var names := ["QUIZ", "AS PORTAS", "BOMBA", "CORRIDA", "VOTAÇÃO", "LEILÃO", "ROUBO", "MEMÓRIA", "ESCADA"]
 		var tw := t.create_tween()
 		for i in 10:
 			tw.tween_callback(func():
@@ -239,6 +256,8 @@ func _on_step(s: Dictionary) -> void:
 		"reaction_board": _list_panel(str(s.title), _reaction_rows(s.board))
 		"bids": _list_panel(str(s.title) + " — " + str(s.text), _bid_rows(s.bids))
 		"coin": _coin(s)
+		"list": _list_panel(str(s.title), s.get("rows", []))
+		"race": _race(s)
 		"prize": _prize(s)
 		"event_intro":
 			banner(str(s.title), str(s.text), AW.GOLD)
@@ -249,6 +268,15 @@ func _on_step(s: Dictionary) -> void:
 			if s.has("pid") and int(s.pid) >= 0:
 				col = GameData.character_color(str(Game.player_view(int(s.pid)).get("character", ""))).lerp(col, 0.4)
 			banner(str(s.title), str(s.text), col)
+
+
+func _race(s: Dictionary) -> void:
+	clear()
+	var v := _center_panel(AW.GREEN, 820, -40)
+	v.add_child(AW.center(AW.label(str(s.title), 30, AW.GOLD, "ExtraBold", 4)))
+	var view := RaceReplay.new()
+	view.setup(s.get("times", {}), float(s.duration) - 0.8)
+	v.add_child(view)
 
 
 func _fx_color(fx: String) -> Color:

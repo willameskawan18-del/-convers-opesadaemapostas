@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/precisao.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "precisao"
+title = "PRECISÃO"
+tagline = "Pare o marcador no centro."
+rules = "Escolha a aposta e pare o marcador.
+PERFEITO x5 · ÓTIMO x3 · BOM x2 · ERRO x0."
+color = Color(0.125490, 0.788235, 0.592157, 1)
+logic = ExtResource("2")
+input = "precision"
+category = "habilidade"
+in_rotation = true
+min_round = 1

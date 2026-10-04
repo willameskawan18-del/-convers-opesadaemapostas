@@ -27,14 +27,14 @@ func _ready() -> void:
 		check(Net.host(PORT) == OK, "abrir sala")
 		Game.request_add_player("HOST", "rico", false)
 		Game.request_add_player("", "", true)
-		Game.request_set_config("rounds", 5)
+		Game.request_set_config("rounds", 6)
 		await _until(func(): return Game.view.players.size() >= 3, 60.0)
 		check(Game.view.players.size() == 3, "cliente entrou no lobby")
 		Game.request_start()
 	else:
 		Net.connected_to_host.connect(func(): Game.request_add_player("CLIENTE", "maluco", false))
 		check(Net.join("127.0.0.1", PORT) == OK, "conectar")
-	await _until(func(): return ended, 400.0)
+	await _until(func(): return ended, 2000.0)
 	check(ended, "partida terminou")
 	var s := Game.last_summary
 	var total := 0
@@ -56,19 +56,10 @@ func _auto(phase: String, info: Dictionary) -> void:
 	if phase != "decision" and phase != "allwin_decision":
 		return
 	await get_tree().create_timer(0.4).timeout
-	for p in Game.local_players():
-		var pid := int(p.id)
-		if Game.has_submitted(pid) or not Game.private_infos.has(pid):
-			continue
-		match str(info.get("input", "")):
-			"reaction":
-				await get_tree().create_timer(float(info.public.delay) + 0.2).timeout
-				Game.submit_action(pid, {"ms": 250 if role == "client" else 400})
-			"bid":
-				Game.submit_action(pid, {"bid": mini(300, int(Game.private_infos[pid].max_bid))})
-			_:
-				var opts: Array = Game.private_infos[pid].options
-				Game.submit_action(pid, {"choice": opts[0].id})
+	if str(info.get("input", "")) == "reaction":
+		await get_tree().create_timer(float(info.public.delay) + 0.2).timeout
+	if str(Game.view.phase) == phase:
+		AutoPlayer.play_all(Game.view.phase_info)
 
 
 func _until(cond: Callable, limit: float) -> void:

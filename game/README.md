@@ -19,26 +19,35 @@ Dinheiro 100% fictício: não há apostas reais, depósitos, saques ou conversã
 
 Controles: mouse (ou Tab/Enter) nos botões · **Espaço/clique** no desafio de Reação (outros jogadores locais: Q, P, Z, M, A, L, X) · **Esc** pausa.
 
-## Loop da partida (MVP completo)
+## Loop da partida
 
-MENU → LOBBY → INTRO ($1.000 para todos) → [RODADA → DESAFIO → DECISÃO → REVELAÇÃO → PLACAR] × N
-(com **EVENTO ESPECIAL** depois de ~1/3 e ~2/3) → **ALL WIN** → VENCEDOR → RESULTADO → JOGAR NOVAMENTE / LOBBY / MENU.
-Partida padrão: 8 rodadas (≈ 12–15 min). Configurável: 6, 8, 10 ou 12 rodadas; 15, 20 ou 30 s para decidir.
+MENU → LOBBY → INTRO ($1.000 para todos + MISSÃO SECRETA) →
+9 rodadas por categoria: CONHECIMENTO → RISCO → HABILIDADE → SOCIAL → RISCO → HABILIDADE → CONHECIMENTO → SOCIAL → GRANDE RISCO (valores x2)
+(com EVENTOS depois das rodadas 3 e 6) → MISSÕES REVELADAS → **ALL WIN** (rodada 10) → VENCEDOR + PRÊMIOS → JOGAR NOVAMENTE.
+Cada rodada segue DECISÃO → INTERAÇÃO → RESULTADO → GANHO/PERDA, e muitas têm várias etapas (nova decisão a cada uma).
+O sorteio evita repetir desafios na partida e os da partida anterior. Duração típica: 12–18 min.
 
-## Desafios
+## Desafios (20 no sorteio + eventos + ALL WIN)
 
-| Desafio | Regra |
+| Categoria | Desafios |
 |---|---|
-| **As Portas** | A/B/C escondem x5, x2 e x0 da aposta da rodada. Escolha simultânea; portas abrem da pior para a melhor. |
-| **Risco** | SAFE +$500 garantido · RISK 50% +$2.000 / 50% −$1.000 (revelação um a um com moeda). |
-| **Reação** | Botão fica verde após tempo aleatório. 1º +$2.000, 2º +$1.000, 3º +$500; queimar a largada custa dinheiro. |
-| **Leilão** | Prêmio misterioso com dica de faixa de valor; lances secretos; maior lance paga e leva (pode ser caixa vazia). |
-| **Bluff** | Oferta secreta para cada um: PEGAR ou DOBRAR (+2× ou −4/3 da oferta). Revelação um por um. |
-| **Evento especial** | Chuva de dinheiro, imposto do líder, Robin Hood, resgate do último, sorteio relâmpago, jackpot da plateia. |
-| **ALL WIN (final)** | SAFE guarda 90% · ALL WIN: JACKPOT x4 (10%), DOBROU x2 (35%), PERDEU – sobra 10% (55%). Zerado joga com ficha de $1.000. |
+| **Conhecimento** | Quiz (escolha a dificuldade: +500 / +1.500 / +3.000), Quiz Relâmpago (4 perguntas, o mais rápido ganha mais), Matemática (contas com dinheiro), Detetive (pistas lógicas, culpado único), Quem Está Mentindo? |
+| **Habilidade** (jogados de verdade na tela) | Reflexo (+3.000/+2.000/+1.000), Precisão (aposta + barra: x5/x3/x2/x0), Tiro ao Alvo (normal, dourado, x2, negativo e alvo JACKPOT), Memória (sequência de cores), Corrida (aperte para correr, pule obstáculos; replay com todos) |
+| **Risco** | Portas com pistas (uma é mentira), Bomba (abrir caixas ou parar), Escada do Risco (500→8.000, parar ou subir), Cartas (espiar e trocar; ganho, perda, multiplicador, proteção, troca, jackpot), Leilão aberto com informação secreta |
+| **Social** | Votação (4 tipos), Alianças (recado + cooperar/trair, marca TRAIDOR), Hot Seat, Roubo (alvo + prova de precisão), Derrube o Rei |
+| **Eventos** | Imposto, Bônus, Jackpot da plateia, Inflação (próxima rodada vale o dobro), Crash, Reviravolta, Troca de patrimônio (decisão do último), Robin Hood |
 
-Os valores crescem 20% por rodada. Quem zera continua jogando com "ficha de resgate" (sempre dá para virar).
-Bots têm personalidade (Medroso foge do risco, Maluco e Apostador arriscam, quem está atrás arrisca mais).
+## Sistemas de economia e virada
+
+- **SAFE CARD:** protege das perdas de um desafio de risco (usar agora ou guardar). Ganha-se em cartas, votação, leilão e reviravolta.
+- **Jackpot progressivo:** $3.000, cresce 60% por rodada sem ganhador (máx. $25.000).
+- **KING:** o líder usa coroa e é o alvo do "Derrube o Rei", de roubos e de votações.
+- **VIRADA:** quem tem menos de 40% do líder (ou está zerado) ganha +50% nos ganhos da rodada.
+- **Dívida limitada:** até -$5.000; quem está zerado joga com "ficha de resgate".
+- **Missões secretas:** 10 tipos, bônus de $3.000+ antes do ALL WIN.
+- **ALL WIN:** SAFE guarda 90% · ALL WIN: x4 (10%), x2 (35%) ou sobra 10% (55%).
+- **Prêmios finais:** Mais rico, Mais arriscado, Maior multiplicador, Maior azar, Mais preciso, Mais vitórias, Maior recuperação.
+- **Balanceamento** (`tests/balance_sim.gd`, 120 partidas simuladas): vencedores terminam com mediana ~$38k (p10 ~$19k, p90 ~$75k, máximo >$100k).
 
 ## Arquitetura
 
@@ -73,7 +82,8 @@ game/
 ```
 cd game
 godot --headless --path . --import
-godot --headless --path . -s res://tests/run_tests.gd        # lógica (dinheiro, ranking, sequência, 5 desafios + evento + ALL WIN, 40 sementes)
+godot --headless --path . -s res://tests/run_tests.gd        # lógica: dinheiro/dívida, categorias, 24 desafios com todas as etapas, 40 sementes (~28.700 verificações)
+godot --headless --path . -s res://tests/balance_sim.gd      # simulação de economia (120 partidas)
 godot --headless --path . res://tests/match_test.tscn        # 2 partidas completas só com bots + lobby/menu
 godot --headless --path . res://tests/smoke_test.tscn        # fluxo com interface: PLAY, resultado, revanche, lobby com 2 humanos locais
 godot --headless --path . res://tests/net_test.tscn -- host  # (em outro terminal: ... -- client) partida real via ENet
@@ -85,8 +95,9 @@ godot --headless --path . res://tests/net_test.tscn -- host  # (em outro termina
 
 ## Ainda não implementado (próximos passos)
 
-1. Reconexão de jogador no meio da partida e lista de salas.
-2. Mais desafios (o sistema de `ChallengeDef` já está pronto) e habilidades por personagem.
+1. MERCADO de previsões ("quem vence a próxima rodada?") e caixas misteriosas com "segundo turno".
+2. Reconexão de jogador no meio da partida e lista de salas.
+3. Habilidades por personagem.
 3. Tradução para inglês (textos já preparados para `tr()` / idioma nas configurações).
 4. Áudio gravado (hoje os sons são sintetizados; arquivos em `game/audio/<nome>.ogg` substituem automaticamente).
 5. Suporte a controle (gamepad) com cursor.

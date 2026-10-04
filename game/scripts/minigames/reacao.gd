@@ -1,5 +1,5 @@
 extends Challenge
-## REAÇÃO — um botão aparece depois de um tempo aleatório. Quem apertar antes queima a largada.
+## REFLEXO — um botão aparece depois de um tempo aleatório. Quem apertar antes queima a largada.
 
 var delay := 3.0
 var prizes: Array = []
@@ -8,8 +8,8 @@ var false_start_penalty := 0
 
 func start() -> void:
 	delay = ctx.rng.randf_range(2.0, 5.0)
-	prizes = [ctx.scaled(2000), ctx.scaled(1000), ctx.scaled(500)]
-	false_start_penalty = ctx.scaled(300)
+	prizes = [ctx.scaled(3000), ctx.scaled(2000), ctx.scaled(1000)]
+	false_start_penalty = ctx.scaled(500)
 
 
 func time_limit() -> float:
@@ -55,7 +55,13 @@ func resolve() -> Array:
 	for pid in participants:
 		if not valid.has(pid) and not burned.has(pid):
 			board.append([pid, -2])
-	steps.append(Challenge.step("reaction_board", 3.0, {"title": "TEMPOS DE REAÇÃO", "board": board, "fx": "reveal", "camera": "screen"}))
+	var stat := []
+	for pid in valid:
+		stat.append([pid, "skill_sum", clampf(1.0 - (int(actions[pid].ms) - 200) / 600.0, 0.0, 1.0)])
+		stat.append([pid, "skill_n", 1])
+	if valid.size() > 0:
+		stat.append([valid[0], "skill_wins", 1])
+	steps.append(Challenge.step("reaction_board", 3.0, {"title": "TEMPOS DE REAÇÃO", "board": board, "fx": "reveal", "camera": "screen", "stat": stat}))
 	if not burned.is_empty():
 		var money := []
 		for pid in burned:

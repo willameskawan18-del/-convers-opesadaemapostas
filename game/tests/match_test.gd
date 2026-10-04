@@ -29,9 +29,9 @@ func _ready() -> void:
 		chars[p.character] = true
 	check(chars.size() == 6, "personagens diferentes")
 	Game.request_start()
-	await _until(func(): return ended >= 1, 400.0)
+	await _until(func(): return ended >= 1, 2000.0)
 	check(ended == 1, "partida terminou")
-	for ph in ["intro", "round_intro", "decision", "reveal", "round_results", "event_intro", "allwin_intro", "allwin_decision", "allwin_reveal", "final"]:
+	for ph in ["intro", "round_intro", "decision", "reveal", "round_results", "event_intro", "missions", "allwin_intro", "allwin_decision", "allwin_reveal", "final"]:
 		check(phases.has(ph), "fase " + ph)
 	check(phases.count("round_intro") == 6, "6 rodadas (%d)" % phases.count("round_intro"))
 	check(phases.count("event_intro") == 2, "2 eventos")
@@ -41,12 +41,15 @@ func _ready() -> void:
 		check(int(s.ranking[i - 1].money) >= int(s.ranking[i].money), "ranking ordenado")
 	check(money_events > 20, "dinheiro mudou várias vezes (%d)" % money_events)
 	print("Vencedor: %s com %s" % [s.ranking[0].name, Fmt.money(s.ranking[0].money)])
+	for a in s.awards:
+		print("  PRÊMIO %s: %s (%s)" % [a.title, a.name, a.value])
+	print("  desafios: ", s.played)
 	for r in s.ranking:
 		print("  %dº %s (%s) %s  desafios:%d  mult:%s  risco:%s" % [r.position, r.name, r.character, Fmt.money(r.money), r.stats.challenges_won, r.stats.best_mult, Fmt.money(r.stats.max_risk)])
 	# Jogar novamente
 	phases.clear()
 	Game.request_rematch()
-	await _until(func(): return ended >= 2, 400.0)
+	await _until(func(): return ended >= 2, 2000.0)
 	check(ended == 2, "revanche terminou")
 	check(phases.has("intro") and phases.has("final"), "revanche completa")
 	# Voltar ao lobby e ao menu

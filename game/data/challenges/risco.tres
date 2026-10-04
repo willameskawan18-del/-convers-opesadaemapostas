@@ -6,11 +6,13 @@
 [resource]
 script = ExtResource("1")
 id = "risco"
-title = "RISCO"
+title = "SAFE OU RISK"
 tagline = "Seguro ou cara-ou-coroa?"
 rules = "SAFE: ganho pequeno garantido.
 RISK: 50% de ganhar MUITO, 50% de perder muito."
 color = Color(1.000000, 0.623529, 0.109804, 1)
 logic = ExtResource("2")
 input = "choice"
-in_rotation = true
+category = "risco"
+in_rotation = false
+min_round = 1

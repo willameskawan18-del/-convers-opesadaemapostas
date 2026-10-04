@@ -7,10 +7,12 @@
 script = ExtResource("1")
 id = "leilao"
 title = "LEILÃO"
-tagline = "Um prêmio misterioso. Quanto você paga?"
-rules = "Dê um lance secreto pelo prêmio misterioso.
-O maior lance paga e leva... pode ser fortuna ou caixa vazia!"
-color = Color(0.301961, 0.670588, 0.968627, 1)
+tagline = "Alguns sabem mais do que você..."
+rules = "Prêmio misterioso. Alguns recebem PISTAS secretas.
+Lances abertos em até 4 etapas. Quem passa, sai. O maior lance leva."
+color = Color(1.000000, 0.572549, 0.168627, 1)
 logic = ExtResource("2")
-input = "bid"
+input = "auction"
+category = "risco"
 in_rotation = true
+min_round = 1

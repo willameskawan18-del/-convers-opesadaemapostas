@@ -7,11 +7,12 @@
 script = ExtResource("1")
 id = "portas"
 title = "AS PORTAS"
-tagline = "Escolha uma porta. Uma é fortuna, outra é desastre."
-rules = "Três portas: A, B e C.
-Uma multiplica sua aposta por 5, outra por 2 e outra ZERA.
-Todos escolhem ao mesmo tempo."
+tagline = "Pistas... e uma delas é mentira."
+rules = "Três portas: x5, x2 e x0 da sua aposta.
+Cada porta tem uma pista. Duas são verdadeiras, UMA é mentira."
 color = Color(1.000000, 0.301961, 0.427451, 1)
 logic = ExtResource("2")
 input = "choice"
+category = "risco"
 in_rotation = true
+min_round = 1

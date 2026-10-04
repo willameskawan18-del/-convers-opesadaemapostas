@@ -1,9 +1,12 @@
 class_name MoneyManager
 extends RefCounted
 ## Única porta de entrada para alterar dinheiro (fictício). Registra o histórico da partida
-## e avisa a interface a cada mudança. O dinheiro nunca fica negativo.
+## e avisa a interface a cada mudança. Permite DÍVIDA limitada (até -$5.000): quem zera
+## continua no jogo, mas precisa recuperar.
 
 signal money_changed(pid: int, old_value: int, new_value: int, reason: String)
+
+const DEBT_LIMIT := 5000
 
 var pm: PlayerManager
 var history: Array = []   # {round, pid, delta, reason}
@@ -54,13 +57,13 @@ func zero(pid: int, reason: String) -> int:
 	return _apply(p, -p.money, reason)
 
 
-## Transfere até `amount` (limitado ao saldo de quem paga). Retorna o valor transferido.
+## Transfere até `amount` (limitado ao saldo positivo de quem paga). Retorna o valor transferido.
 func transfer(from_pid: int, to_pid: int, amount: int, reason: String) -> int:
 	var a := pm.get_player(from_pid)
 	var b := pm.get_player(to_pid)
 	if a == null or b == null or from_pid == to_pid:
 		return 0
-	var v := mini(absi(amount), a.money)
+	var v := mini(absi(amount), maxi(a.money, 0))
 	_apply(a, -v, reason)
 	_apply(b, v, reason)
 	return v
@@ -68,7 +71,7 @@ func transfer(from_pid: int, to_pid: int, amount: int, reason: String) -> int:
 
 func _apply(p: PlayerState, amount: int, reason: String) -> int:
 	var old := p.money
-	p.money = maxi(0, p.money + amount)
+	p.money = maxi(-DEBT_LIMIT, p.money + amount)
 	var d := p.money - old
 	if d == 0:
 		return 0
@@ -76,7 +79,10 @@ func _apply(p: PlayerState, amount: int, reason: String) -> int:
 		p.stats.gained = int(p.stats.get("gained", 0)) + d
 	else:
 		p.stats.lost = int(p.stats.get("lost", 0)) - d
+		p.stats.biggest_loss = maxi(int(p.stats.get("biggest_loss", 0)), -d)
 	p.stats.peak_money = maxi(int(p.stats.get("peak_money", 0)), p.money)
+	p.stats.min_money = mini(int(p.stats.get("min_money", p.money)), p.money)
+	p.stats.recovery = maxi(int(p.stats.get("recovery", 0)), p.money - int(p.stats.min_money))
 	history.append({"round": round_index, "pid": p.id, "delta": d, "reason": reason})
 	money_changed.emit(p.id, old, p.money, reason)
 	return d

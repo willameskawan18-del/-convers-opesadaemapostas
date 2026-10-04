@@ -1,23 +1,26 @@
 class_name DecisionPanel
 extends Control
 ## Painel de decisão dos jogadores humanos DESTA máquina.
-## Vários jogadores na mesma máquina: modo "passa o controle" com cortina entre eles.
-## Tipos: choice (botões), bid (lance), reaction (tempo de reação, todos juntos).
+## Vários jogadores na mesma máquina: "passa o controle" com cortina entre eles.
+## Entradas: choice (botões em vários layouts), auction (lances abertos), reaction,
+## precision / targets / memory / race (minijogos de habilidade em games/).
 
 const REACTION_KEYS := [KEY_SPACE, KEY_Q, KEY_P, KEY_Z, KEY_M, KEY_A, KEY_L, KEY_X]
 const REACTION_KEY_NAMES := ["ESPAÇO", "Q", "P", "Z", "M", "A", "L", "X"]
+const SKILL_GAMES := {"precision": "PrecisionGame", "targets": "TargetGame", "memory": "MemoryGame", "race": "RaceGame"}
 
 var info: Dictionary = {}
 var queue: Array = []          # pids locais que ainda não escolheram
 var current := -1
 var curtain_ok := false
 var box: VBoxContainer
+var _shield_cb: CheckButton
+var _shown_at := 0.0
 var _bid := 0
 var _bid_lbl: Label
 var _bid_slider: HSlider
 # reação
 var _react_go_at := -1.0
-var _react_start := 0.0
 var _react_done: Dictionary = {}
 var _react_circle: Panel
 var _react_lbl: Label
@@ -28,14 +31,19 @@ var _react_go_shown := false
 func _ready() -> void:
 	AW.full_rect(self)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box = AW.vbox(12)
+	box = AW.vbox(10)
 	var cc := AW.centered(box)
 	cc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cc.offset_top = 60
 	cc.offset_bottom = -120
 	add_child(cc)
 	visible = false
 	Game.phase_changed.connect(_on_phase)
-	Game.private_info_received.connect(func(_pid, _i): if visible and current < 0: _next())
+	Game.private_info_received.connect(func(_pid, _i): if visible and current < 0 and str(info.get("input", "")) != "reaction": _next())
+
+
+func _input_type() -> String:
+	return str(info.get("input", "choice"))
 
 
 func _on_phase(phase: String, i: Dictionary) -> void:
@@ -46,22 +54,29 @@ func _on_phase(phase: String, i: Dictionary) -> void:
 	info = i
 	visible = true
 	current = -1
-	queue = Game.local_players().map(func(p): return int(p.id))
-	if str(info.get("input", "")) == "reaction":
+	curtain_ok = false
+	var deciders: Array = i.get("deciders", [])
+	queue = Game.local_players().map(func(p): return int(p.id)).filter(func(pid): return deciders.has(pid))
+	if _input_type() == "reaction":
 		_start_reaction()
 	else:
 		_next()
 
 
+func _has_private(pid: int) -> bool:
+	return Game.private_infos.has(pid) and int(Game.private_infos[pid].get("stage", 1)) == int(info.get("stage", 1))
+
+
 func _next() -> void:
 	AW.clear(box)
+	_shield_cb = null
 	queue = queue.filter(func(pid): return not Game.has_submitted(pid) and pid != current)
 	current = -1
 	if queue.is_empty():
 		_waiting()
 		return
 	var pid: int = queue[0]
-	if not Game.private_infos.has(pid):
+	if not _has_private(pid):
 		_waiting()
 		return
 	if Game.local_players().size() > 1 and not curtain_ok:
@@ -69,17 +84,27 @@ func _next() -> void:
 		return
 	curtain_ok = false
 	current = pid
-	match str(info.get("input", "choice")):
-		"bid": _build_bid(pid)
-		_: _build_choice(pid)
+	_shown_at = Game.clock
+	var it := _input_type()
+	if it == "auction":
+		_build_auction(pid)
+	elif SKILL_GAMES.has(it):
+		_build_skill(pid, it)
+	else:
+		_build_choice(pid)
 
 
 func _waiting() -> void:
-	if Game.local_players().is_empty():
+	var local := Game.local_players()
+	if local.is_empty():
 		box.add_child(_header("VOCÊ ESTÁ ASSISTINDO", "Os jogadores estão decidindo..."))
 		return
-	var p := _header("ESCOLHA FEITA!", "Aguardando os outros jogadores...")
-	box.add_child(p)
+	var deciders: Array = info.get("deciders", [])
+	var mine_in := local.any(func(p): return deciders.has(int(p.id)))
+	if not mine_in:
+		box.add_child(_header("VOCÊ ESTÁ FORA DESTA ETAPA", "Assista os outros decidirem..."))
+		return
+	box.add_child(_header("ESCOLHA FEITA!", "Aguardando os outros jogadores..."))
 
 
 func _header(t: String, sub: String) -> PanelContainer:
@@ -93,12 +118,16 @@ func _header(t: String, sub: String) -> PanelContainer:
 
 func _curtain(pid: int) -> void:
 	var pv := Game.player_view(pid)
-	var p := AW.panel(Color(AW.BG, 0.97), GameData.character_color(str(pv.character)), 30)
+	var col := GameData.character_color(str(pv.character))
+	var p := AW.panel(Color(AW.BG, 0.97), col, 30)
 	var v := AW.vbox(14)
 	p.add_child(v)
 	v.add_child(AW.center(AW.label("VEZ DE", 22, AW.MUTED, "Bold")))
-	v.add_child(AW.title(str(pv.name), 64, GameData.character_color(str(pv.character))))
+	v.add_child(AW.title(str(pv.name), 64, col))
 	v.add_child(AW.center(AW.label("Os outros jogadores: não olhem a tela!", 20, AW.TEXT)))
+	if Game.missions.has(pid):
+		var m := AW.center(AW.label("Sua missão secreta: " + str(Game.missions[pid]), 16, AW.GOLD, "Bold"))
+		v.add_child(m)
 	var b := AW.button("ESTOU PRONTO", func():
 		curtain_ok = true
 		_next(), AW.GREEN, 26, 320)
@@ -111,80 +140,199 @@ func _curtain(pid: int) -> void:
 	b.grab_focus()
 
 
-func _context_lines(pid: int, priv: Dictionary) -> Array:
-	var out := []
-	var pub: Dictionary = info.get("public", {})
-	match str(info.get("id", "")):
-		"portas":
-			out.append("Sua aposta: %s%s" % [Fmt.money(int(priv.get("stake", 0))), "  (ficha de resgate: não perde nada!)" if priv.get("free", false) else ""])
-			out.append("Prêmios atrás das portas:  x5   ·   x2   ·   x0")
-		"bluff":
-			out.append("SUA OFERTA SECRETA: " + Fmt.money(int(priv.get("offer", 0))))
-		"risco":
-			out.append("Você tem " + Fmt.money(int(Game.player_view(pid).get("money", 0))))
-		"allwin":
-			out.append("Seu patrimônio: " + Fmt.money(int(Game.player_view(pid).get("money", 0))) + "   ·   Posição: " + Fmt.place(Game.position_in_view(pid)))
-			out.append(str(pub.get("chances", "")))
-	return out
+## Cabeçalho comum: quem, título da etapa, pergunta (prompt), linhas e SAFE CARD.
+func _panel_for(pid: int, glow: Color, min_w: float = 0.0) -> VBoxContainer:
+	var priv: Dictionary = Game.private_infos[pid]
+	var pv := Game.player_view(pid)
+	var col := GameData.character_color(str(pv.character))
+	var p := AW.panel(Color(AW.BG, 0.92), glow, 22)
+	if min_w > 0:
+		p.custom_minimum_size.x = min_w
+	var v := AW.vbox(8)
+	p.add_child(v)
+	var top := AW.hbox(10)
+	top.alignment = BoxContainer.ALIGNMENT_CENTER
+	var who := str(pv.name) + ", SUA VEZ!" if Game.local_players().size() > 1 else "SUA DECISÃO"
+	top.add_child(AW.label(who, 18, col, "ExtraBold", 4))
+	var st := str(info.get("stage_title", ""))
+	if st != "":
+		top.add_child(AW.label("·  " + st, 18, AW.CYAN, "Bold", 3))
+	v.add_child(top)
+	if str(priv.get("prompt", "")) != "":
+		var pr := AW.label(str(priv.prompt), 28 if str(priv.prompt).length() < 60 else 22, Color.WHITE, "ExtraBold", 5)
+		pr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		AW.wrap(pr)
+		pr.custom_minimum_size.x = 760
+		v.add_child(pr)
+	var small: bool = priv.get("small_lines", false)
+	for line in priv.get("lines", []):
+		var l := AW.label(str(line), 15 if small else 18, AW.TEXT if not str(line).ends_with(":") else AW.GOLD, "SemiBold" if small else "Bold", 3)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if small else HORIZONTAL_ALIGNMENT_CENTER
+		AW.wrap(l)
+		l.custom_minimum_size.x = 760
+		v.add_child(l)
+	if int(priv.get("shields", 0)) > 0:
+		_shield_cb = CheckButton.new()
+		_shield_cb.text = "USAR SAFE CARD (protege das perdas deste desafio) — você tem %d" % int(priv.shields)
+		_shield_cb.add_theme_color_override("font_color", AW.CYAN)
+		var sh := AW.hbox()
+		sh.alignment = BoxContainer.ALIGNMENT_CENTER
+		sh.add_child(_shield_cb)
+		v.add_child(sh)
+	box.add_child(p)
+	AW.fade_in(p, 0.25, 30)
+	return v
 
 
 func _build_choice(pid: int) -> void:
 	var priv: Dictionary = Game.private_infos[pid]
-	var pv := Game.player_view(pid)
-	var col := GameData.character_color(str(pv.character))
-	var p := AW.panel(Color(AW.BG, 0.9), Color(str(info.get("color", "#ff2e88"))), 24)
-	var v := AW.vbox(14)
-	p.add_child(v)
-	var who := str(pv.name) + ", ESCOLHA!" if Game.local_players().size() > 1 else "SUA ESCOLHA"
-	v.add_child(AW.center(AW.label(who, 22, col, "ExtraBold", 4)))
-	for line in _context_lines(pid, priv):
-		v.add_child(AW.center(AW.label(str(line), 20, AW.TEXT, "Bold", 3)))
-	var row := AW.hbox(18)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	v.add_child(row)
-	var is_doors := str(info.get("id", "")) == "portas"
+	var v := _panel_for(pid, Color(str(info.get("color", "#ff2e88"))))
+	var layout := str(priv.get("layout", ""))
+	var opts: Array = priv.get("options", [])
 	var is_allwin := str(info.get("id", "")) == "allwin"
-	for o in priv.get("options", []):
-		var oid := str(o.id)
-		var oc: Color = o.color if o.color is Color else Color(str(o.color))
-		var text := str(o.label)
-		var b := AW.button(text, func(): _choose(pid, {"choice": oid}), oc, 44 if is_doors else (40 if is_allwin else 34))
-		if is_doors:
-			b.custom_minimum_size = Vector2(190, 250)
+	var container: Container
+	match layout:
+		"grid":
+			var g := GridContainer.new()
+			g.columns = 2
+			g.add_theme_constant_override("h_separation", 12)
+			g.add_theme_constant_override("v_separation", 12)
+			container = g
+		"boxes", "cards":
+			var g := GridContainer.new()
+			g.columns = 6 if layout == "boxes" else 4
+			g.add_theme_constant_override("h_separation", 10)
+			g.add_theme_constant_override("v_separation", 10)
+			container = g
+		"list":
+			container = AW.vbox(8)
+		_:
+			var h := AW.hbox(16)
+			h.alignment = BoxContainer.ALIGNMENT_CENTER
+			container = h
+	var wrap := CenterContainer.new()
+	wrap.add_child(container)
+	v.add_child(wrap)
+	if layout == "boxes":
+		_build_boxes(pid, container as GridContainer, priv, opts)
+	else:
+		for o in opts:
+			container.add_child(_option_button(pid, o, layout, is_allwin))
+	if str(priv.get("footer", "")) != "":
+		v.add_child(AW.center(AW.label(str(priv.footer), 16, AW.GOLD, "Bold", 3)))
+
+
+func _option_button(pid: int, o: Dictionary, layout: String, is_allwin: bool) -> Control:
+	var oid := str(o.id)
+	var oc: Color = o.color if o.color is Color else Color(str(o.color))
+	var size := 30
+	var min_size := Vector2(240, 96)
+	match layout:
+		"grid":
+			size = 20
+			min_size = Vector2(380, 70)
+		"doors":
+			size = 36
+			min_size = Vector2(220, 210)
+		"cards":
+			size = 44
+			min_size = Vector2(120, 150)
+		"list":
+			size = 18
+			min_size = Vector2(620, 54)
+	if is_allwin:
+		size = 40
+		min_size = Vector2(300, 120)
+	var b := AW.button(str(o.label), func(): _choose(pid, {"choice": oid}), oc, size)
+	b.custom_minimum_size = min_size
+	if layout == "grid" or layout == "list":
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var desc := str(o.get("desc", ""))
+	if desc == "" or desc == "?":
+		return b
+	var bv := AW.vbox(4)
+	bv.add_child(b)
+	var d := AW.label(desc, 15, AW.TEXT, "SemiBold", 3)
+	d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	d.custom_minimum_size.x = min_size.x
+	AW.wrap(d)
+	bv.add_child(d)
+	return bv
+
+
+func _build_boxes(pid: int, grid: GridContainer, priv: Dictionary, opts: Array) -> void:
+	var revealed: Dictionary = priv.get("revealed", {})
+	var available := {}
+	var stop_opt: Dictionary = {}
+	for o in opts:
+		if str(o.id) == "stop":
+			stop_opt = o
 		else:
-			b.custom_minimum_size = Vector2(300 if is_allwin else 260, 120)
-		var bv := AW.vbox(4)
-		bv.add_child(b)
-		if str(o.desc) != "?":
-			var d := AW.label(str(o.desc), 16, AW.TEXT, "SemiBold", 3)
-			d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			d.custom_minimum_size.x = b.custom_minimum_size.x
-			AW.wrap(d)
-			bv.add_child(d)
-		row.add_child(bv)
-	box.add_child(p)
-	AW.fade_in(p, 0.3, 40)
+			available[int(o.id)] = o
+	var count := int(info.get("public", {}).get("count", 12))
+	for i in count:
+		if available.has(i):
+			var idx := str(i)
+			var b := AW.button(str(i + 1), func(): _choose(pid, {"choice": idx}), AW.PURPLE, 30)
+			b.custom_minimum_size = Vector2(100, 80)
+			grid.add_child(b)
+		else:
+			var r := str(revealed.get(i, revealed.get(str(i), "?")))
+			var txt: String = {"bomb": "BOMBA", "jackpot": "JACKPOT"}.get(r, r)
+			var p := Panel.new()
+			p.custom_minimum_size = Vector2(100, 80)
+			p.add_theme_stylebox_override("panel", AW.style(Color("8a1020") if r == "bomb" else (Color("7a5a00") if r == "jackpot" else Color("12402c")), 14))
+			var l := AW.center(AW.label(txt, 16, Color.WHITE, "ExtraBold", 3))
+			AW.full_rect(l)
+			p.add_child(l)
+			grid.add_child(p)
+	if not stop_opt.is_empty():
+		var h := AW.hbox()
+		h.alignment = BoxContainer.ALIGNMENT_CENTER
+		h.add_child(AW.button(str(stop_opt.label), func(): _choose(pid, {"choice": "stop"}), AW.GREEN, 26, 360))
+		grid.get_parent().get_parent().add_child(h)
 
 
-func _build_bid(pid: int) -> void:
+func _build_auction(pid: int) -> void:
 	var priv: Dictionary = Game.private_infos[pid]
-	var pub: Dictionary = info.get("public", {})
+	var v := _panel_for(pid, AW.ORANGE, 760)
 	var maxb := int(priv.get("max_bid", 0))
-	_bid = 0
-	var p := AW.panel(Color(AW.BG, 0.9), AW.CYAN, 24)
-	var v := AW.vbox(10)
-	p.custom_minimum_size.x = 640
-	p.add_child(v)
-	v.add_child(AW.center(AW.label(str(pub.get("item", "PRÊMIO")), 34, AW.GOLD, "ExtraBold", 5)))
-	v.add_child(AW.center(AW.label("DICA: vale entre %s e %s" % [Fmt.money(int(pub.get("hint_lo", 0))), Fmt.money(int(pub.get("hint_hi", 0)))], 20, AW.CYAN, "Bold")))
-	v.add_child(AW.center(AW.label("Seu dinheiro: %s  ·  Lance secreto. O maior lance leva!" % Fmt.money(maxb), 16, AW.MUTED)))
-	_bid_lbl = AW.label(Fmt.money(0), 48, Color.WHITE, "ExtraBold", 5)
-	v.add_child(AW.center(_bid_lbl))
+	var minb := int(priv.get("min_bid", 0))
+	var high := int(priv.get("high", 0))
+	var high_name := str(priv.get("high_name", ""))
+	var hist: Array = priv.get("history", [])
+	var info_row := AW.hbox(20)
+	info_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	info_row.add_child(AW.label("MAIOR LANCE: " + (Fmt.money(high) + " (" + high_name + ")" if high > 0 else "nenhum"), 20, AW.GOLD, "ExtraBold", 3))
+	info_row.add_child(AW.label("Você tem " + Fmt.money(maxb), 18, AW.TEXT, "Bold"))
+	v.add_child(info_row)
+	if hist.size() > 0:
+		var hs := []
+		for h in hist.slice(maxi(0, hist.size() - 6)):
+			hs.append("%s: %s" % [h[0], "passou" if int(h[1]) < 0 else Fmt.money(int(h[1]))])
+		var hl := AW.label("Lances: " + "  ·  ".join(hs), 15, AW.MUTED, "SemiBold")
+		hl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		AW.wrap(hl)
+		hl.custom_minimum_size.x = 740
+		v.add_child(hl)
+	var is_high := high_name == str(Game.player_view(pid).get("name", "")) and high > 0
+	if maxb < minb and not is_high:
+		v.add_child(AW.center(AW.label("Você não tem dinheiro para cobrir o lance.", 18, AW.RED, "Bold")))
+		var h0 := AW.hbox()
+		h0.alignment = BoxContainer.ALIGNMENT_CENTER
+		h0.add_child(AW.button("PASSAR", func(): _choose(pid, {"pass": true}), AW.PANEL2, 24, 260))
+		v.add_child(h0)
+		return
+	_bid = mini(minb, maxb)
+	_bid_lbl = AW.center(AW.label(Fmt.money(_bid), 44, Color.WHITE, "ExtraBold", 5))
+	v.add_child(_bid_lbl)
 	_bid_slider = HSlider.new()
-	_bid_slider.min_value = 0
-	_bid_slider.max_value = maxb
+	_bid_slider.min_value = minb
+	_bid_slider.max_value = maxi(minb, maxb)
 	_bid_slider.step = 50
-	_bid_slider.custom_minimum_size = Vector2(560, 28)
+	_bid_slider.value = minb
+	_bid_slider.custom_minimum_size = Vector2(620, 28)
 	_bid_slider.value_changed.connect(func(val):
 		_bid = int(val)
 		_bid_lbl.text = Fmt.money(_bid))
@@ -192,19 +340,39 @@ func _build_bid(pid: int) -> void:
 	var q := AW.hbox(8)
 	q.alignment = BoxContainer.ALIGNMENT_CENTER
 	v.add_child(q)
-	for add in [100, 500, 1000]:
-		q.add_child(AW.button("+" + Fmt.money(add), func(): _bid_slider.value = mini(maxb, _bid + add), AW.PURPLE, 18))
-	q.add_child(AW.button("ZERAR", func(): _bid_slider.value = 0, AW.PANEL2, 18))
-	q.add_child(AW.button("ALL IN", func(): _bid_slider.value = maxb, AW.RED, 18))
-	var h := AW.hbox()
+	for add in [200, 500, 1000, 3000]:
+		q.add_child(AW.button("+" + Fmt.money(add), func(): _bid_slider.value = mini(maxb, _bid + add), AW.PURPLE, 16))
+	q.add_child(AW.button("ALL IN", func(): _bid_slider.value = maxb, AW.RED, 16))
+	var h := AW.hbox(14)
 	h.alignment = BoxContainer.ALIGNMENT_CENTER
-	h.add_child(AW.button("DAR LANCE", func(): _choose(pid, {"bid": _bid}), AW.GREEN, 28, 300))
+	h.add_child(AW.button("DAR LANCE", func(): _choose(pid, {"bid": _bid}), AW.GREEN, 26, 260))
+	h.add_child(AW.button("SEGURAR MEU LANCE" if is_high else "PASSAR (sair)", func(): _choose(pid, {"pass": true}), AW.PANEL2, 22, 260))
 	v.add_child(h)
-	box.add_child(p)
-	AW.fade_in(p, 0.3, 40)
+
+
+func _build_skill(pid: int, it: String) -> void:
+	var priv: Dictionary = Game.private_infos[pid]
+	var v := _panel_for(pid, AW.GREEN)
+	var game: Control
+	match it:
+		"precision": game = PrecisionGame.new()
+		"targets": game = TargetGame.new()
+		"memory": game = MemoryGame.new()
+		_: game = RaceGame.new()
+	game.setup(info.get("public", {}), priv)
+	game.finished.connect(func(action: Dictionary): _choose(pid, action))
+	var cc := CenterContainer.new()
+	cc.add_child(game)
+	v.add_child(cc)
 
 
 func _choose(pid: int, action: Dictionary) -> void:
+	if current != pid:
+		return
+	if _shield_cb and _shield_cb.button_pressed:
+		action["shield"] = true
+	if bool(Game.private_infos.get(pid, {}).get("timed", false)) and not action.has("ms"):
+		action["ms"] = int((Game.clock - _shown_at) * 1000.0 / maxf(Engine.time_scale, 0.001))
 	Audio.play("confirm")
 	Game.submit_action(pid, action)
 	queue.erase(pid)
@@ -215,13 +383,13 @@ func _choose(pid: int, action: Dictionary) -> void:
 
 func _start_reaction() -> void:
 	AW.clear(box)
-	_react_players = Game.local_players().map(func(p): return int(p.id)).slice(0, REACTION_KEYS.size())
+	var deciders: Array = info.get("deciders", [])
+	_react_players = Game.local_players().map(func(p): return int(p.id)).filter(func(pid): return deciders.has(pid)).slice(0, REACTION_KEYS.size())
 	_react_done.clear()
 	_react_go_shown = false
-	_react_start = Game.clock
 	_react_go_at = Game.clock + float(info.get("public", {}).get("delay", 3.0))
 	if _react_players.is_empty():
-		box.add_child(_header("REAÇÃO!", "Os jogadores estão a postos..."))
+		box.add_child(_header("REFLEXO!", "Os jogadores estão a postos..."))
 		return
 	var p := AW.panel(Color(AW.BG, 0.85), AW.GREEN, 24)
 	var v := AW.vbox(12)
@@ -280,7 +448,7 @@ func _set_key_text(pid: int, t: String, c: Color) -> void:
 
 
 func _process(_d: float) -> void:
-	if not visible or str(info.get("input", "")) != "reaction" or _react_circle == null or not is_instance_valid(_react_circle):
+	if not visible or _input_type() != "reaction" or _react_circle == null or not is_instance_valid(_react_circle):
 		return
 	if not _react_go_shown and Game.clock >= _react_go_at:
 		_react_go_shown = true
@@ -291,7 +459,7 @@ func _process(_d: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible or str(info.get("input", "")) != "reaction":
+	if not visible or _input_type() != "reaction":
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		for i in _react_players.size():

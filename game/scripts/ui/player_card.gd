@@ -10,6 +10,7 @@ var money_lbl: Label
 var place_lbl: Label
 var status_lbl: Label
 var char_lbl: Label
+var badge_lbl: Label
 var col := Color.WHITE
 var is_local := false
 
@@ -32,19 +33,39 @@ func setup(p: Dictionary, local: bool) -> void:
 	top.add_child(AW.spacer())
 	place_lbl = AW.label("", 16, AW.GOLD, "ExtraBold", 3)
 	top.add_child(place_lbl)
-	name_lbl = AW.label(str(p.name) + ("  (VOCÊ)" if local and Game.local_players().size() == 1 else ""), 15, AW.TEXT, "Bold")
+	name_lbl = AW.label(str(p.name) + ("  (VOCÊ)" if local and Game.local_players().size() == 1 and str(p.name) != "VOCÊ" else ""), 15, AW.TEXT, "Bold")
 	name_lbl.clip_text = true
 	v.add_child(name_lbl)
 	money_lbl = AW.label(Fmt.money(int(p.money)), 24, AW.GOLD, "ExtraBold", 3)
 	v.add_child(money_lbl)
+	badge_lbl = AW.label("", 12, AW.GOLD, "ExtraBold", 2)
+	v.add_child(badge_lbl)
 	status_lbl = AW.label("", 12, AW.GREEN, "Bold")
 	v.add_child(status_lbl)
+	set_badges(p)
 	_shown = float(p.money)
 	_target = int(p.money)
 
 
 func set_money(v: int) -> void:
 	_target = v
+
+
+## Selos: KING (líder), VIRADA (bônus de recuperação), TRAIDOR e SAFE CARDs.
+func set_badges(p: Dictionary) -> void:
+	var b := []
+	var flags: Dictionary = p.get("flags", {})
+	if flags.get("king", false):
+		b.append("KING")
+	if flags.get("comeback", false):
+		b.append("VIRADA +50%")
+	if flags.get("traitor", false):
+		b.append("TRAIDOR")
+	var sh := int(p.get("items", {}).get("shield", 0))
+	if sh > 0:
+		b.append("SAFE x%d" % sh)
+	badge_lbl.text = "  ".join(b)
+	badge_lbl.add_theme_color_override("font_color", AW.GOLD if flags.get("king", false) else (AW.RED if flags.get("traitor", false) else AW.CYAN))
 
 
 func set_place(pos: int) -> void:
@@ -66,4 +87,4 @@ func _process(delta: float) -> void:
 		money_lbl.text = Fmt.money(_shown)
 		money_lbl.add_theme_color_override("font_color", AW.GREEN if _target > _shown else AW.RED)
 	else:
-		money_lbl.add_theme_color_override("font_color", AW.GOLD)
+		money_lbl.add_theme_color_override("font_color", AW.GOLD if _target >= 0 else AW.RED)

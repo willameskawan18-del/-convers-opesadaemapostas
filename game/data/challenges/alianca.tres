@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/alianca.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "alianca"
+title = "ALIANÇAS"
+tagline = "Confiar... ou trair?"
+rules = "Duplas sorteadas. Mande um recado e decida em segredo: COOPERAR ou TRAIR.
+Traidor ganha mais... e fica marcado."
+color = Color(0.800000, 0.364706, 0.909804, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "social"
+in_rotation = true
+min_round = 1

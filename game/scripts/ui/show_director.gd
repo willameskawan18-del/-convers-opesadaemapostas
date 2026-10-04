@@ -90,9 +90,13 @@ func _on_phase(phase: String, info: Dictionary) -> void:
 			arena.flash()
 			Audio.play("whoosh")
 		"decision":
-			arena.set_mood("normal")
-			arena.set_all_tags("?", AW.MUTED)
-			arena.animate_all("think")
+			arena.set_mood("allwin" if info.get("high_stakes", false) else "normal")
+			arena.set_all_tags("")
+			for pid in info.get("deciders", []):
+				var pod := arena.podium(int(pid))
+				if pod:
+					pod.set_tag("?", AW.MUTED)
+					pod.model.play("think")
 			cam.shot("doors" if str(info.get("id", "")) == "portas" else "players", 1.2)
 			if str(info.get("id", "")) == "reacao":
 				arena.screen("ESPERE...", "Aperte quando ficar VERDE!", AW.RED)
@@ -100,7 +104,8 @@ func _on_phase(phase: String, info: Dictionary) -> void:
 					if _last_phase == "decision":
 						arena.screen("AGORA!", "", AW.GREEN))
 			else:
-				arena.screen(str(info.get("title", "")), "Façam suas escolhas!", Color(str(info.get("color", "#ff2e88"))))
+				var st := str(info.get("stage_title", ""))
+				arena.screen(str(info.get("title", "")), st if st != "" else "Façam suas escolhas!", Color(str(info.get("color", "#ff2e88"))))
 		"reveal":
 			arena.set_all_tags("")
 			Audio.play("drumroll", -4.0)
@@ -114,6 +119,11 @@ func _on_phase(phase: String, info: Dictionary) -> void:
 				if pod:
 					pod.highlight(true, AW.GOLD)
 			arena.screen("PLACAR", _leader_text())
+		"missions":
+			arena.set_mood("win")
+			arena.screen("MISSÕES", "SECRETAS", AW.GOLD)
+			cam.shot("wide", 1.0)
+			Audio.play("drumroll")
 		"allwin_intro":
 			arena.set_mood("allwin")
 			arena.set_all_tags("")
@@ -212,6 +222,15 @@ func _on_step(s: Dictionary) -> void:
 					pod.set_tag({"jackpot": "JACKPOT!", "double": "x2!", "lose": "PERDEU"}.get(str(res[k]), ""), {"jackpot": AW.GOLD, "double": AW.GREEN, "lose": AW.RED}.get(str(res[k]), Color.WHITE))
 		"event_intro":
 			arena.flash()
+		"race":
+			arena.screen("CORRIDA!", "", AW.GREEN)
+	for sp in s.get("shielded", []):
+		var pod := arena.podium(int(sp))
+		if pod:
+			pod.set_tag("SAFE CARD!", AW.CYAN)
+			pod.model.play("celebrate")
+	if not s.get("shielded", []).is_empty():
+		Audio.play("reveal")
 	# som e efeitos
 	match fx:
 		"win":

@@ -17,14 +17,16 @@ signal submissions_changed(submitted: Array)
 signal match_ended(summary: Dictionary)
 signal returned_to_menu
 signal error_message(text: String)
+signal mission_received(pid: int, text: String)
 
 const START_MONEY := 1000
-const EVENTS := ["view", "phase", "money", "step", "private", "submitted", "ended", "menu", "error"]
+const EVENTS := ["view", "phase", "money", "step", "private", "submitted", "ended", "menu", "error", "mission"]
 const REQUESTS := ["add_player", "remove_player", "set_character", "set_config", "start_match", "submit", "rematch", "to_lobby"]
 
 # --- Espelho (todas as máquinas) ---
 var view: Dictionary = {"mode": "menu", "players": [], "phase": "", "phase_info": {}, "round": 0, "total_rounds": 0, "config": {}, "submitted": []}
 var private_infos: Dictionary = {}   # pid -> info (só dos jogadores desta máquina)
+var missions: Dictionary = {}        # pid -> missão secreta (só desta máquina)
 var last_summary: Dictionary = {}
 var clock := 0.0                    # relógio local (escala com Engine.time_scale)
 var deadline := -1.0                # fim da decisão atual no relógio local
@@ -35,7 +37,7 @@ var money := MoneyManager.new(pm)
 var mm := MinigameManager.new()
 var rounds := RoundManager.new()
 var ctx := MatchContext.new()
-var config := {"rounds": 8, "decision_time": 20.0}
+var config := {"rounds": 9, "decision_time": 20.0}
 var challenge: Challenge
 var runner: MatchRunner
 var token := 0
@@ -270,7 +272,7 @@ func _srv_set_config(sender: int, key: String, value: Variant) -> void:
 	if sender != 1 or not _in_lobby():
 		return
 	match key:
-		"rounds": config.rounds = clampi(int(value), 3, 15)
+		"rounds": config.rounds = clampi(int(value), 4, 13)
 		"decision_time": config.decision_time = clampf(float(value), 8.0, 60.0)
 	_broadcast_view()
 
@@ -293,7 +295,7 @@ func _begin_match() -> void:
 	ctx.total_rounds = int(config.rounds)
 	ctx.decision_time = float(config.decision_time)
 	ctx.round_index = 1
-	rounds.setup(int(config.rounds), mm, ctx.rng)
+	rounds.setup(int(config.rounds), mm, ctx.rng, Profile.data.get("recent", []))
 	view.mode = "match"
 	runner.run(token)
 
@@ -352,7 +354,8 @@ func build_view() -> Dictionary:
 	v.players = pm.to_array()
 	v.config = config.duplicate()
 	v.round = rounds.current
-	v.total_rounds = rounds.total
+	v.total_rounds = rounds.display_total()
+	v.jackpot = ctx.jackpot
 	return v
 
 
@@ -371,6 +374,12 @@ func _emit_to(peer: int, ev: String, args: Array) -> void:
 		_apply_event(ev, args)
 	elif Net.is_online() and Net.has_peer(peer):
 		_rpc_event.rpc_id(peer, ev, args)
+
+
+func send_mission(pid: int, text: String) -> void:
+	var p := pm.get_player(pid)
+	if p and not p.is_bot:
+		_emit_to(p.owner_peer, "mission", [pid, text])
 
 
 ## Envia informação privada só para a máquina dona do jogador.
@@ -403,8 +412,10 @@ func _apply_event(ev: String, args: Array) -> void:
 			view.submitted = []
 			var dl := float(args[1].get("deadline_in", -1.0))
 			deadline = clock + dl if dl >= 0.0 else -1.0
-			if view.phase == "round_intro" or view.phase == "intro":
+			if view.phase in ["round_intro", "intro", "event_intro", "allwin_intro", "missions"]:
 				private_infos.clear()
+			if view.phase == "intro":
+				missions.clear()
 			phase_changed.emit(view.phase, view.phase_info)
 		"money":
 			var pid := int(args[0])
@@ -430,3 +441,6 @@ func _apply_event(ev: String, args: Array) -> void:
 			error_message.emit(tr("O host encerrou a partida."))
 		"error":
 			error_message.emit(str(args[0]))
+		"mission":
+			missions[int(args[0])] = str(args[1])
+			mission_received.emit(int(args[0]), str(args[1]))

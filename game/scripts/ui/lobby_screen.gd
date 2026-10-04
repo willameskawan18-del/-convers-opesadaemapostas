@@ -114,11 +114,11 @@ func _build_side(players: Array) -> void:
 	var cfg: Dictionary = Game.view.get("config", {})
 	side.add_child(AW.label("REGRAS", 26, AW.CYAN, "ExtraBold", 4))
 	if Game.is_host():
-		side.add_child(_option_row("Rodadas", [6, 8, 10, 12], int(cfg.get("rounds", 8)), func(v): Game.request_set_config("rounds", v)))
+		side.add_child(_option_row("Rodadas", [6, 9, 12], int(cfg.get("rounds", 9)), func(v): Game.request_set_config("rounds", v)))
 		side.add_child(_option_row("Tempo p/ decidir", [15, 20, 30], int(cfg.get("decision_time", 20)), func(v): Game.request_set_config("decision_time", v)))
 	else:
-		side.add_child(AW.label("Rodadas: %d  ·  Tempo: %ds" % [int(cfg.get("rounds", 8)), int(cfg.get("decision_time", 20))], 18))
-	side.add_child(AW.label("Todos começam com $1.000 (fictícios).\nNo final: ALL WIN!", 15, AW.MUTED))
+		side.add_child(AW.label("Rodadas: %d  ·  Tempo: %ds" % [int(cfg.get("rounds", 9)), int(cfg.get("decision_time", 20))], 18))
+	side.add_child(AW.label("Todos começam com $1.000 (fictícios).\nConhecimento, habilidade, risco e social.\nNo final: ALL WIN!", 15, AW.MUTED))
 	side.add_child(HSeparator.new())
 	side.add_child(AW.label("ONLINE (REDE)", 22, AW.CYAN, "ExtraBold", 4))
 	net_lbl = AW.label("", 15, AW.TEXT)

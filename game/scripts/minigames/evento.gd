@@ -1,12 +1,63 @@
 extends Challenge
-## EVENTO ESPECIAL — acontece entre rodadas, sem decisão. Bagunça o placar e cria viradas.
+## EVENTO ESPECIAL — entre rodadas. Bagunça o placar e cria viradas.
+## A maioria é automática; a TROCA DE PATRIMÔNIO é uma decisão do último colocado.
 
-const EVENTS := ["chuva", "imposto", "robin", "resgate", "sorteio", "jackpot_publico"]
+const EVENTS := ["imposto", "bonus", "jackpot_publico", "inflacao", "crash", "reviravolta", "troca", "robin"]
 var kind := ""
+var chooser := -1   # quem decide na TROCA
+var target := -1
 
 
 func start() -> void:
-	kind = EVENTS[ctx.rng.randi_range(0, EVENTS.size() - 1)]
+	var pool := EVENTS.duplicate()
+	if ctx.inflation > 1.0:
+		pool.erase("inflacao")
+	kind = pool[ctx.rng.randi_range(0, pool.size() - 1)]
+	if kind == "troca":
+		var last := ctx.pm.last()
+		chooser = last.id if last else -1
+		target = _above(chooser)
+		if target < 0:
+			kind = "bonus"
+
+
+func _above(pid: int) -> int:
+	var m := money_of(pid)
+	var best := -1
+	for o in participants:
+		if o != pid and money_of(o) > m and (best < 0 or money_of(o) < money_of(best)):
+			best = o
+	return best
+
+
+func deciders() -> Array[int]:
+	var out: Array[int] = []
+	if kind == "troca" and chooser >= 0:
+		out.append(chooser)
+	return out
+
+
+func time_limit() -> float:
+	return 15.0
+
+
+func options(_pid: int) -> Array:
+	return [
+		{"id": "swap", "label": "TROCAR", "desc": "Fica com %s" % Fmt.money(money_of(target)), "color": Pal.GOLD},
+		{"id": "keep", "label": "NÃO TROCAR", "desc": "Fica com %s" % Fmt.money(money_of(chooser)), "color": Pal.PANEL2},
+	]
+
+
+func private_info(_pid: int) -> Dictionary:
+	return {"prompt": "TROCA DE PATRIMÔNIO: trocar com %s?" % pname(target), "lines": ["Você é o último colocado. Pode trocar todo o seu dinheiro com quem está logo acima."]}
+
+
+func bot_action(_pid: int) -> Dictionary:
+	return {"choice": "swap" if money_of(target) > money_of(chooser) else "keep"}
+
+
+func default_action(_pid: int) -> Dictionary:
+	return {"choice": "keep"}
 
 
 func public_info() -> Dictionary:
@@ -14,14 +65,14 @@ func public_info() -> Dictionary:
 
 
 static func title_for(k: String) -> String:
-	return {"chuva": "CHUVA DE DINHEIRO!", "imposto": "IMPOSTO DO LÍDER!", "robin": "ROBIN HOOD!", "resgate": "RESGATE DO ÚLTIMO!",
-		"sorteio": "SORTEIO RELÂMPAGO!", "jackpot_publico": "JACKPOT DA PLATEIA!"}.get(k, "EVENTO!")
+	return {"imposto": "IMPOSTO!", "bonus": "BÔNUS PARA TODOS!", "jackpot_publico": "JACKPOT DA PLATEIA!", "inflacao": "INFLAÇÃO!",
+		"crash": "CRASH NA BOLSA!", "reviravolta": "REVIRAVOLTA!", "troca": "TROCA DE PATRIMÔNIO!", "robin": "ROBIN HOOD!"}.get(k, "EVENTO!")
 
 
 static func text_for(k: String) -> String:
-	return {"chuva": "Todo mundo ganha dinheiro do céu.", "imposto": "Quem está na frente paga 25% de imposto.",
-		"robin": "O líder entrega 20% para o último colocado.", "resgate": "O último colocado recebe uma ajuda generosa.",
-		"sorteio": "Um jogador aleatório dobra o dinheiro (até um limite).", "jackpot_publico": "A plateia escolhe alguém para ganhar um bônus!"}.get(k, "")
+	return {"imposto": "Todos perdem 10%.", "bonus": "Todo mundo ganha um bônus.", "jackpot_publico": "Um jogador sorteado ganha uma bolada!",
+		"inflacao": "Os prêmios da PRÓXIMA rodada DOBRAM!", "crash": "Todos perdem 20% do que têm.", "reviravolta": "O último colocado ganha dinheiro e uma SAFE CARD.",
+		"troca": "O último colocado pode trocar de patrimônio com quem está logo acima.", "robin": "O líder entrega 15% para o último colocado."}.get(k, "")
 
 
 func resolve() -> Array:
@@ -30,35 +81,41 @@ func resolve() -> Array:
 	var leader := ctx.pm.leader()
 	var last := ctx.pm.last()
 	match kind:
-		"chuva":
+		"imposto", "crash":
+			var pct := 0.1 if kind == "imposto" else 0.2
 			var money := []
 			for pid in participants:
-				money.append([pid, ctx.scaled(500), "Chuva de dinheiro"])
-			steps.append(Challenge.step("banner", 2.2, {"title": "TODOS GANHAM " + Fmt.delta(ctx.scaled(500)), "money": money, "fx": "win", "camera": "players"}))
-		"imposto":
-			var v := int(leader.money * 0.25)
-			steps.append(Challenge.step("player_result", 2.6, {"title": leader.name + " PAGA O IMPOSTO", "text": Fmt.delta(-v), "pid": leader.id,
-				"money": [[leader.id, -v, "Imposto do líder"]], "fx": "lose", "camera": "player"}))
-		"robin":
-			var v := int(leader.money * 0.2)
-			if leader.id == last.id:
-				v = 0
-			steps.append(Challenge.step("player_result", 2.8, {"title": "%s → %s" % [leader.name, last.name], "text": "Transferência de " + Fmt.money(v), "pid": last.id,
-				"money": [[leader.id, -v, "Robin Hood"], [last.id, v, "Robin Hood"]], "fx": "win", "camera": "player"}))
-		"resgate":
+				var v := int(maxi(money_of(pid), 0) * pct)
+				if v > 0:
+					money.append([pid, -v, title_for(kind)])
+			steps.append(Challenge.step("banner", 2.4, {"title": "TODOS PERDEM %d%%" % int(pct * 100), "money": money, "fx": "lose", "camera": "players"}))
+		"bonus":
+			var money := []
+			for pid in participants:
+				money.append([pid, ctx.scaled(1000), "Bônus"])
+			steps.append(Challenge.step("banner", 2.2, {"title": "TODOS GANHAM " + Fmt.delta(ctx.scaled(1000)), "money": money, "fx": "win", "camera": "players"}))
+		"jackpot_publico":
+			var pid: int = participants[ctx.rng.randi_range(0, participants.size() - 1)]
+			var v := ctx.scaled(5000)
+			steps.append(Challenge.step("banner", 2.0, {"title": "A PLATEIA ESTÁ SORTEANDO...", "fx": "drumroll", "camera": "stage"}))
+			steps.append(Challenge.step("player_result", 2.6, {"title": pname(pid) + " FOI SORTEADO!", "text": Fmt.delta(v), "pid": pid, "money": [[pid, v, "Jackpot da plateia"]], "fx": "jackpot", "camera": "player"}))
+		"inflacao":
+			steps.append(Challenge.step("banner", 2.4, {"title": "PRÓXIMA RODADA VALE O DOBRO!", "text": "Prepare-se...", "fx": "suspense", "camera": "screen", "inflation": 2.0}))
+		"reviravolta":
 			var v := ctx.scaled(1500)
-			steps.append(Challenge.step("player_result", 2.6, {"title": last.name + " FOI RESGATADO!", "text": Fmt.delta(v), "pid": last.id,
-				"money": [[last.id, v, "Resgate"]], "fx": "win", "camera": "player"}))
-		"sorteio":
-			var pid: int = participants[ctx.rng.randi_range(0, participants.size() - 1)]
-			var v := clampi(money_of(pid), ctx.scaled(500), ctx.scaled(4000))
-			steps.append(Challenge.step("banner", 2.0, {"title": "SORTEANDO...", "fx": "drumroll", "camera": "players"}))
-			steps.append(Challenge.step("player_result", 2.6, {"title": pname(pid) + " DOBROU!", "text": Fmt.delta(v), "pid": pid,
-				"money": [[pid, v, "Sorteio relâmpago"]], "mult": [[pid, 2.0]], "fx": "jackpot", "camera": "player"}))
-		_:
-			var pid: int = participants[ctx.rng.randi_range(0, participants.size() - 1)]
-			var v := ctx.scaled(2000)
-			steps.append(Challenge.step("banner", 2.0, {"title": "A PLATEIA ESTÁ VOTANDO...", "fx": "drumroll", "camera": "stage"}))
-			steps.append(Challenge.step("player_result", 2.6, {"title": "A PLATEIA ESCOLHEU " + pname(pid) + "!", "text": Fmt.delta(v), "pid": pid,
-				"money": [[pid, v, "Jackpot da plateia"]], "fx": "jackpot", "camera": "player"}))
+			steps.append(Challenge.step("player_result", 2.6, {"title": last.name + " GANHA UMA CHANCE!", "text": Fmt.delta(v) + " + 1 SAFE CARD", "pid": last.id,
+				"money": [[last.id, v, "Reviravolta"]], "items": [[last.id, "shield", 1]], "fx": "win", "camera": "player"}))
+		"robin":
+			var v := int(maxi(leader.money, 0) * 0.15) if leader.id != last.id else 0
+			steps.append(Challenge.step("player_result", 2.8, {"title": "%s → %s" % [leader.name, last.name], "text": "Transferência de " + Fmt.money(v), "pid": last.id,
+				"money": [[leader.id, -v, "Robin Hood", "pay"], [last.id, v, "Robin Hood", "nobonus"]], "fx": "win", "camera": "player"}))
+		"troca":
+			var swap := str(actions.get(chooser, {}).get("choice", "keep")) == "swap"
+			if swap:
+				var a := money_of(chooser)
+				var b := money_of(target)
+				steps.append(Challenge.step("player_result", 3.0, {"title": "%s TROCOU COM %s!" % [pname(chooser), pname(target)], "text": "%s ⇄ %s" % [Fmt.money(a), Fmt.money(b)], "pid": chooser,
+					"money": [[chooser, b - a, "Troca de patrimônio", "nobonus"], [target, a - b, "Troca de patrimônio", "pay"]], "fx": "jackpot", "camera": "player"}))
+			else:
+				steps.append(Challenge.step("player_result", 2.2, {"title": pname(chooser) + " NÃO QUIS TROCAR!", "text": "A plateia não entendeu nada.", "pid": chooser, "fx": "reveal", "camera": "player"}))
 	return steps

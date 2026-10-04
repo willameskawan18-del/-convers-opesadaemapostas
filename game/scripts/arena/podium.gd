@@ -9,6 +9,8 @@ var name_lbl: Label3D
 var money_lbl: Label3D
 var place_lbl: Label3D
 var tag_lbl: Label3D
+var crown: Node3D
+var badge_lbl: Label3D
 var ring: MeshInstance3D
 var _shown_money := 0.0
 var _target_money := 0
@@ -38,6 +40,16 @@ func setup(player: Dictionary) -> void:
 	_ring_mat = M3.glow(AW.GOLD, 3.0).duplicate()
 	ring.material_override = _ring_mat
 	ring.visible = false
+	crown = Node3D.new()
+	crown.position = Vector3(0, 3.0, 0)
+	crown.visible = false
+	add_child(crown)
+	var gold := M3.glow(AW.GOLD, 2.0)
+	M3.cylinder(crown, 0.3, 0.3, 0.16, Vector3.ZERO, gold, 16)
+	for i in 5:
+		var a := i * TAU / 5.0
+		M3.cylinder(crown, 0.0, 0.07, 0.22, Vector3(cos(a) * 0.26, 0.18, sin(a) * 0.26), gold, 6)
+	badge_lbl = M3.label(self, "", Vector3(0, -0.05, 0.94), 22, AW.CYAN, 6)
 	model = CharacterModel.create(ch)
 	model.position = Vector3(0, 1.04, 0)
 	add_child(model)
@@ -47,6 +59,20 @@ func setup(player: Dictionary) -> void:
 
 func set_money(v: int) -> void:
 	_target_money = v
+
+
+func set_flags(p: Dictionary) -> void:
+	var flags: Dictionary = p.get("flags", {})
+	crown.visible = flags.get("king", false)
+	var b := []
+	if flags.get("traitor", false):
+		b.append("TRAIDOR")
+	if flags.get("comeback", false):
+		b.append("VIRADA")
+	var sh := int(p.get("items", {}).get("shield", 0))
+	if sh > 0:
+		b.append("SAFE x%d" % sh)
+	badge_lbl.text = "  ".join(b)
 
 
 func set_place(pos: int) -> void:
@@ -77,6 +103,9 @@ func _process(delta: float) -> void:
 		money_lbl.modulate = AW.GREEN if _target_money > _shown_money else AW.RED
 	else:
 		money_lbl.modulate = AW.GOLD
+	if crown.visible:
+		crown.rotation.y += delta * 1.2
+		crown.position.y = 3.55 + sin(Time.get_ticks_msec() * 0.003) * 0.08
 	if ring.visible:
 		ring.rotation.y += delta * 1.5
 		var s := 1.0 + sin(Time.get_ticks_msec() * 0.006) * 0.04

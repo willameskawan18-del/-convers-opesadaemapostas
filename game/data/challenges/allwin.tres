@@ -14,4 +14,6 @@ ALL WIN: roleta final!
 color = Color(1.000000, 0.800000, 0.200000, 1)
 logic = ExtResource("2")
 input = "choice"
+category = "especial"
 in_rotation = false
+min_round = 1

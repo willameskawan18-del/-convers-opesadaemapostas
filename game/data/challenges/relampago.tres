@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/relampago.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "relampago"
+title = "QUIZ RELÂMPAGO"
+tagline = "Quem responde primeiro ganha mais!"
+rules = "4 perguntas rápidas, 8 segundos cada.
+O 1º a acertar ganha mais. Gabaritou? Bônus!"
+color = Color(0.152941, 0.882353, 1.000000, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "conhecimento"
+in_rotation = true
+min_round = 1

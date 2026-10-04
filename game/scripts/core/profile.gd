@@ -42,6 +42,12 @@ func record_match(summary: Dictionary, my_peer: int) -> void:
 	save_profile()
 
 
+## Desafios da última partida (evita repetir na próxima).
+func remember_recent(ids: Array) -> void:
+	data.recent = ids.duplicate()
+	save_profile()
+
+
 func remember_player(player_name: String, character: String) -> void:
 	data.last_name = player_name
 	data.last_character = character

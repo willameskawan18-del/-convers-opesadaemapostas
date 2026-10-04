@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/tiro.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "tiro"
+title = "TIRO AO ALVO"
+tagline = "15 segundos de mira!"
+rules = "Clique nos alvos: NORMAL +1 · DOURADO +3 · x2 · VERMELHO -3.
+Alvo JACKPOT raro leva o jackpot acumulado!"
+color = Color(0.317647, 0.811765, 0.400000, 1)
+logic = ExtResource("2")
+input = "targets"
+category = "habilidade"
+in_rotation = true
+min_round = 1

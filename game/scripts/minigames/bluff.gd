@@ -23,7 +23,7 @@ func options(pid: int) -> Array:
 
 
 func private_info(pid: int) -> Dictionary:
-	return {"offer": offers.get(pid, 0), "lose": lose_value(pid) if offers.has(pid) else 0}
+	return {"offer": offers.get(pid, 0), "lose": lose_value(pid) if offers.has(pid) else 0, "prompt": "SUA OFERTA SECRETA: " + Fmt.money(int(offers.get(pid, 0)))}
 
 
 func bot_action(pid: int) -> Dictionary:

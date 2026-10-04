@@ -23,14 +23,14 @@ func _ready() -> void:
 	await get_tree().create_timer(1.0).timeout
 	check(main.ui._current == "menu", "começa no menu")
 	check(main.ui.screen_root.get_child_count() == 1, "menu construído")
-	Engine.time_scale = 12.0
+	Engine.time_scale = 25.0
 	main.ui.quick_play()
-	await _until(func(): return ended >= 1, 300.0)
+	await _until(func(): return ended >= 1, 2000.0)
 	check(ended == 1, "partida rápida terminou")
 	await get_tree().create_timer(2.0).timeout
 	check(main.ui.results.get_child_count() > 0, "tela de resultado")
 	Game.request_rematch()
-	await _until(func(): return ended >= 2, 300.0)
+	await _until(func(): return ended >= 2, 2000.0)
 	check(ended == 2, "jogar novamente")
 	main.ui.back_to_menu()
 	await get_tree().create_timer(1.0).timeout
@@ -42,7 +42,7 @@ func _ready() -> void:
 	Game.request_add_player("", "", true)
 	check(Game.view.players.size() == 3, "lobby com 3")
 	Game.request_start()
-	await _until(func(): return ended >= 3, 300.0)
+	await _until(func(): return ended >= 3, 2000.0)
 	check(ended == 3, "partida com 2 humanos locais (hot-seat)")
 	main.ui.back_to_menu()
 	await get_tree().create_timer(0.5).timeout
@@ -51,24 +51,15 @@ func _ready() -> void:
 	get_tree().quit(1 if fails else 0)
 
 
-## Simula os humanos locais clicando: usa o painel de decisão de verdade quando possível.
+## Simula os humanos locais decidindo (todas as etapas e tipos de entrada).
 func _auto_play(phase: String, info: Dictionary) -> void:
 	if phase != "decision" and phase != "allwin_decision":
 		return
 	await get_tree().create_timer(0.3).timeout
-	for p in Game.local_players():
-		var pid := int(p.id)
-		if Game.has_submitted(pid) or not Game.private_infos.has(pid):
-			continue
-		match str(info.get("input", "")):
-			"reaction":
-				await get_tree().create_timer(float(info.public.delay) + 0.3).timeout
-				Game.submit_action(pid, {"ms": 300})
-			"bid":
-				Game.submit_action(pid, {"bid": mini(500, int(Game.private_infos[pid].max_bid))})
-			_:
-				var opts: Array = Game.private_infos[pid].options
-				Game.submit_action(pid, {"choice": opts[randi() % opts.size()].id})
+	if str(info.get("input", "")) == "reaction":
+		await get_tree().create_timer(float(info.public.delay) + 0.3).timeout
+	if str(Game.view.phase) == phase:
+		AutoPlayer.play_all(Game.view.phase_info)
 
 
 func _until(cond: Callable, limit: float) -> void:

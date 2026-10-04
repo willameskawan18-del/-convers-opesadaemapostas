@@ -78,30 +78,32 @@ static func _options(items: Array, sel: int, cb: Callable) -> OptionButton:
 
 
 static func how_to(parent: Control) -> Control:
-	var r := modal(parent, "COMO JOGAR", AW.ORANGE, 820)
+	var r := modal(parent, "COMO JOGAR", AW.ORANGE, 900)
 	var dim: Control = r[0]
 	var v: VBoxContainer = r[1]
-	var text := """[b][color=#ffcc33]OBJETIVO:[/color][/b] terminar a partida com o MAIOR patrimônio. Todos começam com $1.000 fictícios.
+	var text := """[b][color=#ffcc33]OBJETIVO:[/color][/b] terminar com o MAIOR patrimônio. Todos começam com $1.000 fictícios. São 9 rodadas + o ALL WIN final.
 
-[b][color=#ff4d6d]AS PORTAS[/color][/b] — escolha A, B ou C. Uma multiplica sua aposta por 5, outra por 2 e outra zera.
-[b][color=#ff9f1c]RISCO[/color][/b] — SAFE ganha pouco, garantido. RISK é cara ou coroa: ganha muito ou perde muito.
-[b][color=#3ddc97]REAÇÃO[/color][/b] — espere o VERDE e aperte o mais rápido possível. Apertou antes? Queimou!
-[b][color=#4dabf7]LEILÃO[/color][/b] — lance secreto por um prêmio misterioso. O maior lance paga e leva... pode ser fortuna ou caixa vazia.
-[b][color=#b072ff]BLUFF[/color][/b] — você recebe uma oferta SECRETA. PEGAR garante; DOBRAR pode render o dobro ou uma perda pesada.
-[b][color=#ffd43b]EVENTOS[/color][/b] — no meio da partida, algo inesperado sacode o placar (imposto do líder, Robin Hood, chuva de dinheiro...).
+[b][color=#4dabf7]CONHECIMENTO[/color][/b] — Quiz (você escolhe a dificuldade), Quiz Relâmpago, Matemática, Detetive e Quem Está Mentindo.
+[b][color=#3ddc97]HABILIDADE[/color][/b] — Reflexo, Precisão, Tiro ao Alvo, Memória e Corrida (você joga de verdade!).
+[b][color=#ff4d6d]RISCO[/color][/b] — Portas com pistas, Bomba, Escada do Risco, Cartas e Leilão com informação secreta.
+[b][color=#b072ff]SOCIAL[/color][/b] — Votação, Alianças (cooperar ou trair), Hot Seat, Roubo e Derrube o Rei.
+[b][color=#ffd43b]EVENTOS[/color][/b] — imposto, crash, inflação, bônus, reviravolta, troca de patrimônio...
 
-[b][color=#ffcc33]ALL WIN[/color][/b] — a decisão final. SAFE guarda 90%. ALL WIN coloca tudo na roleta: JACKPOT x4, DOBROU x2 ou PERDE quase tudo.
+[b]SAFE CARD[/b] — protege das perdas de UM desafio de risco. Usar agora ou guardar?
+[b]JACKPOT[/b] — acumula a cada rodada até alguém acertar (caixa da Bomba, carta JACKPOT, alvo raro do Tiro).
+[b]KING[/b] — o líder usa coroa... e vira alvo. [b]VIRADA[/b] — quem está muito atrás ganha +50% nos ganhos.
+[b]MISSÃO SECRETA[/b] — cada um tem uma; cumpriu, ganha bônus antes do ALL WIN.
+[b]DÍVIDA[/b] — dá para ficar negativo até -$5.000, mas você continua jogando.
 
-[b]Zerou?[/b] Você continua jogando com fichas de resgate. Sempre dá para virar o jogo!
-[b]Mesmo PC:[/b] adicione vários jogadores no lobby — as escolhas secretas são feitas uma pessoa por vez.
-[b]Online:[/b] o host abre a sala e os amigos entram em JOIN GAME com o IP mostrado no lobby."""
+[b][color=#ffcc33]ALL WIN[/color][/b] — SAFE guarda 90%. ALL WIN: JACKPOT x4, DOBROU x2 ou PERDE quase tudo.
+[b]Mesmo PC:[/b] vários jogadores no lobby, cada um decide na sua vez.  [b]Online:[/b] ABRIR SALA ONLINE e amigos entram em JOIN GAME."""
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
 	rt.text = text
 	rt.fit_content = true
-	rt.custom_minimum_size = Vector2(760, 0)
-	rt.add_theme_font_size_override("normal_font_size", 17)
-	rt.add_theme_font_size_override("bold_font_size", 17)
+	rt.custom_minimum_size = Vector2(840, 0)
+	rt.add_theme_font_size_override("normal_font_size", 15)
+	rt.add_theme_font_size_override("bold_font_size", 15)
 	rt.add_theme_font_override("bold_font", AW.font("ExtraBold"))
 	v.add_child(rt)
 	close_row(v, dim, "ENTENDI!")
