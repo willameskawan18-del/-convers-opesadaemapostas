@@ -1,0 +1,22 @@
+{
+  "launch_cost": 20000,
+  "site_levels": [
+    {"level": 1, "name": "Site básico", "upgrade_cost": 0, "base_users": 120, "hosting": 120},
+    {"level": 2, "name": "Site profissional", "upgrade_cost": 40000, "base_users": 300, "hosting": 300},
+    {"level": 3, "name": "Site + aplicativo", "upgrade_cost": 120000, "base_users": 700, "hosting": 700},
+    {"level": 4, "name": "Plataforma completa", "upgrade_cost": 350000, "base_users": 1600, "hosting": 1500},
+    {"level": 5, "name": "Plataforma nacional", "upgrade_cost": 900000, "base_users": 3500, "hosting": 3200}
+  ],
+  "base_capacity": 150,
+  "capacity_per_server": 400,
+  "bets_per_user_hour": 0.12,
+  "avg_stake": 35,
+  "support_salary": 140,
+  "users_per_support": 400,
+  "security_levels": [
+    {"level": 0, "name": "Nenhuma", "daily": 0},
+    {"level": 1, "name": "Firewall e monitoramento", "daily": 250},
+    {"level": 2, "name": "Equipe de segurança digital", "daily": 900},
+    {"level": 3, "name": "Centro de operações 24h", "daily": 2500}
+  ]
+}
