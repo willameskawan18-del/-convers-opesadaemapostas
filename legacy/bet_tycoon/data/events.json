@@ -1,0 +1,68 @@
+{
+  "chance_per_hour": 0.08,
+  "max_per_day": 3,
+  "events": [
+    {"id": "grande_evento", "title": "GRANDE EVENTO ESPORTIVO", "text": "Hoje tem decisão de campeonato. A cidade inteira quer apostar!", "weight": 8, "requires_business": true,
+     "effects": {"boost": {"mult": 1.6, "hours": 6, "label": "Grande evento"}}},
+    {"id": "surto_clientes", "title": "AUMENTO REPENTINO DE CLIENTES", "text": "Um grupo de amigos indicou sua casa. Prepare a fila!", "weight": 8, "requires_business": true,
+     "effects": {"boost": {"mult": 1.4, "hours": 3, "label": "Indicação"}}},
+    {"id": "favoritos", "title": "SEQUÊNCIA INESPERADA DE RESULTADOS", "text": "Os favoritos venceram tudo hoje. Os prêmios pesaram no caixa.", "weight": 4, "requires_business": true, "min_stage": 2,
+     "effects": {"stakes_loss_pct": 0.12}},
+    {"id": "pc_problema", "title": "COMPUTADOR COM PROBLEMA", "text": "Um computador travou e não liga mais.", "weight": 5, "requires_business": true,
+     "effects": {"break_equipment": "computer"}},
+    {"id": "internet", "title": "QUEDA DE INTERNET", "text": "A internet caiu. Sem conexão, nenhuma aposta é registrada.", "weight": 5, "requires_business": true,
+     "options": [
+       {"label": "Pagar técnico de urgência", "cost_stage": 250, "desc": "Volta em 30 minutos.", "effects": {"internet_down": 0.5}},
+       {"label": "Esperar a operadora", "desc": "Pode levar 3 horas.", "effects": {"internet_down": 3}}
+     ]},
+    {"id": "falta", "title": "FUNCIONÁRIO FALTOU", "text": "Um funcionário avisou que não vem hoje.", "weight": 5, "requires_staff": true,
+     "effects": {"employee_absent": true}},
+    {"id": "talento", "title": "FUNCIONÁRIO EXCELENTE DISPONÍVEL", "text": "Um profissional muito experiente está procurando emprego. Veja em Funcionários.", "weight": 3, "requires_business": true,
+     "effects": {"star_candidate": true}},
+    {"id": "fiscalizacao", "title": "FISCALIZAÇÃO", "text": "Fiscais vieram conferir licenças e segurança.", "weight": 4, "requires_business": true,
+     "effects": {"inspection": true}},
+    {"id": "promo_rival", "title": "CONCORRENTE LANÇOU UMA PROMOÇÃO", "text": "Um concorrente anunciou odds turbinadas.", "weight": 5, "requires_business": true,
+     "effects": {"competitor_promo": true}},
+    {"id": "vip", "title": "CLIENTE VIP CHEGOU", "text": "Um apostador de alto valor está na porta.", "weight": 4, "requires_business": true, "min_stage": 2, "min_rep": 55,
+     "effects": {"vip_visit": true}},
+    {"id": "quebra", "title": "EQUIPAMENTO QUEBRADO", "text": "Um equipamento parou de funcionar.", "weight": 4, "requires_business": true,
+     "effects": {"break_equipment": ""}},
+    {"id": "custos", "title": "AUMENTO NA CONTA DE ENERGIA", "text": "A tarifa de energia subiu 30% pelos próximos 5 dias.", "weight": 3, "requires_business": true,
+     "effects": {"cost_increase": {"category": "Energia", "mult": 1.3, "days": 5}}},
+    {"id": "imovel", "title": "OPORTUNIDADE DE IMÓVEL", "text": "A corretora Paula oferece 20% de desconto em um imóvel por 3 dias.", "weight": 3, "min_level": 3,
+     "effects": {"property_discount": {"pct": 0.2, "days": 3}}},
+    {"id": "fornecedor", "title": "FORNECEDOR OFERECE DESCONTO", "text": "Equipamentos com 25% de desconto pelas próximas 24 horas!", "weight": 4, "requires_business": true,
+     "effects": {"supplier_discount": {"pct": 0.25, "hours": 24}}},
+    {"id": "modalidade", "title": "NOTÍCIA AQUECE O BASQUETE", "text": "A seleção local chegou à final. Procura por apostas em basquete disparou.", "weight": 3, "requires_business": true,
+     "effects": {"boost": {"mult": 1.25, "hours": 8, "label": "Febre do basquete"}}},
+    {"id": "fraude", "title": "TENTATIVA DE EXPLORAÇÃO DO SISTEMA", "text": "O sistema marcou um bilhete suspeito: um cliente quer apostar alto em um resultado com indícios de informação privilegiada.", "weight": 4, "requires_business": true, "min_stage": 1,
+     "options": [
+       {"label": "Aceitar a aposta", "desc": "Receita agora, mas grande chance de prejuízo.", "effects": {"chance": {"p": 0.25, "success": {"cash_stage": 400, "result": "A aposta perdeu. Você lucrou."}, "fail": {"cash_stage": -2500, "rep": -1, "result": "Era mesmo exploração: prejuízo pesado."}}}},
+       {"label": "Bloquear o bilhete", "desc": "Sem risco financeiro; o cliente sai irritado.", "effects": {"rep": -0.5, "stat": "frauds_blocked", "result": "Bilhete bloqueado."}},
+       {"label": "Investigar", "cost_stage": 150, "desc": "Câmeras e seguranças aumentam a chance de sucesso.", "effects": {"chance": {"p": 0.45, "security": true, "success": {"rep": 3, "xp": 40, "stat": "frauds_blocked", "result": "FRAUDE DETECTADA e documentada. Sua reputação subiu."}, "fail": {"rep": -1, "result": "Investigação inconclusiva."}}}}
+     ]},
+    {"id": "documento", "title": "DOCUMENTO INCONSISTENTE", "text": "Um cliente apresentou um cadastro com dados que não batem.", "weight": 3, "requires_business": true,
+     "options": [
+       {"label": "Recusar o cliente", "desc": "Perde a aposta, ganha confiabilidade.", "effects": {"rep": 0.5, "stat": "frauds_blocked", "result": "Cadastro recusado."}},
+       {"label": "Aceitar mesmo assim", "desc": "Pode render multa depois.", "effects": {"chance": {"p": 0.6, "success": {"cash_stage": 150, "result": "Nada aconteceu."}, "fail": {"cash_stage": -1200, "rep": -2, "result": "Multa por cadastro irregular."}}}}
+     ]},
+    {"id": "roubo", "title": "TENTATIVA DE ROUBO", "text": "Alguém tentou levar dinheiro do caixa.", "weight": 3, "requires_business": true, "hours": [19, 23],
+     "effects": {"robbery": true}},
+    {"id": "conflito", "title": "CONFLITO NO SALÃO", "text": "Um cliente problemático está discutindo e assustando os outros.", "weight": 0, "requires_business": true,
+     "options": [
+       {"label": "Chamar a segurança", "desc": "Funciona bem se você tiver seguranças.", "effects": {"chance": {"p": 0.3, "security": true, "success": {"rep": 0.5, "result": "Situação controlada com profissionalismo."}, "fail": {"rep": -2, "result": "A confusão espantou clientes."}}}},
+       {"label": "Acalmar pessoalmente", "desc": "Depende da sorte.", "effects": {"chance": {"p": 0.5, "success": {"rep": 1, "result": "Você resolveu na conversa."}, "fail": {"rep": -1.5, "result": "Não deu certo; o cliente saiu xingando."}}}},
+       {"label": "Expulsar o cliente", "desc": "Resolve, mas pega mal.", "effects": {"rep": -0.8, "result": "Cliente expulso."}}
+     ]},
+    {"id": "patrocinio", "title": "PROPOSTA DE PATROCÍNIO", "text": "O time do bairro procura um patrocinador para a camisa.", "weight": 2, "requires_business": true, "min_stage": 2,
+     "options": [
+       {"label": "Patrocinar", "cost_stage": 1200, "desc": "+reputação e mais clientes por 5 dias.", "effects": {"rep": 3, "boost": {"mult": 1.2, "hours": 120, "label": "Patrocínio"}, "result": "Sua marca está na camisa do time!"}},
+       {"label": "Recusar", "effects": {"result": "Fica para a próxima."}}
+     ]},
+    {"id": "jackpot_maquina", "title": "MÁQUINA COM DEFEITO", "text": "Uma máquina do cassino está pagando errado.", "weight": 3, "requires_casino": true,
+     "options": [
+       {"label": "Desligar e consertar", "cost_stage": 300, "desc": "Sem prejuízo extra.", "effects": {"result": "Máquina recalibrada."}},
+       {"label": "Deixar funcionando", "desc": "Pode custar caro.", "effects": {"chance": {"p": 0.5, "success": {"result": "O defeito sumiu sozinho."}, "fail": {"cash_stage": -2000, "rep": -1, "result": "A máquina pagou prêmios indevidos."}}}}
+     ]}
+  ]
+}

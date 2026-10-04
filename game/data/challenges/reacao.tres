@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/reacao.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "reacao"
+title = "REAÇÃO"
+tagline = "O mais rápido leva tudo!"
+rules = "Espere o botão ficar VERDE e aperte o mais rápido possível.
+Apertou antes? Queimou a largada e perde dinheiro."
+color = Color(0.239216, 0.862745, 0.592157, 1)
+logic = ExtResource("2")
+input = "reaction"
+in_rotation = true

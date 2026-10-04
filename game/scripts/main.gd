@@ -1,14 +1,19 @@
 extends Node
-## Cena principal: monta o mundo 3D e a interface.
+## Cena principal: arena 3D + interface + diretor do programa.
 
-var world: GameWorld
+var arena: Arena
 var ui: UIManager
 
 
 func _ready() -> void:
-	world = GameWorld.new()
-	world.name = "World"
-	add_child(world)
+	arena = Arena.new()
+	add_child(arena)
+	var director := ShowDirector.new()
+	director.arena = arena
+	add_child(director)
+	var layer := CanvasLayer.new()
+	add_child(layer)
 	ui = UIManager.new()
-	ui.name = "UI"
-	add_child(ui)
+	ui.arena = arena
+	ui.director = director
+	layer.add_child(ui)

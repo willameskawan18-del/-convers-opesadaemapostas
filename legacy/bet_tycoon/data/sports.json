@@ -1,0 +1,172 @@
+{
+  "sports": [
+    {
+      "id": "futebol",
+      "name": "Futebol",
+      "type": "1x2",
+      "weight": 30,
+      "duration": 110,
+      "participants": [
+        "Atlético Serrano",
+        "União Litoral",
+        "Real Planalto",
+        "Esporte Vale Verde",
+        "Estrela do Norte",
+        "Ferroviário FC",
+        "Grêmio Ribeira",
+        "Náutico Capital",
+        "Operário do Sul",
+        "Cruzeiro da Serra",
+        "Tupã EC",
+        "Bandeirantes AC"
+      ]
+    },
+    {
+      "id": "basquete",
+      "name": "Basquete",
+      "type": "h2h",
+      "weight": 20,
+      "duration": 140,
+      "participants": [
+        "Tubarões",
+        "Falcões",
+        "Leões da Baixada",
+        "Trovões",
+        "Panteras",
+        "Corsários",
+        "Guerreiros",
+        "Dragões"
+      ]
+    },
+    {
+      "id": "tenis",
+      "name": "Tênis",
+      "type": "h2h",
+      "weight": 15,
+      "duration": 100,
+      "participants": [
+        "R. Albuquerque",
+        "M. Kovac",
+        "T. Yamada",
+        "L. Ferreira",
+        "A. Duval",
+        "S. Moretti",
+        "J. Lindqvist",
+        "C. Ortega"
+      ]
+    },
+    {
+      "id": "corrida",
+      "name": "Corrida de Kart",
+      "type": "race",
+      "weight": 8,
+      "duration": 20,
+      "participants": [
+        "Relâmpago",
+        "Ventania",
+        "Cometa",
+        "Furacão",
+        "Trovoada",
+        "Faísca",
+        "Tempestade",
+        "Raio Dourado",
+        "Ciclone",
+        "Brisa Veloz"
+      ]
+    },
+    {
+      "id": "volei",
+      "name": "Vôlei",
+      "type": "h2h",
+      "weight": 12,
+      "duration": 120,
+      "participants": [
+        "Sesi Serrano",
+        "Vôlei Litoral",
+        "Minas Planalto",
+        "Praia Clube Norte",
+        "Sada Vale",
+        "Taubaté Ribeira",
+        "Osasco Capital",
+        "Barueri Sul"
+      ]
+    },
+    {
+      "id": "mma",
+      "name": "MMA",
+      "type": "h2h",
+      "weight": 10,
+      "duration": 45,
+      "participants": [
+        "\"Trovão\" Silva",
+        "\"Pitbull\" Moraes",
+        "\"Furacão\" Lima",
+        "\"Dragão\" Costa",
+        "\"Tanque\" Rocha",
+        "\"Fera\" Duarte",
+        "\"Raio\" Nunes",
+        "\"Muralha\" Teixeira"
+      ]
+    },
+    {
+      "id": "esports",
+      "name": "E-sports",
+      "type": "h2h",
+      "weight": 10,
+      "duration": 60,
+      "participants": [
+        "Fúria Digital",
+        "Pain Squad",
+        "LOUD Norte",
+        "MIBR Litoral",
+        "Imperial Club",
+        "Vivo Keyd",
+        "RED Canids",
+        "Flamengo eSports"
+      ]
+    },
+    {
+      "id": "cavalos",
+      "name": "Corrida de Cavalos",
+      "type": "race",
+      "weight": 0,
+      "interval": 30,
+      "duration": 10,
+      "first": 540,
+      "last": 1380,
+      "runners": 6,
+      "participants": [
+        "Pé de Vento",
+        "Relâmpago Negro",
+        "Estrela Guia",
+        "Zé Galope",
+        "Fogo Selvagem",
+        "Princesa do Turfe",
+        "Trovão Azul",
+        "Bala de Prata",
+        "Lua Cheia",
+        "Sorte Grande"
+      ]
+    }
+  ],
+  "events_per_day": [
+    12,
+    16
+  ],
+  "first_start_minute": 600,
+  "last_start_minute": 1350,
+  "news_chance": 0.35,
+  "hype_chance": 0.12,
+  "news_up": [
+    "{p} chega embalado após sequência de vitórias",
+    "{p} recupera titular importante",
+    "Clima favorece o estilo de {p}",
+    "Treinos de {p} impressionam a imprensa"
+  ],
+  "news_down": [
+    "{p} terá desfalque importante",
+    "Crise interna abala {p}",
+    "{p} chega cansado após viagem longa",
+    "Lesão preocupa a equipe de {p}"
+  ]
+}

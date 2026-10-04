@@ -1,258 +1,130 @@
 class_name Hud
 extends Control
-## HUD: dinheiro, dia/hora, reputação, nível/XP, objetivo atual, prompt de interação
-## e painel compacto da banca quando o jogador tem um negócio.
+## HUD da partida: rodada, desafio atual, cronômetro e cartões de todos os jogadores.
+## Cada mudança de dinheiro gera um número flutuante (+$2.000 verde / -$1.000 vermelho).
 
-var money_label: Label
-var money_delta: Label
-var clock_label: Label
-var speed_label: Label
-var rep_bar: ProgressBar
-var rep_label: Label
-var level_label: Label
-var xp_bar: ProgressBar
-var obj_title: Label
-var obj_text: Label
-var obj_hint: Label
-var obj_bar: ProgressBar
-var prompt_panel: PanelContainer
-var prompt_label: Label
-var biz_panel: PanelContainer
-var biz_box: VBoxContainer
-var work_panel: PanelContainer
-var work_label: Label
-var work_bar: ProgressBar
-var status_label: Label
-var _last_cash := 0.0
-var _delta_t := 0.0
-var _tick := 0.0
+var round_lbl: Label
+var challenge_lbl: Label
+var timer: TimerRing
+var cards_box: HBoxContainer
+var cards: Dictionary = {}   # pid -> PlayerCard
+var float_layer: Control
 
 
 func _ready() -> void:
-	theme = UiKit.theme()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_build_top_left()
-	_build_objective()
-	_build_prompt()
-	_build_business()
-	_build_work()
-	var mm := Minimap.new()
-	add_child(mm)
-	var help := UiKit.label("TAB celular   ·   E interagir   ·   ESC menu", 13, Color(1, 1, 1, 0.5))
-	help.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	help.position = Vector2(16, -28)
-	help.anchor_top = 1.0
-	help.anchor_bottom = 1.0
-	help.offset_top = -30
-	help.offset_left = 16
-	add_child(help)
-	Game.sim.cash_changed.connect(_on_cash)
-	_last_cash = Game.sim.economy.cash
+	AW.full_rect(self)
+	var top := AW.hbox(10)
+	top.position = Vector2(20, 16)
+	add_child(top)
+	var logo := AW.label("ALL WIN", 26, AW.GOLD, "ExtraBold", 5)
+	logo.add_theme_color_override("font_outline_color", Color("3a0a3f"))
+	top.add_child(logo)
+	var chip := PanelContainer.new()
+	chip.add_theme_stylebox_override("panel", AW.style(Color(AW.PINK, 0.9), 12, Color(0, 0, 0, 0), 0, 12))
+	round_lbl = AW.label("", 18, Color.WHITE, "ExtraBold")
+	chip.add_child(round_lbl)
+	top.add_child(chip)
+	challenge_lbl = AW.label("", 18, AW.TEXT, "Bold", 4)
+	top.add_child(challenge_lbl)
+	timer = TimerRing.new()
+	timer.custom_minimum_size = Vector2(96, 96)
+	timer.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	timer.position = Vector2(-120, 14)
+	timer.visible = false
+	add_child(timer)
+	cards_box = AW.hbox(8)
+	cards_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	cards_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	cards_box.offset_top = -118
+	cards_box.offset_bottom = -12
+	cards_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(cards_box)
+	float_layer = Control.new()
+	float_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	AW.full_rect(float_layer)
+	add_child(float_layer)
+	Game.money_changed.connect(_on_money)
+	Game.view_changed.connect(rebuild)
+	Game.submissions_changed.connect(_on_submitted)
+	Game.phase_changed.connect(_on_phase)
+	rebuild()
 
 
-func _panel(pos: Vector2, min_w: float) -> VBoxContainer:
-	var p := PanelContainer.new()
-	var sb := UiKit.style(Color(0.04, 0.06, 0.12, 0.78), 12, Color(1, 1, 1, 0.08), 1, 12)
-	sb.shadow_size = 8
-	sb.shadow_color = Color(0, 0, 0, 0.3)
-	p.add_theme_stylebox_override("panel", sb)
-	p.position = pos
-	p.custom_minimum_size.x = min_w
-	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(p)
-	var v := UiKit.vbox(4)
-	p.add_child(v)
-	return v
-
-
-func _build_top_left() -> void:
-	var v := _panel(Vector2(16, 16), 270)
-	var h := UiKit.hbox()
-	v.add_child(h)
-	money_label = UiKit.bold(UiKit.label("R$ 0", 30, UiKit.GOLD), "Bold") as Label
-	h.add_child(money_label)
-	money_delta = UiKit.label("", 16, UiKit.GREEN)
-	h.add_child(money_delta)
-	var h2 := UiKit.hbox()
-	v.add_child(h2)
-	clock_label = UiKit.label("Dia 1", 16)
-	h2.add_child(UiKit.expand(clock_label))
-	speed_label = UiKit.label("x1", 14, UiKit.MUTED)
-	h2.add_child(speed_label)
-	rep_label = UiKit.label("Reputação", 13, UiKit.MUTED)
-	v.add_child(rep_label)
-	rep_bar = UiKit.bar(50, 100, UiKit.BLUE, 6)
-	v.add_child(rep_bar)
-	level_label = UiKit.label("Nível 1", 13, UiKit.MUTED)
-	v.add_child(level_label)
-	xp_bar = UiKit.bar(0, 1, UiKit.GOLD, 6)
-	v.add_child(xp_bar)
-	status_label = UiKit.label("", 13, UiKit.ORANGE)
-	v.add_child(status_label)
-
-
-func _build_objective() -> void:
-	var v := _panel(Vector2(16, 230), 300)
-	obj_title = UiKit.bold(UiKit.label("", 13, UiKit.GOLD)) as Label
-	v.add_child(obj_title)
-	obj_text = UiKit.label("", 17, UiKit.TEXT, true)
-	obj_text.custom_minimum_size.x = 280
-	v.add_child(obj_text)
-	obj_bar = UiKit.bar(0, 1, UiKit.GREEN, 6)
-	v.add_child(obj_bar)
-	obj_hint = UiKit.label("", 13, UiKit.MUTED, true)
-	obj_hint.custom_minimum_size.x = 280
-	v.add_child(obj_hint)
-
-
-func _build_prompt() -> void:
-	prompt_panel = PanelContainer.new()
-	prompt_panel.add_theme_stylebox_override("panel", UiKit.style(Color(0.05, 0.08, 0.15, 0.9), 10, UiKit.GOLD.darkened(0.2), 1, 12))
-	prompt_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(prompt_panel)
-	prompt_label = UiKit.label("", 18)
-	prompt_panel.add_child(prompt_label)
-	prompt_panel.visible = false
-
-
-func _build_business() -> void:
-	biz_panel = PanelContainer.new()
-	biz_panel.add_theme_stylebox_override("panel", UiKit.style(Color(0.05, 0.08, 0.15, 0.82), 12, Color(1, 1, 1, 0.07), 1, 12))
-	biz_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	biz_panel.custom_minimum_size.x = 250
-	add_child(biz_panel)
-	biz_box = UiKit.vbox(3)
-	biz_panel.add_child(biz_box)
-	biz_panel.visible = false
-
-
-func _build_work() -> void:
-	work_panel = PanelContainer.new()
-	work_panel.add_theme_stylebox_override("panel", UiKit.style(Color(0.05, 0.08, 0.15, 0.92), 12, UiKit.BLUE, 1, 16))
-	work_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(work_panel)
-	var v := UiKit.vbox(6)
-	work_panel.add_child(v)
-	work_label = UiKit.label("", 20, UiKit.TEXT)
-	v.add_child(work_label)
-	work_bar = UiKit.bar(0, 1, UiKit.BLUE, 12)
-	work_bar.custom_minimum_size.x = 360
-	v.add_child(work_bar)
-	work_panel.visible = false
-
-
-func _on_cash(c: float) -> void:
-	var d := c - _last_cash
-	_last_cash = c
-	if absf(d) < 0.5:
+func rebuild() -> void:
+	var players: Array = Game.view.get("players", [])
+	var ids := players.map(func(p): return int(p.id))
+	var same := ids.size() == cards.size()
+	for id in ids:
+		if not cards.has(id):
+			same = false
+	if same:
+		for p in players:
+			cards[int(p.id)].set_money(int(p.money))
+		_refresh_places()
 		return
-	money_delta.text = Fmt.signed_money(d)
-	money_delta.add_theme_color_override("font_color", UiKit.money_color(d))
-	_delta_t = 2.0
+	AW.clear(cards_box)
+	cards.clear()
+	var my := Game.my_peer()
+	for p in players:
+		var c := PlayerCard.new()
+		c.setup(p, int(p.owner_peer) == my and not bool(p.is_bot))
+		cards_box.add_child(c)
+		cards[int(p.id)] = c
+	_refresh_places()
 
 
-func set_prompt(text: String) -> void:
-	prompt_panel.visible = text != ""
-	if text != "":
-		prompt_label.text = "[E]  " + text
+func _refresh_places() -> void:
+	for pid in cards:
+		cards[pid].set_place(Game.position_in_view(pid))
 
 
-func _process(delta: float) -> void:
-	var sim := Game.sim
-	money_label.text = Fmt.money(sim.economy.cash)
-	money_label.add_theme_color_override("font_color", UiKit.GOLD if sim.economy.cash >= 0 else UiKit.RED)
-	if _delta_t > 0.0:
-		_delta_t -= delta
-		money_delta.modulate.a = clampf(_delta_t, 0.0, 1.0)
-	clock_label.text = "Dia %d  ·  %s  ·  %s" % [sim.time.day, sim.time.weekday_name(), sim.time.clock_text()]
-	speed_label.text = "TRABALHANDO" if sim.jobs.is_shift() else ("DORMINDO" if Game.sleeping else "x%d" % int(Game.time_speed()))
-	var vs := get_viewport_rect().size
-	prompt_panel.position = Vector2((vs.x - prompt_panel.size.x) / 2.0, vs.y - 120)
-	work_panel.position = Vector2((vs.x - work_panel.size.x) / 2.0, vs.y * 0.3)
-	biz_panel.position = Vector2(vs.x - biz_panel.size.x - 16, vs.y - biz_panel.size.y - 40)
-	_tick -= delta
-	if _tick > 0.0:
+func _on_phase(phase: String, info: Dictionary) -> void:
+	var r := int(Game.view.get("round", 0))
+	var tot := int(Game.view.get("total_rounds", 0))
+	if phase.begins_with("allwin") or phase == "final":
+		round_lbl.text = "RODADA FINAL"
+	elif r > 0:
+		round_lbl.text = "RODADA %d/%d" % [r, tot]
+	else:
+		round_lbl.text = "COMEÇANDO"
+	if info.has("title") and phase != "round_results" and phase != "intro":
+		challenge_lbl.text = str(info.title)
+	timer.visible = phase == "decision" or phase == "allwin_decision"
+	timer.total = float(info.get("deadline_in", 1.0))
+	for c in cards.values():
+		c.set_status("")
+	if phase == "decision" or phase == "allwin_decision":
+		for c in cards.values():
+			c.set_status("pensando...", AW.MUTED)
+
+
+func _on_submitted(submitted: Array) -> void:
+	for pid in submitted:
+		if cards.has(int(pid)):
+			cards[int(pid)].set_status("ESCOLHEU!", AW.GREEN)
+
+
+func _on_money(pid: int, old_v: int, new_v: int, _reason: String) -> void:
+	var c: PlayerCard = cards.get(pid)
+	if c == null:
 		return
-	_tick = 0.25
-	rep_bar.value = sim.reputation.value
-	rep_label.text = "Reputação da banca: %d (%s)" % [int(sim.reputation.value), sim.reputation.label()]
-	rep_label.visible = sim.has_business()
-	rep_bar.visible = sim.has_business()
-	level_label.text = "Nível %d · %s" % [sim.progression.level, sim.progression.title()]
-	xp_bar.max_value = sim.progression.xp_to_next()
-	xp_bar.value = sim.progression.xp
-	var st := ""
-	if sim.recovery_mode:
-		st = "MODO RECUPERAÇÃO"
-	if sim.loans.total_debt() > 0:
-		st += ("   " if st != "" else "") + "Dívida: " + Fmt.money(sim.loans.total_debt())
-	status_label.text = st
-	status_label.visible = st != ""
-	_update_objective()
-	_update_work()
-	_update_business()
+	c.set_money(new_v)
+	AW.pop(c, 1.08, 0.3)
+	_refresh_places()
+	var d := new_v - old_v
+	var l := AW.label(Fmt.delta(d), 30, AW.GREEN if d > 0 else AW.RED, "ExtraBold", 6)
+	float_layer.add_child(l)
+	l.position = c.global_position + Vector2(c.size.x / 2.0 - 50, -30)
+	var tw := l.create_tween().set_parallel()
+	tw.tween_property(l, "position:y", l.position.y - 90, 1.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(l, "modulate:a", 0.0, 1.6).set_delay(0.6)
+	tw.chain().tween_callback(l.queue_free)
+	l.scale = Vector2(1.6, 1.6)
+	l.create_tween().tween_property(l, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK)
 
 
-func _update_objective() -> void:
-	var sim := Game.sim
-	var ch := sim.missions.chapter()
-	if sim.missions.is_campaign_over():
-		obj_title.text = "PÓS-CAMPANHA"
-		obj_text.text = "Continue expandindo seu império."
-		obj_bar.visible = false
-		obj_hint.visible = false
-		return
-	obj_title.text = str(ch.get("title", "")).split("—")[-1].strip_edges().to_upper()
-	var o := sim.missions.current_objective()
-	if o.is_empty():
-		return
-	obj_text.text = str(o.text)
-	var p := sim.missions.progress(o)
-	obj_bar.visible = float(p[1]) > 1.0
-	obj_bar.max_value = maxf(float(p[1]), 0.001)
-	obj_bar.value = clampf(float(p[0]), 0.0, float(p[1]))
-	obj_hint.visible = sim.missions.hints_enabled and o.has("hint") and sim.missions.chapter_index < 4
-	obj_hint.text = str(o.get("hint", ""))
-
-
-func _update_work() -> void:
-	var sim := Game.sim
-	var a: Dictionary = sim.jobs.active
-	if a.is_empty() or a.type != "shift":
-		work_panel.visible = false
-		return
-	work_panel.visible = true
-	var total := float(int(a.end) - int(a.started))
-	var done := float(sim.time.abs_minute() - int(a.started))
-	work_label.text = "Trabalhando: %s   (+%s)" % [a.name, Fmt.money(float(a.reward))]
-	work_bar.max_value = maxf(total, 1.0)
-	work_bar.value = done
-
-
-func _update_business() -> void:
-	var sim := Game.sim
-	if not sim.has_business():
-		biz_panel.visible = false
-		return
-	biz_panel.visible = true
-	for c in biz_box.get_children():
-		c.queue_free()
-	var b = sim.business
-	biz_box.add_child(UiKit.bold(UiKit.label(sim.brand_name.to_upper(), 15, UiKit.GOLD)))
-	var open_txt := "ABERTA" if b.is_open() else "FECHADA"
-	if b.is_open() and not b.can_take_bets():
-		open_txt = "PARADA"
-	UiKit.kv(biz_box, "Status", open_txt, UiKit.GREEN if open_txt == "ABERTA" else UiKit.RED)
-	UiKit.kv(biz_box, "Fila", "%d pessoa(s)%s" % [sim.customers.queue_length(), " · você atende" if sim.player_at_counter else ""])
-	UiKit.kv(biz_box, "Lucro hoje", Fmt.money(sim.economy.business_profit_today()), UiKit.money_color(sim.economy.business_profit_today()))
-	var ex := sim.betting.total_exposure()
-	var risk := sim.betting.risk_level(ex.worst_net)
-	if risk == "ALTO" or risk == "CRÍTICO":
-		UiKit.kv(biz_box, "Risco", risk, UiKit.risk_color(risk))
-	if ex.worst_net > sim.economy.cash and ex.bets > 0:
-		biz_box.add_child(UiKit.label("Cuidado: caixa não cobre o pior cenário", 12, UiKit.RED))
-	if not b.has_required_equipment():
-		biz_box.add_child(UiKit.label("Compre balcão e computador (tecla B)", 12, UiKit.ORANGE))
-	elif b.is_open() and not b.can_take_bets():
-		biz_box.add_child(UiKit.label("Equipamento quebrado: conserte (tecla B)", 12, UiKit.ORANGE))
+func _process(_delta: float) -> void:
+	if timer.visible:
+		timer.left = Game.time_left()
+		timer.queue_redraw()

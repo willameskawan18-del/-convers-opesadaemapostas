@@ -1,9 +1,0 @@
-{
-  "offers": [
-    {"id": "micro", "name": "Microcrédito Pessoal", "principal": 1500, "rate": 0.18, "term_days": 15, "min_level": 1},
-    {"id": "pme", "name": "Crédito Pequena Empresa", "principal": 15000, "rate": 0.20, "term_days": 30, "min_level": 3, "requires_business": true},
-    {"id": "expansao", "name": "Linha de Expansão", "principal": 80000, "rate": 0.24, "term_days": 45, "min_level": 6, "requires_business": true},
-    {"id": "corporativo", "name": "Crédito Corporativo", "principal": 400000, "rate": 0.28, "term_days": 60, "min_level": 10, "requires_business": true},
-    {"id": "investimento", "name": "Financiamento de Grande Porte", "principal": 1500000, "rate": 0.32, "term_days": 90, "min_level": 14, "requires_business": true}
-  ]
-}
