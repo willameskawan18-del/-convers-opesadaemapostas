@@ -120,7 +120,7 @@ static func join(parent: Control, on_join: Callable) -> Control:
 	name_e.text = str(Profile.data.get("last_name", ""))
 	name_e.placeholder_text = "Nome"
 	v.add_child(name_e)
-	v.add_child(AW.label("IP do host (aparece no lobby dele)", 16, AW.MUTED))
+	v.add_child(AW.label("IP do host (aparece no lobby dele: IP da INTERNET ou da VPN)", 16, AW.MUTED))
 	var ip := LineEdit.new()
 	ip.placeholder_text = "ex.: 192.168.0.10"
 	ip.text = "127.0.0.1"

@@ -48,6 +48,11 @@ func _ready() -> void:
 	Game.phase_changed.connect(_on_phase)
 	Game.error_message.connect(func(t): Dialogs.toast(modal_root, t))
 	Net.connected_to_host.connect(_on_connected)
+	Net.upnp_finished.connect(func(ok: bool, ip: String):
+		if ok:
+			Dialogs.toast(modal_root, "Porta aberta! IP para seu amigo: " + ip, AW.GREEN)
+		else:
+			Dialogs.toast(modal_root, "O roteador não abriu a porta. Use a Radmin VPN (veja o LEIA-ME).", AW.ORANGE))
 	Net.connection_failed.connect(func():
 		Dialogs.toast(modal_root, "Não foi possível conectar ao host.", AW.RED)
 		if _join_dlg and is_instance_valid(_join_dlg):

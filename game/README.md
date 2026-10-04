@@ -74,7 +74,8 @@ game/
 ## Multiplayer
 
 - **Local (mesmo PC):** vários humanos no lobby; nas escolhas secretas aparece uma cortina "VEZ DE ..." para cada um. Na Reação todos jogam juntos, cada um com sua tecla.
-- **Rede (LAN / Internet com porta 7777 liberada):** host clica ABRIR SALA ONLINE; amigos usam JOIN GAME com o IP. Dinheiro, escolhas, resultados e entrada/saída são sincronizados; quem cai durante a partida passa a jogar no automático.
+- **Rede (LAN / Internet):** host clica ABRIR SALA ONLINE; o jogo tenta abrir a porta 7777 (UDP) no roteador por **UPnP** e mostra o IP da internet. Se o roteador não permitir, Radmin VPN/ZeroTier/Hamachi funcionam (o lobby mostra o IP da VPN). Amigos usam JOIN GAME com o IP.
+- **Steam (pendente):** precisa do plugin GodotSteam (GDExtension) e do `steam_api64.dll`; o download foi bloqueado pela rede deste ambiente. Com o plugin, usar o App ID 480 (Spacewar) para testes e `SteamMultiplayerPeer` no lugar do ENet no `NetworkManager`. Dinheiro, escolhas, resultados e entrada/saída são sincronizados; quem cai durante a partida passa a jogar no automático.
 - Preparado para o futuro: reconexão (o estado completo já é enviado em `view`), servidor dedicado.
 
 ## Testes

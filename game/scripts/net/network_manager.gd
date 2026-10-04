@@ -8,6 +8,7 @@ signal connection_failed
 signal disconnected_from_host
 signal peer_joined(peer: int)
 signal peer_left(peer: int)
+signal upnp_finished(ok: bool, external_ip: String)
 
 const DEFAULT_PORT := 7777
 const MAX_CLIENTS := 7
@@ -15,6 +16,12 @@ const MAX_CLIENTS := 7
 var _online := false
 var _lobby_open := true
 var _peers: Array[int] = []
+## UPnP: abre a porta no roteador automaticamente para jogar pela INTERNET.
+var upnp_status := ""          # "", "procurando", "ok", "falhou"
+var external_ip := ""
+var _upnp: UPNP
+var _upnp_thread: Thread
+var _mapped_port := 0
 
 
 func _ready() -> void:
@@ -60,6 +67,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	multiplayer.multiplayer_peer = p
 	_online = true
 	_lobby_open = true
+	_start_upnp(port)
 	return OK
 
 
@@ -75,6 +83,7 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 
 
 func close() -> void:
+	_remove_upnp()
 	var p := multiplayer.multiplayer_peer
 	if p and not (p is OfflineMultiplayerPeer):
 		p.close()
@@ -97,6 +106,61 @@ func local_addresses() -> Array:
 		if a.count(".") == 3 and not a.begins_with("127.") and not a.begins_with("169.254"):
 			out.append(a)
 	return out
+
+
+# --- UPnP (internet sem configurar o roteador) -----------------------------------
+
+func _start_upnp(port: int) -> void:
+	if DisplayServer.get_name() == "headless" or (_upnp_thread and _upnp_thread.is_alive()):
+		return
+	upnp_status = "procurando"
+	external_ip = ""
+	_upnp_thread = Thread.new()
+	_upnp_thread.start(_upnp_work.bind(port))
+
+
+func _upnp_work(port: int) -> void:
+	var u := UPNP.new()
+	var ok := false
+	var ip := ""
+	if u.discover(2000, 2) == UPNP.UPNP_RESULT_SUCCESS and u.get_gateway() and u.get_gateway().is_valid_gateway():
+		var r1 := u.add_port_mapping(port, port, "ALL WIN", "UDP", 0)
+		if r1 == UPNP.UPNP_RESULT_SUCCESS:
+			ok = true
+			ip = u.query_external_address()
+	call_deferred("_upnp_done", u, ok, ip, port)
+
+
+func _upnp_done(u: UPNP, ok: bool, ip: String, port: int) -> void:
+	if _upnp_thread:
+		_upnp_thread.wait_to_finish()
+		_upnp_thread = null
+	if not _online:
+		if ok:
+			u.delete_port_mapping(port, "UDP")
+		return
+	_upnp = u if ok else null
+	_mapped_port = port if ok else 0
+	upnp_status = "ok" if ok else "falhou"
+	external_ip = ip
+	upnp_finished.emit(ok, ip)
+	if multiplayer.is_server():
+		Game._broadcast_view()
+
+
+func _remove_upnp() -> void:
+	if _upnp and _mapped_port > 0:
+		_upnp.delete_port_mapping(_mapped_port, "UDP")
+	_upnp = null
+	_mapped_port = 0
+	upnp_status = ""
+	external_ip = ""
+
+
+func _exit_tree() -> void:
+	_remove_upnp()
+	if _upnp_thread:
+		_upnp_thread.wait_to_finish()
 
 
 func _on_peer_connected(peer: int) -> void:

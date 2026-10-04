@@ -128,7 +128,18 @@ func _build_side(players: Array) -> void:
 	if Game.is_host():
 		if Net.is_online():
 			var ips := Net.local_addresses()
-			net_lbl.text = "SALA ABERTA! Amigos entram em JOIN GAME com o IP:\n%s  (porta %d)\nConectados: %d" % [", ".join(ips) if ips.size() > 0 else "127.0.0.1", Net.DEFAULT_PORT, Net.peers().size()]
+			var t := "SALA ABERTA!  Conectados: %d\n" % Net.peers().size()
+			match Net.upnp_status:
+				"procurando": t += "INTERNET: abrindo a porta no roteador...\n"
+				"ok": t += "INTERNET: passe este IP para seu amigo:\n   %s\n" % Net.external_ip
+				"falhou": t += "INTERNET: o roteador não abriu a porta sozinho. Use Radmin VPN (veja o LEIA-ME) ou libere a porta %d (UDP).\n" % Net.DEFAULT_PORT
+			t += "MESMA REDE / VPN: %s" % (", ".join(ips) if ips.size() > 0 else "127.0.0.1")
+			net_lbl.text = t
+			if Net.upnp_status == "ok":
+				var ip := Net.external_ip
+				side.add_child(AW.button("COPIAR IP DA INTERNET", func():
+					DisplayServer.clipboard_set(ip)
+					Dialogs.toast(ui.modal_root, "IP copiado: " + ip, AW.GREEN), AW.GOLD.darkened(0.3), 16))
 		else:
 			net_lbl.text = "Abra a sala para amigos na mesma rede (ou com redirecionamento de porta) entrarem."
 			side.add_child(AW.button("ABRIR SALA ONLINE", func(): ui.host_online(), AW.CYAN.darkened(0.3), 18))
