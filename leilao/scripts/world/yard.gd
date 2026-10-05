@@ -26,6 +26,7 @@ var _t := 0.0
 var _door_open := 0.0
 var _door_target := 0.0
 var _orbit := false
+var labels_on := false         # nomes 3D só aparecem com a porta aberta
 
 
 func _ready() -> void:
@@ -247,6 +248,7 @@ func bidder_pos(pid: int) -> Vector3:
 # --- Galpão -----------------------------------------------------------------------------
 
 func load_unit(number: int) -> void:
+	labels_on = false
 	_clear_items()
 	for i in DOORS:
 		door_labels[i].text = str(number - ACTIVE + i)
@@ -288,7 +290,7 @@ func _item_label(node: Node3D, text: String, index: int, col: Color, big: bool =
 	var l := M3.label(node, text, Vector3(0, 1.25 + (index % 2) * 0.32, 0), 15 if big else 12, col, 6, true)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.width = 140.0
-	l.no_depth_test = true
+	l.visible = labels_on
 	return l
 
 
@@ -328,6 +330,10 @@ func peek_lights() -> void:
 
 
 func open_lights() -> void:
+	labels_on = true
+	for e in item_nodes:
+		if e.label and is_instance_valid(e.label):
+			e.label.visible = true
 	flash.light_energy = 2.0
 	inside_light.light_energy = 2.5
 

@@ -140,7 +140,7 @@ func _card(title: String, sub: String, dur: float, logo: bool = false) -> ColorR
 	v.set_anchors_preset(Control.PRESET_FULL_RECT)
 	v.alignment = BoxContainer.ALIGNMENT_CENTER
 	bg.add_child(v)
-	var l := AW.title(title, 130 if logo else 70, AW.GOLD if logo else Color.WHITE)
+	var l := AW.title(title, 104 if logo else 64, AW.GOLD if logo else Color.WHITE)
 	l.add_theme_color_override("font_shadow_color", Color(AW.PINK, 0.8))
 	l.add_theme_constant_override("shadow_offset_y", 8)
 	v.add_child(l)

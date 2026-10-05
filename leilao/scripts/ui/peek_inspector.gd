@@ -74,10 +74,30 @@ func _reveal(idx: int) -> void:
 	left -= 1
 	_aim = -1
 	var it: Dictionary = items[idx]
+	var pos := Vector2.ZERO
+	for e in yard.item_nodes:
+		if int(e.index) == idx and is_instance_valid(e.node):
+			pos = yard.cam.unproject_position(e.node.global_position + Vector3(0, 0.6, 0))
 	yard.reveal_item(idx, it, false)
+	_float_name(str(it.name), pos)
 	Audio.play("coin", -6.0, 1.3)
 	inspected.emit(it)
 	budget_changed.emit(left)
+
+
+## Nome do item subindo na tela, no ponto onde a lanterna revelou.
+func _float_name(text: String, pos: Vector2) -> void:
+	var l := AW.label(text, 26, AW.GOLD, "ExtraBold", 6)
+	l.position = pos - Vector2(160, 30)
+	l.custom_minimum_size.x = 320
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ring.add_child(l)
+	AW.pop(l, 1.4, 0.25)
+	var tw := l.create_tween()
+	tw.tween_property(l, "position:y", l.position.y - 60, 1.6)
+	tw.parallel().tween_property(l, "modulate:a", 0.0, 1.6).set_delay(0.6)
+	tw.tween_callback(l.queue_free)
 
 
 func _draw_ring() -> void:

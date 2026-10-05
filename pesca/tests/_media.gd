@@ -123,12 +123,11 @@ func _use(cam_fn: Callable, media: bool = true) -> void:
 
 func _caption(text: String, sub: String = "", dur: float = 3.0) -> void:
 	var box := VBoxContainer.new()
-	box.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	box.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	box.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	box.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	box.offset_bottom = -110
+	box.offset_top = 200
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	var l := AW.title(text, 64, Color.WHITE)
+	var l := AW.title(text, 58, Color.WHITE)
 	l.add_theme_constant_override("outline_size", 14)
 	box.add_child(l)
 	if sub != "":
@@ -152,7 +151,7 @@ func _card(title: String, sub: String, dur: float, logo: bool = false) -> void:
 	v.set_anchors_preset(Control.PRESET_FULL_RECT)
 	v.alignment = BoxContainer.ALIGNMENT_CENTER
 	bg.add_child(v)
-	var l := AW.title(title, 140 if logo else 72, AW.CYAN if logo else Color.WHITE)
+	var l := AW.title(title, 104 if logo else 64, AW.CYAN if logo else Color.WHITE)
 	l.add_theme_color_override("font_shadow_color", Color(AW.PURPLE, 0.8))
 	l.add_theme_constant_override("shadow_offset_y", 8)
 	v.add_child(l)
