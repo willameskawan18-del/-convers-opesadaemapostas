@@ -33,8 +33,11 @@ func _ready() -> void:
 	add_child(eyes)
 	for sx in [-2.2, 2.2]:
 		var e := M3.sphere(eyes, 2.6, Vector3(sx * 1.8, 0, 0), M3.glow(Color("ffcc33"), 5.0), 16)
-		var pupil := M3.sphere(e, 1.2, Vector3(0, 0, -1.9), M3.solid(Color("050505"), 0.2), 12)
-		pupil.scale = Vector3(0.45, 1.0, 0.5)
+		var pm := StandardMaterial3D.new()
+		pm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		pm.albedo_color = Color("050505")
+		var pupil := M3.sphere(e, 1.2, Vector3(0, 0, -2.3), pm, 12)
+		pupil.scale = Vector3(0.4, 1.4, 0.4)
 	var glow := OmniLight3D.new()
 	glow.light_color = Color("ffaa33")
 	glow.light_energy = 2.0

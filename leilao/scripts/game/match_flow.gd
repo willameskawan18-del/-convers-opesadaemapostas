@@ -61,6 +61,10 @@ func _money(pid: int, delta: int, reason: String) -> void:
 
 # --- Partida ----------------------------------------------------------------------
 
+## Usado pelo roteiro do trailer: garante um item especial no próximo galpão.
+var force_special := ""
+
+
 func run(t: int) -> void:
 	_token = t
 	unit_log.clear()
@@ -80,6 +84,12 @@ func run(t: int) -> void:
 			if not _alive(t): return
 		for n in range(1, int(g().config.units_per_day) + 1):
 			unit = UnitGen.generate(g().rng, day, (day - 1) * int(g().config.units_per_day) + n)
+			if force_special != "":
+				var sp := UnitGen.make_item(UnitGen.item_def(force_special), g().rng, day)
+				sp.value = maxi(int(sp.value), int(sp.max) / 2)
+				unit.items.insert(mini(4, unit.items.size()), sp)
+				unit.total = int(unit.total) + int(sp.value)
+				force_special = ""
 			await _peek(t, n)
 			if not _alive(t): return
 			await _auction(t)
@@ -182,7 +192,7 @@ func _peek(t: int, n: int) -> void:
 			for it in items:
 				best = maxi(best, int(it.value))
 			tip = "INFORMANTE: o item mais valioso daqui vale %s." % ("mais de " + Fmt.money(int(best * 0.7 / 100) * 100) if best > 500 else "menos de $500")
-		g().send_private(p.id, {"kind": "peek", "visible": shown, "budget": maxi(1, vis - 1), "count": items.size(), "tip": tip, "money": p.money})
+		g().send_private(p.id, {"kind": "peek", "visible": shown, "budget": maxi(2, vis), "count": items.size(), "tip": tip, "money": p.money})
 	_phase("peek", {"deadline_in": T_PEEK, "unit": unit.number, "n": n, "per_day": int(g().config.units_per_day), "rumor": unit.rumor,
 		"count": items.size(), "visible_public": _public_visible()})
 	await _wait_actions(t, T_PEEK)

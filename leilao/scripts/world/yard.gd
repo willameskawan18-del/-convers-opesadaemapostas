@@ -142,7 +142,7 @@ func _building() -> void:
 	interior.add_child(inside_light)
 	flash = SpotLight3D.new()
 	flash.position = Vector3(0, 1.2, 4.6)
-	flash.spot_angle = 18
+	flash.spot_angle = 24
 	flash.spot_range = 12
 	flash.light_energy = 0.0
 	flash.light_color = Color("fffbe6")
@@ -228,7 +228,9 @@ func say(pid: int, text: String) -> void:
 	var old := m.get_node_or_null("Bubble")
 	if old:
 		old.queue_free()
-	var l := M3.label(m, text, Vector3(0, 3.3, 0), 34, Color("fff3bf"), 10, true)
+	var l := M3.label(m, "“" + text + "”", Vector3(0, 3.5, 0), 26, Color("fff3bf"), 12, true)
+	l.outline_modulate = Color("2a1640")
+	l.no_depth_test = true
 	l.name = "Bubble"
 	l.modulate.a = 0.0
 	var tw := l.create_tween()
@@ -271,13 +273,23 @@ func fill(items: Array, total: int, visible: int) -> void:
 		if i < items.size() and i < visible:
 			var it: Dictionary = items[i]
 			node = ItemProp.build(str(it.shape), str(it.color), i * 13 + total)
-			lbl = M3.label(node, str(it.name), Vector3(0, 1.6, 0), 22, Color.WHITE, 6, true)
+			lbl = _item_label(node, str(it.name), i, Color.WHITE)
 		else:
 			node = ItemProp.tarp(i * 7 + total)
 		node.position = pos
 		node.rotation.y = randf_range(-0.4, 0.4)
 		interior.add_child(node)
 		item_nodes.append({"node": node, "label": lbl, "index": i})
+
+
+## Nome do item flutuando acima dele, quebrado em linhas e em alturas alternadas para
+## os nomes vizinhos não se sobreporem.
+func _item_label(node: Node3D, text: String, index: int, col: Color, big: bool = false) -> Label3D:
+	var l := M3.label(node, text, Vector3(0, 1.25 + (index % 2) * 0.32, 0), 15 if big else 12, col, 6, true)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.width = 140.0
+	l.no_depth_test = true
+	return l
 
 
 ## Revela um item (substitui a lona) com um pulinho.
@@ -291,7 +303,7 @@ func reveal_item(index: int, it: Dictionary, big: bool) -> void:
 		node.position = pos
 		interior.add_child(node)
 		var col := Color("ffd43b") if big else Color.WHITE
-		var lbl := M3.label(node, str(it.name), Vector3(0, 1.6, 0), 26 if big else 20, col, 8, true)
+		var lbl := _item_label(node, str(it.name), index, col, big)
 		e.node = node
 		e.label = lbl
 		node.scale = Vector3.ONE * 0.2
@@ -311,7 +323,7 @@ func set_door(target: float) -> void:
 
 
 func peek_lights() -> void:
-	flash.light_energy = 6.0
+	flash.light_energy = 10.0
 	inside_light.light_energy = 0.0
 
 

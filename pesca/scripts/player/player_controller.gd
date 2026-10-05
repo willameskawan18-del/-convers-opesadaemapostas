@@ -44,9 +44,12 @@ func _show_landed(f: Dictionary, from: Vector3) -> void:
 	get_tree().root.add_child(fish)
 	fish.global_position = from
 	FishModel.splash(get_tree().root, from, true)
-	var hold := cam.global_position - cam.global_transform.basis.z * 1.3 + Vector3(0, -0.15, 0)
+	var b := cam.global_transform.basis
+	var hold := cam.global_position - b.z * 1.9 - b.x * 1.25 - b.y * 0.25
+	var show_scale := minf(1.0, 0.75 / maxf(0.1, float(f.get("size", 0.5))))
 	var tw := fish.create_tween()
 	tw.tween_property(fish, "global_position", hold, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(fish, "scale", Vector3.ONE * show_scale, 0.55)
 	tw.parallel().tween_property(fish, "rotation:y", TAU, 0.55)
 	tw.tween_property(fish, "rotation:y", TAU + PI, 1.4)
 	tw.tween_property(fish, "global_position", boat.to_global(boat.cooler_pos), 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)

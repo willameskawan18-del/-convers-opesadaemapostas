@@ -1,3 +1,36 @@
+# Jogos deste repositório
+
+| Jogo | Pasta | Download (Windows) |
+|---|---|---|
+| **ALL WIN** — party game de game show (2–8) | `game/` | `builds/AllWin-Windows.zip` |
+| **Leilão de Garagem** — compre galpões às cegas, abra e revenda (1–6) | `leilao/` | `builds/LeilaoDeGaragem-Windows.zip` |
+| **Pesca no Abismo** — pesca cooperativa à noite em alto-mar (1–4) | `pesca/` | `builds/PescaNoAbismo-Windows.zip` |
+| Bet Tycoon (antigo, preservado) | `legacy/bet_tycoon/` | — |
+
+Material de loja (trailers, screenshots, cápsulas, textos PT/EN e passo a passo para publicar): pasta `marketing/`,
+gerado pelos roteiros `tests/_media.tscn` de cada jogo (`-- shots <pasta>`, `-- keyart <pasta>`, `--write-movie x.avi ... -- trailer`).
+
+Todos em Godot 4.7, com multiplayer por ENet (host autoritativo), UPnP para internet e testes headless em `tests/`.
+
+## Leilão de Garagem
+Dias com 3 galpões: ESPIAR (itens visíveis, boato, volumes) → LEILÃO AO VIVO (lances com "dou-lhe uma, duas") → ABRIR (revelação item a item)
+→ VENDER no fim do dia (loja 85%, online 50–160%, guardar para coleção; cofres/baús misteriosos). Melhorias: Lanterna, Avaliador, Informante.
+49 itens, 7 tipos de galpão, bots com personalidade.
+**Nível loja:** lanterna interativa na espiada (mirar com o mouse e segurar para revelar; bateria limitada), PECHINCHA com o
+comprador (chance depende do preço pedido; o COMPRADOR DO DIA paga mais por uma categoria), bots provocando em balões de fala,
+carreira (títulos, catálogo dos 49 itens, 12 conquistas com IDs prontos para o Steamworks) em `scripts/ui/career_ui.gd`. Testes: `tests/match_test.tscn`, `tests/smoke_test.tscn`, `tests/net_test.tscn -- host|client`.
+
+## Pesca no Abismo
+Primeira pessoa no convés de um barco. Arremesso, fisgada e "puxar" com tensão da linha. 28 peixes em 3 zonas (raso, fundo, abismo).
+Timão (pilotar), lanterna, caixa de peixes, porto com venda e 5 melhorias. Cota a cada 3 noites. Perigos: batidas e vazamentos,
+tentáculo gigante, olhos na névoa (apagar a luz e parar), naufrágio. Coop até 4 (poses e estado do barco sincronizados).
+**Nível loja:** bestiário (TAB e menu), 14 conquistas (IDs prontos para o Steamworks), tutorial com objetivos, clima por noite
+(calmo / nevoeiro / TEMPESTADE com ondas maiores, chuva e relâmpagos, peixes mais raros), progresso salvo a cada amanhecer
+e "CONTINUAR" no menu, peixe 3D saindo da água ao pescar e respingos. Ver `scripts/ui/meta_ui.gd` e `scripts/core/profile.gd`.
+Testes: `tests/run_test.tscn`, `tests/fish_test.tscn`, `tests/smoke_test.tscn`, `tests/net_test.tscn -- host|client`.
+
+---
+
 # ALL WIN — Status de desenvolvimento
 
 Party game de **game show** para **2 a 8 jogadores**, feito em **Godot 4.7** (projeto em `game/`).
