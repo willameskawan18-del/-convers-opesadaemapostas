@@ -6,6 +6,7 @@ extends Node3D
 signal state_changed(state: String)
 signal caught(fish: Dictionary)
 signal message(text: String, color: Color)
+signal landed(fish: Dictionary, from: Vector3)
 
 const BITE_WINDOW := 1.0
 const REEL_TIMEOUT := 30.0
@@ -126,12 +127,14 @@ func _start_wait() -> void:
 	if bool(run.get("docked", false)):
 		_wait *= 2.5
 	Audio.play("splash", -4.0)
+	FishModel.splash(get_tree().root, _land)
 	_state("waiting")
 
 
 func _start_reel() -> void:
 	var run := Game.run_view
-	fish = FishDB.roll(str(run.get("zone_id", "raso")), int(run.get("upgrades", {}).get("isca", 0)), str(run.get("zone_id", "")) == "abismo" and bool(run.get("lantern", false)), rng)
+	fish = FishDB.roll(str(run.get("zone_id", "raso")), int(run.get("upgrades", {}).get("isca", 0)), str(run.get("zone_id", "")) == "abismo" and bool(run.get("lantern", false)), rng, str(run.get("weather", "")) == "tempestade")
+	FishModel.splash(get_tree().root, bobber.global_position, float(fish.strength) > 0.7)
 	var vara := int(run.get("upgrades", {}).get("vara", 0))
 	var width := 0.38 + 0.06 * vara - float(fish.strength) * 0.08
 	zone_lo = 0.55 - width / 2.0
@@ -220,7 +223,9 @@ func _reel(delta: float) -> void:
 		cancel()
 	elif progress >= 1.0:
 		Audio.play("jackpot" if str(fish.rarity) in ["epico", "lendario"] else "win")
+		var from := bobber.global_position
 		caught.emit(fish)
+		landed.emit(fish, from)
 		cancel()
 	elif _reel_time > REEL_TIMEOUT:
 		message.emit("Cansou... o peixe escapou.", Color("ff9f1c"))

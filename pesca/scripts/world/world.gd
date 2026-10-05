@@ -13,6 +13,9 @@ var _state: Dictionary = {}
 var _boat_pos := Vector3(0, 0, 18)
 var _boat_yaw := 0.0
 var _depth := 0.0
+var _weather := "calmo"
+var rain: CPUParticles3D
+var _lightning_t := 5.0
 
 
 func _ready() -> void:
@@ -29,6 +32,27 @@ func _ready() -> void:
 	Game.world_state.connect(func(s): _state = s)
 	Game.run_changed.connect(_on_run)
 	Game.fx.connect(_on_fx)
+	rain = CPUParticles3D.new()
+	rain.amount = 900
+	rain.lifetime = 1.0
+	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	rain.emission_box_extents = Vector3(18, 1, 18)
+	rain.direction = Vector3(0.15, -1, 0)
+	rain.spread = 4
+	rain.initial_velocity_min = 22
+	rain.initial_velocity_max = 28
+	rain.gravity = Vector3.ZERO
+	var drop := QuadMesh.new()
+	drop.size = Vector2(0.02, 0.5)
+	var dm := StandardMaterial3D.new()
+	dm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	dm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	dm.albedo_color = Color(0.7, 0.8, 0.95, 0.35)
+	dm.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+	drop.material = dm
+	rain.mesh = drop
+	rain.emitting = false
+	add_child(rain)
 
 
 func _environment() -> void:
@@ -145,6 +169,8 @@ func _buoys() -> void:
 
 func _on_run(r: Dictionary) -> void:
 	boat.set_lantern(bool(r.get("lantern", true)))
+	_weather = str(r.get("weather", "calmo"))
+	rain.emitting = _weather == "tempestade"
 	_depth = {"raso": 0.0, "fundo": 0.55, "abismo": 1.0}.get(str(r.get("zone_id", "raso")), 0.0)
 
 
@@ -192,7 +218,19 @@ func _process(delta: float) -> void:
 	var cur := float(ocean.mat.get_shader_parameter("depth")) if ocean.mat.get_shader_parameter("depth") != null else 0.0
 	var dk := move_toward(cur, _depth, delta * 0.2)
 	ocean.set_depth(dk)
-	env.fog_density = lerpf(0.012, 0.04, dk)
+	var target_amp: float = {"tempestade": 1.9, "nevoeiro": 0.7}.get(_weather, 1.0)
+	Ocean.amp = move_toward(Ocean.amp, target_amp, delta * 0.15)
+	var fog_mul: float = {"tempestade": 1.4, "nevoeiro": 2.4}.get(_weather, 1.0)
+	env.fog_density = lerpf(0.012, 0.04, dk) * fog_mul
+	rain.global_position = boat.global_position + Vector3(0, 14, 0)
+	if _weather == "tempestade":
+		_lightning_t -= delta
+		if _lightning_t <= 0.0:
+			_lightning_t = randf_range(5.0, 14.0)
+			env.adjustment_enabled = true
+			env.adjustment_brightness = 3.0
+			create_tween().tween_property(env, "adjustment_brightness", 1.0, 0.35)
+			get_tree().create_timer(randf_range(0.4, 1.4)).timeout.connect(func(): Audio.play("thump", -4.0))
 	env.fog_light_color = Color("0a1424").lerp(Color("05070c"), dk)
 	env.ambient_light_energy = lerpf(0.5, 0.18, dk)
 	sky_mat.set_shader_parameter("gloom", dk)

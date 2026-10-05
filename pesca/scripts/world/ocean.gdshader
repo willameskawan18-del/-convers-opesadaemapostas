@@ -3,12 +3,13 @@ render_mode cull_disabled;
 
 uniform float t = 0.0;
 uniform float depth = 0.0;     // 0 raso → 1 abismo
+uniform float amp = 1.0;
 varying vec3 wpos;
 varying float wh;
 
 float wave(vec2 p, vec2 d, float a, float l, float s) {
 	d = normalize(d);
-	return a * sin(dot(d, p) * 6.2831853 / l + t * s);
+	return a * amp * sin(dot(d, p) * 6.2831853 / l + t * s);
 }
 
 float H(vec2 p) {
@@ -33,7 +34,7 @@ void fragment() {
 	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 4.0);
 	// pequenas ondulações
 	float ripple = sin(wpos.x * 2.3 + t * 2.0) * sin(wpos.z * 1.7 - t * 1.6) * 0.5 + 0.5;
-	float foam = smoothstep(0.42, 0.6, wh + ripple * 0.12);
+	float foam = smoothstep(0.42 * amp, 0.6 * amp, wh + ripple * 0.12);
 	ALBEDO = base + vec3(0.6, 0.7, 0.8) * foam * 0.25;
 	ROUGHNESS = 0.06 + ripple * 0.08;
 	METALLIC = 0.0;

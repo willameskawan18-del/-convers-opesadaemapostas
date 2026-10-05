@@ -10,6 +10,7 @@ const WAVES := [
 ]
 
 static var time := 0.0
+static var amp := 1.0
 var mat: ShaderMaterial
 
 
@@ -17,7 +18,7 @@ static func height(x: float, z: float) -> float:
 	var h := 0.0
 	for w in WAVES:
 		var d: Vector2 = (w[0] as Vector2).normalized()
-		h += float(w[1]) * sin((d.x * x + d.y * z) * TAU / float(w[2]) + time * float(w[3]))
+		h += float(w[1]) * amp * sin((d.x * x + d.y * z) * TAU / float(w[2]) + time * float(w[3]))
 	return h
 
 
@@ -45,3 +46,4 @@ func set_depth(k: float) -> void:
 func _process(delta: float) -> void:
 	time += delta
 	mat.set_shader_parameter("t", time)
+	mat.set_shader_parameter("amp", amp)

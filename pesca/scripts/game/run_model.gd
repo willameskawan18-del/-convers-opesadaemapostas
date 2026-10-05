@@ -35,6 +35,8 @@ var steer := 0.0
 var driver := -1
 var lantern := true
 # ameaças
+var weather := "calmo"          # calmo, nevoeiro, tempestade
+var quotas_met := 0
 var tentacle := {}              # {side, hp, t}
 var eyes := {}                  # {t, angle}
 var _leak_id := 0
@@ -50,7 +52,30 @@ func reset() -> void:
 	cooler = []
 	upgrades = {"vara": 0, "isca": 0, "motor": 0, "casco": 0, "sonar": 0}
 	stats = {"caught": 0, "best_name": "", "best_value": 0, "biggest_kg": 0.0, "biggest_name": "", "earned": 0, "sinks": 0}
+	weather = "calmo"
+	quotas_met = 0
 	reset_boat()
+
+
+## Salvar/carregar a expedição entre sessões (no amanhecer).
+func to_save() -> Dictionary:
+	return {"money": money, "night": night, "quota": quota, "quota_index": quota_index, "sold_cycle": sold_cycle,
+		"upgrades": upgrades.duplicate(), "stats": stats.duplicate(), "quotas_met": quotas_met}
+
+
+func from_save(d: Dictionary) -> void:
+	reset()
+	money = int(d.get("money", 0))
+	night = int(d.get("night", 1))
+	quota = int(d.get("quota", quota_for(0)))
+	quota_index = int(d.get("quota_index", 0))
+	sold_cycle = int(d.get("sold_cycle", 0))
+	quotas_met = int(d.get("quotas_met", 0))
+	for k in d.get("upgrades", {}):
+		upgrades[k] = int(d.upgrades[k])
+	for k in d.get("stats", {}):
+		stats[k] = d.stats[k]
+	hull = hull_max()
 
 
 func reset_boat() -> void:
@@ -119,4 +144,4 @@ func to_public() -> Dictionary:
 		"nights_left": NIGHTS_PER_QUOTA - ((night - 1) % NIGHTS_PER_QUOTA), "cooler_count": cooler.size(), "cooler_value": cooler_value(),
 		"upgrades": upgrades.duplicate(), "hull": hull, "hull_max": hull_max(), "zone": zone().name, "zone_id": zone().id,
 		"depth": zone().depth, "distance": distance(), "docked": docked(), "lantern": lantern, "driver": driver, "stats": stats.duplicate(),
-		"dread": dread}
+		"dread": dread, "weather": weather, "quotas_met": quotas_met}

@@ -32,14 +32,19 @@ func _ready() -> void:
 	var sub := AW.label("PESCA COOPERATIVA EM ALTO-MAR, À NOITE  ·  1 A 4 JOGADORES", 20, AW.CYAN, "Bold", 4)
 	v.add_child(sub)
 	v.add_child(AW.spacer(4, true))
-	var buttons := [
-		["PLAY", func(): ui.quick_play(), AW.PINK],
-		["CREATE GAME", func(): ui.open_lobby(), AW.PURPLE],
-		["JOIN GAME", func(): ui.open_join(), AW.CYAN.darkened(0.2)],
-		["HOW TO PLAY", func(): ui.open_how_to(), AW.ORANGE.darkened(0.15)],
-		["SETTINGS", func(): ui.open_settings(), AW.PANEL2.lightened(0.2)],
-		["EXIT", func(): get_tree().quit(), AW.RED.darkened(0.3)],
-	]
+	var buttons := []
+	if Profile.has_expedition():
+		var sv := Profile.load_expedition()
+		buttons.append(["CONTINUAR (NOITE %d)" % int(sv.get("night", 1)), func(): ui.quick_play(true), AW.GREEN.darkened(0.2)])
+	buttons.append_array([
+		["JOGAR SOLO", func(): ui.quick_play(), AW.PINK],
+		["CRIAR SALA (CO-OP)", func(): ui.open_lobby(), AW.PURPLE],
+		["ENTRAR NUMA SALA", func(): ui.open_join(), AW.CYAN.darkened(0.2)],
+		["BESTIÁRIO", func(): ui.open_bestiary(), AW.CYAN.darkened(0.45)],
+		["COMO JOGAR", func(): ui.open_how_to(), AW.ORANGE.darkened(0.15)],
+		["CONFIGURAÇÕES", func(): ui.open_settings(), AW.PANEL2.lightened(0.2)],
+		["SAIR", func(): get_tree().quit(), AW.RED.darkened(0.3)],
+	])
 	var i := 0
 	for b in buttons:
 		var btn := AW.button(str(b[0]), b[1], b[2], 21, 360)

@@ -84,11 +84,25 @@ func _sync_mode() -> void:
 		_show("run")
 
 
-func quick_play() -> void:
+func quick_play(continue_run: bool = false) -> void:
 	Game.new_local_session()
 	var nm := str(Profile.data.get("last_name", ""))
 	Game.request("add_player", [nm.to_upper() if nm != "" else "CAPITÃO", str(Profile.data.get("last_character", "sortudo"))])
-	Game.request("start")
+	Game.request("start", [continue_run])
+
+
+func open_bestiary() -> void:
+	var holder := Control.new()
+	AW.full_rect(holder)
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, 0.6)
+	AW.full_rect(dim)
+	modal_root.add_child(dim)
+	modal_root.add_child(holder)
+	holder.tree_exited.connect(func():
+		if is_instance_valid(dim):
+			dim.queue_free())
+	MetaUi.open_bestiary(holder)
 
 
 func open_lobby() -> void:

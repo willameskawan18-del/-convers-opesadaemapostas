@@ -91,9 +91,11 @@ Depois SEGURE o clique para puxar e mantenha a TENSÃO na faixa verde. Tensão n
 [b][color=#ff4d6d]ZONAS:[/color][/b] ÁGUAS RASAS (seguro, peixe barato) → MAR FUNDO (boias vermelhas) → O ABISMO (boias roxas: peixes valiosos e perigos).
 [b]PERIGOS:[/b] batidas no casco abrem VAZAMENTOS (segure E para consertar) · TENTÁCULO (clique nele para bater) ·
 OLHOS NA NÉVOA (apague a lanterna e pare o motor!). Casco zerado = NAUFRÁGIO e perda da pesca.
-Às 05:00 o sol nasce: quem não estiver no porto perde metade da pesca.
+Às 05:00 o sol nasce: quem não estiver no porto perde metade da pesca. O progresso é salvo a cada amanhecer (CONTINUAR no menu).
+[b]CLIMA:[/b] noites de TEMPESTADE têm ondas enormes e peixes mais raros; no NEVOEIRO os olhos aparecem mais cedo.
+[b]BESTIÁRIO:[/b] TAB — descubra as %d espécies e desbloqueie conquistas.
 
-[b]Coop:[/b] CREATE GAME → ABRIR SALA ONLINE (porta 7797). Amigos entram em JOIN GAME com o IP."""
+[b]Coop:[/b] CRIAR SALA → ABRIR SALA ONLINE (porta 7797). Amigos entram em ENTRAR NUMA SALA com o IP.""" % GameData.load_json("fish").fish.size()
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
 	rt.text = text

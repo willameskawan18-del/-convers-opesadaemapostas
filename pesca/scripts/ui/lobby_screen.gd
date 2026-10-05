@@ -101,6 +101,8 @@ func _refresh() -> void:
 			side.add_child(AW.button("ABRIR SALA ONLINE", func(): ui.host_online(), AW.CYAN.darkened(0.3), 18))
 		side.add_child(HSeparator.new())
 		side.add_child(AW.button("ZARPAR!", func(): Game.request("start"), AW.GREEN, 30, 340))
+		if Profile.has_expedition():
+			side.add_child(AW.button("CONTINUAR EXPEDIÇÃO (NOITE %d)" % int(Profile.load_expedition().get("night", 1)), func(): Game.request("start", [true]), AW.GREEN.darkened(0.3), 16, 340))
 	else:
 		net.text = "Conectado. Aguarde o capitão zarpar."
 	side.add_child(AW.button("VOLTAR", func(): ui.back_to_menu(), AW.PANEL2, 18, 340))

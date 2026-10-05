@@ -25,10 +25,10 @@ static func rarity(r: String) -> Dictionary:
 
 
 ## Sorteia um peixe para a zona. isca (0..3) e lanterna no abismo puxam para os raros.
-static func roll(zone_id: String, isca: int, lantern_abyss: bool, rng: RandomNumberGenerator) -> Dictionary:
+static func roll(zone_id: String, isca: int, lantern_abyss: bool, rng: RandomNumberGenerator, storm: bool = false) -> Dictionary:
 	var pool := []
 	var total := 0.0
-	var boost := 1.0 + isca * 0.35 + (0.6 if lantern_abyss else 0.0)
+	var boost := 1.0 + isca * 0.35 + (0.6 if lantern_abyss else 0.0) + (0.5 if storm else 0.0)
 	for f in data().fish:
 		if f.zone != zone_id and f.zone != "any":
 			continue

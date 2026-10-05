@@ -25,6 +25,7 @@ var reel_draw: Control
 var catch_card: PanelContainer
 var panel: Control
 var _run: Dictionary = {}
+var meta: MetaUi
 
 
 func _ready() -> void:
@@ -102,11 +103,15 @@ func _ready() -> void:
 	Game.night_ended.connect(_on_night_end)
 	Game.game_over.connect(_on_game_over)
 	Game.fx.connect(_on_fx)
+	meta = MetaUi.new()
+	add_child(meta)
+	meta.setup(self)
 
 
 func start() -> void:
 	close_panels()
 	AW.clear(notes)
+	meta.start()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	note("Clique na tela para olhar. SEGURE e SOLTE o clique para arremessar. Vá ao TIMÃO (E) para pilotar.", AW.CYAN)
 
@@ -116,6 +121,7 @@ func bind_player(p: PlayerController) -> void:
 	p.prompt_changed.connect(func(t): prompt_lbl.text = t)
 	p.fishing.state_changed.connect(_on_fish_state)
 	p.fishing.message.connect(func(t, c): note(t, c))
+	meta.bind_player(p)
 
 
 func note(text: String, col: Color = AW.TEXT) -> void:
@@ -297,6 +303,11 @@ func _flash(c: Color) -> void:
 
 func panel_open() -> bool:
 	return panel.get_child_count() > 0
+
+
+func _lock_player() -> void:
+	if player:
+		player.enabled = false
 
 
 func close_panels() -> void:

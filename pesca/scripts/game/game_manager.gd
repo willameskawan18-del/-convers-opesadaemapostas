@@ -148,7 +148,8 @@ func _handle(sender: int, method: String, args: Array) -> void:
 		"start":
 			if sender == 1 and str(view.mode) == "lobby" and players.size() > 0:
 				Net.set_lobby_open(false)
-				_start_run()
+				var saved: Dictionary = Profile.load_expedition() if args.size() > 0 and bool(args[0]) else {}
+				_start_run(saved)
 		"rematch":
 			if sender == 1:
 				_start_run()
@@ -181,13 +182,19 @@ func _on_peer_left(peer: int) -> void:
 
 # --- Expedição (host) -----------------------------------------------------------------
 
-func _start_run() -> void:
+func _start_run(saved: Dictionary = {}) -> void:
 	model.reset()
+	if not saved.is_empty():
+		model.from_save(saved)
 	paused_for_summary = false
 	view.mode = "run"
 	_broadcast_view()
 	_send_run()
-	_emit("notify", ["NOITE 1 — Cota: %s em 3 noites" % Fmt.money(model.quota), Color("ffcc33")])
+	if saved.is_empty():
+		_emit("notify", ["NOITE 1 — Cota: %s em 3 noites" % Fmt.money(model.quota), Color("ffcc33")])
+	else:
+		_roll_weather()
+		_emit("notify", ["EXPEDIÇÃO CONTINUADA — NOITE %d · Cota: %s" % [model.night, Fmt.money(model.quota)], Color("ffcc33")])
 
 
 func night_seconds() -> float:
@@ -238,6 +245,8 @@ func _simulate(delta: float) -> void:
 	if absf(m.speed) > 1.0:
 		rate *= 1.3
 	rate *= 1.0 + 0.12 * (m.night - 1)
+	if m.weather == "tempestade":
+		rate *= 1.3
 	m.dread = clampf(m.dread + rate * delta, 0.0, 100.0)
 	if zid == "raso":
 		m.dread = maxf(0.0, m.dread - delta * 3.0)
@@ -254,7 +263,7 @@ func _maybe_event(zid: String) -> void:
 		return
 	if not m.tentacle.is_empty() or not m.eyes.is_empty():
 		return
-	if zid == "abismo" and m.dread > 70.0 and m.lantern and rng.randf() < 0.45:
+	if zid == "abismo" and m.dread > (55.0 if m.weather == "nevoeiro" else 70.0) and m.lantern and rng.randf() < 0.45:
 		m.eyes = {"t": 9.0, "angle": rng.randf() * TAU}
 		m.dread -= 30.0
 		_emit("fx", ["eyes", {"angle": m.eyes.angle}])
@@ -336,6 +345,7 @@ func _end_night() -> void:
 		summary["quota_ok"] = m.sold_cycle >= m.quota
 		if m.sold_cycle < m.quota:
 			paused_for_summary = true
+			Profile.clear_expedition()
 			var final := {"nights": m.night, "money": m.money, "quota": m.quota, "sold_cycle": m.sold_cycle, "stats": m.stats.duplicate()}
 			Profile.data.best_money = maxi(int(Profile.data.get("best_money", 0)), int(m.stats.earned))
 			Profile.save_profile()
@@ -345,18 +355,36 @@ func _end_night() -> void:
 		m.quota_index += 1
 		m.quota = RunModel.quota_for(m.quota_index)
 		m.sold_cycle = 0
+		m.quotas_met += 1
 	m.night += 1
 	m.minute = 0.0
 	m.reset_boat()
 	m.driver = -1
 	summary["next_quota"] = m.quota
 	summary["next_night"] = m.night
+	summary["earned"] = int(m.stats.earned)
+	summary["quotas_met"] = m.quotas_met
+	_roll_weather()
+	summary["weather"] = m.weather
+	Profile.save_expedition(m.to_save())
 	paused_for_summary = true
 	_send_run()
 	_emit("night_end", [summary])
-	get_tree().create_timer(6.0, true).timeout.connect(func():
-		paused_for_summary = false
-		_emit("notify", ["NOITE %d — Cota: %s até a noite %d" % [m.night, Fmt.money(m.quota), (int((m.night - 1) / RunModel.NIGHTS_PER_QUOTA) + 1) * RunModel.NIGHTS_PER_QUOTA], Color("ffcc33")]))
+	get_tree().create_timer(6.0, true).timeout.connect(_after_night_pause)
+
+
+func _after_night_pause() -> void:
+	var m := model
+	paused_for_summary = false
+	_emit("notify", ["NOITE %d — Cota: %s até a noite %d" % [m.night, Fmt.money(m.quota), (int((m.night - 1) / RunModel.NIGHTS_PER_QUOTA) + 1) * RunModel.NIGHTS_PER_QUOTA], Color("ffcc33")])
+	match m.weather:
+		"tempestade": _emit("notify", ["TEMPESTADE! Ondas enormes, peixes raros... e mais perigo.", Color("b072ff")])
+		"nevoeiro": _emit("notify", ["NEVOEIRO DENSO. Algo observa da névoa...", Color("8fa3b8")])
+
+
+func _roll_weather() -> void:
+	var r := rng.randf()
+	model.weather = "calmo" if r < 0.5 else ("nevoeiro" if r < 0.75 else "tempestade")
 
 
 func _sell_all() -> int:

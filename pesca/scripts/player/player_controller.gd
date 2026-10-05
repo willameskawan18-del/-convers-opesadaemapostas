@@ -35,6 +35,28 @@ func _ready() -> void:
 	add_child(fishing)
 	fishing.setup(cam)
 	fishing.caught.connect(func(f): Game.request("catch", [f]))
+	fishing.landed.connect(_show_landed)
+
+
+## O peixe sai da água, voa até a sua frente, gira um pouco e vai para a caixa.
+func _show_landed(f: Dictionary, from: Vector3) -> void:
+	var fish := FishModel.build(f)
+	get_tree().root.add_child(fish)
+	fish.global_position = from
+	FishModel.splash(get_tree().root, from, true)
+	var hold := cam.global_position - cam.global_transform.basis.z * 1.3 + Vector3(0, -0.15, 0)
+	var tw := fish.create_tween()
+	tw.tween_property(fish, "global_position", hold, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(fish, "rotation:y", TAU, 0.55)
+	tw.tween_property(fish, "rotation:y", TAU + PI, 1.4)
+	tw.tween_property(fish, "global_position", boat.to_global(boat.cooler_pos), 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tw.parallel().tween_property(fish, "scale", Vector3.ONE * 0.1, 0.45)
+	tw.tween_callback(fish.queue_free)
+	var tail := fish.get_node_or_null("Tail") as Node3D
+	if tail:
+		var tt := tail.create_tween().set_loops(8)
+		tt.tween_property(tail, "rotation:y", 0.6, 0.08)
+		tt.tween_property(tail, "rotation:y", -0.6, 0.08)
 
 
 func sensitivity() -> float:
