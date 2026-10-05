@@ -270,6 +270,8 @@ func _keyart() -> void:
 	Engine.time_scale = 1.0
 	await _wait(7.0)
 	ui.visible = false
+	for l in yard.bidder_labels.values():
+		(l as Label3D).visible = false
 	yard.all_anim("shock")
 	yard.shot("wide", 0.01)
 	yard.cam.global_transform = Transform3D(Basis(), Vector3(0.6, 2.2, 8.5)).looking_at(Vector3(0, 1.0, -3.0), Vector3.UP)
