@@ -1,3 +1,27 @@
+# Jogos deste repositório
+
+| Jogo | Pasta | Download (Windows) |
+|---|---|---|
+| **ALL WIN** — party game de game show (2–8) | `game/` | `builds/AllWin-Windows.zip` |
+| **Leilão de Garagem** — compre galpões às cegas, abra e revenda (1–6) | `leilao/` | `builds/LeilaoDeGaragem-Windows.zip` |
+| **Pesca no Abismo** — pesca cooperativa à noite em alto-mar (1–4) | `pesca/` | `builds/PescaNoAbismo-Windows.zip` |
+| Bet Tycoon (antigo, preservado) | `legacy/bet_tycoon/` | — |
+
+Todos em Godot 4.7, com multiplayer por ENet (host autoritativo), UPnP para internet e testes headless em `tests/`.
+
+## Leilão de Garagem
+Dias com 3 galpões: ESPIAR (itens visíveis, boato, volumes) → LEILÃO AO VIVO (lances com "dou-lhe uma, duas") → ABRIR (revelação item a item)
+→ VENDER no fim do dia (loja 85%, online 50–160%, guardar para coleção; cofres/baús misteriosos). Melhorias: Lanterna, Avaliador, Informante.
+49 itens, 7 tipos de galpão, bots com personalidade. Testes: `tests/match_test.tscn`, `tests/smoke_test.tscn`, `tests/net_test.tscn -- host|client`.
+
+## Pesca no Abismo
+Primeira pessoa no convés de um barco. Arremesso, fisgada e "puxar" com tensão da linha. 28 peixes em 3 zonas (raso, fundo, abismo).
+Timão (pilotar), lanterna, caixa de peixes, porto com venda e 5 melhorias. Cota a cada 3 noites. Perigos: batidas e vazamentos,
+tentáculo gigante, olhos na névoa (apagar a luz e parar), naufrágio. Coop até 4 (poses e estado do barco sincronizados).
+Testes: `tests/run_test.tscn`, `tests/fish_test.tscn`, `tests/smoke_test.tscn`, `tests/net_test.tscn -- host|client`.
+
+---
+
 # ALL WIN — Status de desenvolvimento
 
 Party game de **game show** para **2 a 8 jogadores**, feito em **Godot 4.7** (projeto em `game/`).
