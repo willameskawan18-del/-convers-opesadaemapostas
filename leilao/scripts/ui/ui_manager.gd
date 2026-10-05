@@ -31,6 +31,7 @@ func _ready() -> void:
 	results = ResultsScreen.new()
 	results.ui = self
 	add_child(results)
+	add_child(CareerUi.new())
 	modal_root = Control.new()
 	AW.full_rect(modal_root)
 	modal_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -155,6 +156,10 @@ func _on_connected() -> void:
 	if _join_dlg and is_instance_valid(_join_dlg):
 		_join_dlg.queue_free()
 	Game.request_add_player(_pending_join_name, str(Profile.data.get("last_character", "sortudo")), false)
+
+
+func open_career() -> void:
+	CareerUi.open_career(modal_root)
 
 
 func open_how_to() -> void:

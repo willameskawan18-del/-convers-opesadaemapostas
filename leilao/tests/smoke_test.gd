@@ -38,8 +38,16 @@ func _ready() -> void:
 	await get_tree().create_timer(1.0).timeout
 	check(main.ui._current == "menu", "voltou ao menu")
 	Engine.time_scale = 1.0
+	check(peek_ok, "lanterna da espiada com todos os itens")
+	check(int(Profile.data.units) > 0 and Profile.data.achievements.has("primeiro_galpao"), "carreira registrou galpão")
+	check(Profile.data.catalog.size() > 0, "catálogo de itens")
+	CareerUi.open_career(main.ui.modal_root)
+	check(main.ui.modal_root.get_child_count() > 0, "tela de carreira abre")
 	print("LEILAO SMOKE: %s (%d falhas)" % ["OK" if fails == 0 else "FALHOU", fails])
 	get_tree().quit(1 if fails else 0)
+
+
+var peek_ok := false
 
 
 func _auto(phase: String, _info: Dictionary) -> void:
@@ -48,12 +56,17 @@ func _auto(phase: String, _info: Dictionary) -> void:
 		var pid := int(p.id)
 		match phase:
 			"shop": Game.submit_action(pid, {"buy": ["lanterna"]})
-			"peek": Game.submit_action(pid, {"ready": true})
+			"peek":
+				var insp := get_tree().root.find_child("Inspector", true, false) as PeekInspector
+				peek_ok = peek_ok or (insp != null and insp.items.size() == int(Game.view.phase_info.get("count", -1)))
+				if insp:
+					insp._reveal(insp.items.size() - 1)
+				Game.submit_action(pid, {"ready": true})
 			"sell":
 				var priv: Dictionary = Game.private_infos.get(pid, {})
 				var ch := {}
 				for it in priv.get("items", []):
-					ch[str(it.uid)] = ["loja", "online", "guardar"][randi() % 3] if not it.mystery else "abrir"
+					ch[str(it.uid)] = ["loja", "online", "guardar", "pech:%d" % int(it.est_lo)][randi() % 4] if not it.mystery else "abrir"
 				Game.submit_action(pid, {"choices": ch})
 
 

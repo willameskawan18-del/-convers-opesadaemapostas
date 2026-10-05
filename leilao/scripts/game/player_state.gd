@@ -20,7 +20,7 @@ func reset() -> void:
 	inventory = []
 	kept = []
 	upgrades = {}
-	stats = {"units_won": 0, "best_profit": 0, "worst_profit": 0, "biggest_bid": 0, "best_item": 0, "best_item_name": "", "spent": 0, "earned": 0}
+	stats = {"units_won": 0, "best_profit": 0, "worst_profit": 0, "biggest_bid": 0, "best_item": 0, "best_item_name": "", "spent": 0, "earned": 0, "haggles": 0}
 
 
 func to_dict() -> Dictionary:

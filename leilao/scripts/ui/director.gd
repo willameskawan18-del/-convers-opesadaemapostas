@@ -104,6 +104,9 @@ func _on_auction(a: Dictionary) -> void:
 
 func _on_step(s: Dictionary) -> void:
 	match str(s.kind):
+		"taunt":
+			yard.say(int(s.pid), str(s.text))
+			Audio.play("click", -6.0, randf_range(0.7, 1.0))
 		"item":
 			yard.reveal_item(int(s.get("index", 0)), s.item, bool(s.big))
 			if s.big:

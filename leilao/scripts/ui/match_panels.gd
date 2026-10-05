@@ -215,11 +215,35 @@ func _build_peek(info: Dictionary) -> void:
 		for it in info.get("visible_public", []):
 			v.add_child(AW.label("• " + str(it.name), 16, AW.TEXT))
 		return
-	for it in priv.get("visible", []):
+	var all: Array = priv.get("visible", [])
+	var pub := mini(2, all.size())
+	var bat := AW.label("", 16, AW.GOLD, "ExtraBold", 2)
+	v.add_child(bat)
+	var help := AW.label("Aponte a LANTERNA (mouse) para um volume coberto e segure um instante para ver o que é.", 14, AW.MUTED)
+	AW.wrap(help)
+	help.custom_minimum_size.x = 390
+	v.add_child(help)
+	var list := AW.vbox(2)
+	v.add_child(list)
+	var add_row := func(it: Dictionary):
 		var t := "• " + str(it.name)
 		if it.has("est"):
 			t += "   (" + str(it.est) + ")"
-		v.add_child(AW.label(t, 16, AW.TEXT))
+		var l := AW.label(t, 16, AW.TEXT)
+		list.add_child(l)
+		AW.pop(l, 1.2, 0.2)
+	for i in pub:
+		add_row.call(all[i])
+	var yard := get_tree().get_first_node_in_group("yard") as Yard
+	if yard:
+		var insp := PeekInspector.new()
+		insp.name = "Inspector"
+		layer.add_child(insp)
+		insp.setup(yard, all, int(priv.get("budget", 1)), pub, layer)
+		var upd := func(n: int): bat.text = "LANTERNA: %d inspeç%s" % [n, "ão" if n == 1 else "ões"] if n > 0 else "LANTERNA SEM BATERIA"
+		upd.call(insp.left)
+		insp.budget_changed.connect(upd)
+		insp.inspected.connect(add_row)
 	if str(priv.get("tip", "")) != "":
 		var tl := AW.label(str(priv.tip), 15, AW.GOLD, "Bold")
 		AW.wrap(tl)
@@ -364,6 +388,29 @@ func _on_step(s: Dictionary) -> void:
 
 # --- Vender ---------------------------------------------------------------------------
 
+const HAGGLE_STEPS := [1.0, 1.3, 1.7, 2.2]
+
+
+## Botão de pechincha: cada clique sobe o preço pedido (e baixa a chance do comprador topar).
+func _haggle_button(uid: String, it: Dictionary, wanted: bool, group: ButtonGroup) -> Button:
+	var mid := (int(it.est_lo) + int(it.est_hi)) / 2
+	var b := AW.button("PECHINCHAR", func(): pass, AW.ORANGE if wanted else AW.PINK.darkened(0.3), 13)
+	b.toggle_mode = true
+	b.button_group = group
+	b.custom_minimum_size.x = 190
+	b.set_meta("step", -1)
+	b.pressed.connect(func():
+		var st := (int(b.get_meta("step")) + 1) % HAGGLE_STEPS.size()
+		b.set_meta("step", st)
+		var ask := int(mid * float(HAGGLE_STEPS[st]) * (1.3 if wanted else 1.0) / 10) * 10
+		var ch := MatchFlow.haggle_chance(ask, mid, wanted)
+		b.text = "PEDIR %s (~%d%%)" % [Fmt.money(ask), int(ch * 100)]
+		b.button_pressed = true
+		_sell_choices[uid] = "pech:%d" % ask
+		Audio.play("click"))
+	return b
+
+
 func _build_sell() -> void:
 	clear()
 	timer.visible = true
@@ -384,6 +431,9 @@ func _build_sell() -> void:
 	v.add_child(AW.center(AW.label("LOJA: 85% garantido  ·  ONLINE: 50% a 160% (sorte!)  ·  GUARDAR: coleção no fim (3 iguais = +50%)", 14, AW.MUTED)))
 	if ctext.size() > 0:
 		v.add_child(AW.center(AW.label("Sua coleção: " + ", ".join(ctext), 14, AW.PURPLE, "Bold")))
+	var wanted := str(Game.view.get("phase_info", {}).get("buyer_cat", ""))
+	if wanted != "":
+		v.add_child(AW.center(AW.label("COMPRADOR DO DIA procura %s — pechinche alto nessa categoria!" % str(GameData.load_json("items").categories.get(wanted, wanted)).to_upper(), 15, AW.ORANGE, "ExtraBold", 2)))
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(940, 380)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -407,6 +457,8 @@ func _build_sell() -> void:
 		row.add_child(est)
 		var opts := [["abrir", "ABRIR", AW.GOLD], ["fechado", "VENDER FECHADO", AW.PANEL2]] if it.mystery else [["loja", "LOJA", AW.GREEN.darkened(0.2)], ["online", "ONLINE", AW.ORANGE.darkened(0.2)], ["guardar", "GUARDAR", AW.PURPLE.darkened(0.2)]]
 		var group := ButtonGroup.new()
+		if not it.mystery:
+			row.add_child(_haggle_button(uid, it, str(it.cat) == wanted, group))
 		for o in opts:
 			var key: String = o[0]
 			var b := AW.button(str(o[1]), func(): _sell_choices[uid] = key, o[2], 13)

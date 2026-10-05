@@ -83,15 +83,17 @@ static func how_to(parent: Control) -> Control:
 	var v: VBoxContainer = r[1]
 	var text := """[b][color=#ffcc33]OBJETIVO:[/color][/b] terminar com mais dinheiro. Todos começam com $5.000. São vários dias, 3 galpões por dia.
 
-[b][color=#ff9f1c]1. ESPIAR[/color][/b] — a porta abre um pouquinho. Você vê alguns itens, um boato e quantos volumes tem lá dentro.
+[b][color=#ff9f1c]1. ESPIAR[/color][/b] — a porta abre um pouquinho. Aponte a LANTERNA com o mouse para um volume coberto e segure para ver o que é (bateria limitada!).
 [b][color=#ff9f1c]2. LEILÃO AO VIVO[/color][/b] — dê lances! Cada lance dá mais alguns segundos. "Dou-lhe uma, dou-lhe duas... VENDIDO!"
 [b][color=#ff9f1c]3. ABRIR[/color][/b] — quem arrematou abre o galpão e todos veem o que tinha. Fortuna ou tralha?
 [b][color=#ff9f1c]4. VENDER[/color][/b] (fim do dia) — LOJA paga 85% garantido. ONLINE paga de 50% a 160%. GUARDAR conta no fim e 3 itens do mesmo tipo valem +50%.
+   PECHINCHAR: clique várias vezes para pedir mais caro. Se o comprador recusar, vende por 70%. O COMPRADOR DO DIA paga muito mais pela categoria que procura!
    Cofres e baús são MISTÉRIO: abra (pode ter uma fortuna... ou nada) ou venda fechado.
 
 [b][color=#27e1ff]MELHORIAS[/color][/b] (começo de cada dia): LANTERNA (vê mais itens), AVALIADOR (vê o valor estimado), INFORMANTE (dica secreta verdadeira).
+[b][color=#ffcc33]CARREIRA[/color][/b] — no menu: seu título, o catálogo de todos os itens já achados e 12 conquistas.
 
-[b]Online:[/b] CREATE GAME → ABRIR SALA ONLINE (porta 7787). Amigos entram em JOIN GAME com o IP. Se o roteador não abrir a porta, use a Radmin VPN."""
+[b]Online:[/b] CRIAR SALA → ABRIR SALA ONLINE (porta 7787). Amigos entram em ENTRAR NUMA SALA com o IP. Se o roteador não abrir a porta, use a Radmin VPN."""
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
 	rt.text = text
@@ -106,7 +108,7 @@ static func how_to(parent: Control) -> Control:
 
 
 static func join(parent: Control, on_join: Callable) -> Control:
-	var r := modal(parent, "JOIN GAME", AW.CYAN, 560)
+	var r := modal(parent, "ENTRAR NUMA SALA", AW.CYAN, 560)
 	var dim: Control = r[0]
 	var v: VBoxContainer = r[1]
 	v.add_child(AW.label("Seu nome", 16, AW.MUTED))

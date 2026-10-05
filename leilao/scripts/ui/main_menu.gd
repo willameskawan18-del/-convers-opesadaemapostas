@@ -33,12 +33,13 @@ func _ready() -> void:
 	v.add_child(sub)
 	v.add_child(AW.spacer(4, true))
 	var buttons := [
-		["PLAY", func(): ui.quick_play(), AW.PINK],
-		["CREATE GAME", func(): ui.open_lobby(), AW.PURPLE],
-		["JOIN GAME", func(): ui.open_join(), AW.CYAN.darkened(0.2)],
-		["HOW TO PLAY", func(): ui.open_how_to(), AW.ORANGE.darkened(0.15)],
-		["SETTINGS", func(): ui.open_settings(), AW.PANEL2.lightened(0.2)],
-		["EXIT", func(): get_tree().quit(), AW.RED.darkened(0.3)],
+		["JOGAR CONTRA BOTS", func(): ui.quick_play(), AW.PINK],
+		["CRIAR SALA", func(): ui.open_lobby(), AW.PURPLE],
+		["ENTRAR NUMA SALA", func(): ui.open_join(), AW.CYAN.darkened(0.2)],
+		["CARREIRA E CATÁLOGO", func(): ui.open_career(), AW.GOLD.darkened(0.35)],
+		["COMO JOGAR", func(): ui.open_how_to(), AW.ORANGE.darkened(0.15)],
+		["CONFIGURAÇÕES", func(): ui.open_settings(), AW.PANEL2.lightened(0.2)],
+		["SAIR", func(): get_tree().quit(), AW.RED.darkened(0.3)],
 	]
 	var i := 0
 	for b in buttons:
@@ -53,7 +54,7 @@ func _ready() -> void:
 			btn.call_deferred("grab_focus")
 		i += 1
 	var pd: Dictionary = Profile.data
-	var stats := AW.label("Partidas: %d   ·   Vitórias: %d   ·   Maior fortuna: %s" % [int(pd.matches), int(pd.wins), Fmt.money(int(pd.best_money))], 15, AW.MUTED, "SemiBold", 3)
+	var stats := AW.label("%s   ·   Partidas: %d   ·   Vitórias: %d   ·   Maior fortuna: %s   ·   Conquistas: %d/%d" % [Profile.title().to_upper(), int(pd.matches), int(pd.wins), Fmt.money(int(pd.best_money)), pd.achievements.size(), Profile.ACHIEVEMENTS.size()], 15, AW.MUTED, "SemiBold", 3)
 	stats.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	stats.position = Vector2(72, -46)
 	add_child(stats)

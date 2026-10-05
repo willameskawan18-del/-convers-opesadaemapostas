@@ -167,8 +167,10 @@ func _peek(t: int, n: int) -> void:
 			_bot_plans[p.id] = {"max": BotBrain.max_bid(p, unit, vis, g().rng), "next": 0.0}
 			continue
 		expecting.append(p.id)
+		# Todos os itens vão para o cliente, mas a lanterna só deixa inspecionar `budget`
+		# deles (os 2 da fresta são de graça). Os bots continuam usando `vis`.
 		var shown := []
-		for i in vis:
+		for i in items.size():
 			var it: Dictionary = items[i]
 			var e := {"name": it.name, "cat": it.cat, "shape": it.shape, "color": it.color}
 			if p.upgrades.has("avaliador"):
@@ -180,7 +182,7 @@ func _peek(t: int, n: int) -> void:
 			for it in items:
 				best = maxi(best, int(it.value))
 			tip = "INFORMANTE: o item mais valioso daqui vale %s." % ("mais de " + Fmt.money(int(best * 0.7 / 100) * 100) if best > 500 else "menos de $500")
-		g().send_private(p.id, {"kind": "peek", "visible": shown, "count": items.size(), "tip": tip, "money": p.money})
+		g().send_private(p.id, {"kind": "peek", "visible": shown, "budget": maxi(1, vis - 1), "count": items.size(), "tip": tip, "money": p.money})
 	_phase("peek", {"deadline_in": T_PEEK, "unit": unit.number, "n": n, "per_day": int(g().config.units_per_day), "rumor": unit.rumor,
 		"count": items.size(), "visible_public": _public_visible()})
 	await _wait_actions(t, T_PEEK)
@@ -280,8 +282,31 @@ func tick() -> void:
 		var amt := nm
 		if g().rng.randf() < 0.2:
 			amt = mini(int(plan.max), nm + Game.min_increment(nm) * g().rng.randi_range(1, 4))
-		try_bid(pid, mini(amt, p.money))
+		var prev := int(auction.leader)
+		if try_bid(pid, mini(amt, p.money)) and g().rng.randf() < 0.35:
+			_taunt(p, prev)
 		plan.next = g().clock + g().rng.randf_range(0.7, 2.4)
+
+
+const TAUNTS := {
+	"rico": ["Dinheiro não é problema.", "Pode subir, eu cubro.", "Isso é troco pra mim."],
+	"apostador": ["Tudo ou nada!", "Sinto cheiro de ouro aí dentro!", "Vou no escuro mesmo!"],
+	"maluco": ["MEU! É TUDO MEU!", "Tem um dinossauro aí, eu sei!", "HAHAHA mais um lance!"],
+	"medroso": ["É... só mais um pouquinho...", "Ai, será que vale?", "Último lance, juro."],
+	"genio": ["Calculei: ainda dá lucro.", "Estatisticamente, compensa.", "Vocês não leram o boato?"],
+	"trapaceiro": ["Eu vi o que tem lá dentro...", "Confia em mim, não vale nada. Lance!", "Heh heh."],
+	"sortudo": ["Hoje é meu dia!", "Sorte de principiante!", "Trevo de quatro folhas no bolso!"],
+	"azarado": ["Dessa vez vai...", "Por favor, que não seja lixo.", "Nada pode dar errado. Né?"],
+}
+
+
+func _taunt(p: PlayerState, prev_leader: int) -> void:
+	var lines: Array = TAUNTS.get(p.character, ["Lance!"])
+	var text: String = lines[g().rng.randi() % lines.size()]
+	var prev: PlayerState = g().players.get_p(prev_leader)
+	if prev and not prev.is_bot and g().rng.randf() < 0.5:
+		text = "Desculpa, %s!" % prev.name
+	g()._emit("step", [{"kind": "taunt", "pid": p.id, "text": text}])
 
 
 # --- Abrir o galpão ----------------------------------------------------------------------
@@ -336,8 +361,20 @@ func collection_counts(p: PlayerState) -> Dictionary:
 	return c
 
 
+## Categoria que o colecionador do dia está procurando (paga melhor na pechincha).
+var buyer_cat := ""
+
+
+## Chance do comprador aceitar o preço pedido.
+static func haggle_chance(ask: int, value: int, wanted: bool) -> float:
+	var v := float(value) * (1.5 if wanted else 1.0)
+	return clampf(1.3 - 0.8 * float(ask) / maxf(1.0, v), 0.03, 0.95)
+
+
 func _sell(t: int) -> void:
 	actions.clear()
+	var cats: Array = GameData.load_json("items").categories.keys().filter(func(c): return c != "lixo" and c != "especial")
+	buyer_cat = str(cats[g().rng.randi() % cats.size()])
 	expecting = []
 	var any_items := false
 	for p in g().players.list:
@@ -357,7 +394,7 @@ func _sell(t: int) -> void:
 		g().send_private(p.id, {"kind": "sell", "items": p.inventory.map(func(it): return _public_item(it)), "collections": collection_counts(p), "money": p.money})
 	if not any_items:
 		return
-	_phase("sell", {"deadline_in": T_SELL})
+	_phase("sell", {"deadline_in": T_SELL, "buyer_cat": buyer_cat})
 	await _wait_actions(t, T_SELL)
 	if not _alive(t): return
 	_phase("sell_results", {})
@@ -380,7 +417,19 @@ func _sell(t: int) -> void:
 					got = int(int(it.max) * 0.35 / 10) * 10
 					label = "vendeu fechado: %s (valia %s)" % [Fmt.money(got), Fmt.money(int(it.value))]
 			else:
+				if c.begins_with("pech:"):
+					var ask := int(c.substr(5))
+					if g().rng.randf() < haggle_chance(ask, int(it.value), str(it.cat) == buyer_cat):
+						got = ask
+						label = "PECHINCHA ACEITA: " + Fmt.money(got)
+						p.stats.haggles = int(p.stats.get("haggles", 0)) + 1
+					else:
+						got = int(int(it.value) * 0.7 / 10) * 10
+						label = "comprador recusou → loja 70%%: %s" % Fmt.money(got)
+					c = "-"
 				match c:
+					"-":
+						pass
 					"guardar":
 						p.kept.append(it)
 						label = "GUARDOU (coleção)"

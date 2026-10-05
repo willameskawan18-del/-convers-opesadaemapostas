@@ -29,6 +29,7 @@ var _orbit := false
 
 
 func _ready() -> void:
+	add_to_group("yard")
 	_env()
 	_ground()
 	_building()
@@ -217,6 +218,24 @@ func bidder_anim(pid: int, anim: String) -> void:
 func all_anim(anim: String) -> void:
 	for m in bidders.values():
 		m.play(anim)
+
+
+## Balão de fala sobre o comprador.
+func say(pid: int, text: String) -> void:
+	if not bidders.has(pid):
+		return
+	var m: Node3D = bidders[pid]
+	var old := m.get_node_or_null("Bubble")
+	if old:
+		old.queue_free()
+	var l := M3.label(m, text, Vector3(0, 3.3, 0), 34, Color("fff3bf"), 10, true)
+	l.name = "Bubble"
+	l.modulate.a = 0.0
+	var tw := l.create_tween()
+	tw.tween_property(l, "modulate:a", 1.0, 0.15)
+	tw.tween_interval(2.2)
+	tw.tween_property(l, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(l.queue_free)
 
 
 func bidder_pos(pid: int) -> Vector3:
