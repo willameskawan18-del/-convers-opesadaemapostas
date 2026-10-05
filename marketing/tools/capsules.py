@@ -92,12 +92,18 @@ def make(key, out, l1, l2, col, shadow, sub=None):
     art = ImageEnhance.Contrast(ImageEnhance.Color(art).enhance(1.15)).enhance(1.08)
     for name, (w, h, text) in SIZES.items():
         tall = h > w
-        im = cover(art, w, h, (0.5, 0.45)).convert("RGBA")
+        im = cover(art, w, h, (0.5, 0.45) if tall or not text or name.startswith("small") else (0.62, 0.45)).convert("RGBA")
         if text:
             # escurece a faixa do logo para dar leitura
-            grad = Image.new("L", (1, 256))
-            for i in range(256):
-                grad.putpixel((0, i), int(170 * max(0.0, 1 - i / 180)) if tall else int(150 * max(0.0, (i - 110) / 146)))
+            if tall:
+                grad = Image.new("L", (1, 256))
+                for i in range(256):
+                    grad.putpixel((0, i), int(170 * max(0.0, 1 - i / 180)))
+            else:
+                # escurece da esquerda para a direita (o logo fica à esquerda)
+                grad = Image.new("L", (256, 1))
+                for i in range(256):
+                    grad.putpixel((i, 0), int(190 * max(0.0, 1 - i / 150)))
             grad = grad.resize((w, h))
             dark = Image.new("RGBA", (w, h), (5, 8, 20, 255))
             dark.putalpha(grad)
@@ -107,7 +113,7 @@ def make(key, out, l1, l2, col, shadow, sub=None):
             elif name.startswith("small"):
                 box = (int(w * 0.04), int(h * 0.12), int(w * 0.92), int(h * 0.8))
             else:
-                box = (int(w * 0.08), int(h * 0.52), int(w * 0.84), int(h * 0.44))
+                box = (int(w * 0.03), int(h * 0.2), int(w * 0.5), int(h * 0.6))
             lg = logo_layer(box[2], box[3], l1, l2, col, shadow, None if name.startswith("small") else sub)
             im.alpha_composite(lg, (box[0], box[1]))
         im.convert("RGB").save(os.path.join(out, name + (".png")), optimize=True)
