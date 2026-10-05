@@ -1,0 +1,13 @@
+{
+  "characters": [
+    {"id": "sortudo",    "name": "Sortudo",    "color": "#2ecc71", "risk": 0.65, "speed": 0.5, "tagline": "Trevo de quatro folhas no bolso."},
+    {"id": "azarado",    "name": "Azarado",    "color": "#8e9aaf", "risk": 0.55, "speed": 0.4, "tagline": "A nuvem dele chove só nele."},
+    {"id": "rico",       "name": "Rico",       "color": "#f5c542", "risk": 0.40, "speed": 0.45, "tagline": "Monóculo, cartola e zero humildade."},
+    {"id": "trapaceiro", "name": "Trapaceiro", "color": "#9b59b6", "risk": 0.60, "speed": 0.6, "tagline": "Sempre tem uma carta na manga."},
+    {"id": "apostador",  "name": "Apostador",  "color": "#e74c3c", "risk": 0.85, "speed": 0.55, "tagline": "Viseira verde e coragem de sobra."},
+    {"id": "genio",      "name": "Gênio",      "color": "#3498db", "risk": 0.50, "speed": 0.8, "tagline": "Já calculou suas chances. São ruins."},
+    {"id": "medroso",    "name": "Medroso",    "color": "#f8e08e", "risk": 0.15, "speed": 0.35, "tagline": "Treme até no SAFE."},
+    {"id": "maluco",     "name": "Maluco",     "color": "#ff7f27", "risk": 0.95, "speed": 0.65, "tagline": "Não sabe as regras. Não precisa."}
+  ],
+  "bot_names": ["ZECA", "LULU", "DONA NENÊ", "TIÃO", "MARCINHA", "BIGODE", "KIKO", "SOFIA", "JUJU", "PEDRÃO", "TETÊ", "BRUNÃO"]
+}
