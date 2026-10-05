@@ -1,0 +1,812 @@
+{
+ "items": [
+  {
+   "id": "balcao_simples",
+   "name": "Balcão simples",
+   "category": "counter",
+   "cost": 800,
+   "maintenance": 1,
+   "energy": 0,
+   "min_stage": 1,
+   "min_level": 1,
+   "effects": {},
+   "desc": "Um guichê de atendimento. Necessário para operar."
+  },
+  {
+   "id": "balcao_pro",
+   "name": "Balcão profissional",
+   "category": "counter",
+   "cost": 1800,
+   "maintenance": 3,
+   "energy": 0,
+   "min_stage": 2,
+   "min_level": 3,
+   "effects": {
+    "service_speed": 0.1,
+    "comfort": 1
+   },
+   "desc": "Guichê ergonômico: atendimento 10% mais rápido."
+  },
+  {
+   "id": "computador",
+   "name": "Computador básico",
+   "category": "computer",
+   "cost": 1800,
+   "maintenance": 2,
+   "energy": 3,
+   "min_stage": 1,
+   "min_level": 1,
+   "effects": {},
+   "desc": "Registra as apostas. Sem computador funcionando a banca para."
+  },
+  {
+   "id": "computador_rapido",
+   "name": "Computador rápido",
+   "category": "computer",
+   "cost": 3000,
+   "maintenance": 4,
+   "energy": 5,
+   "min_stage": 1,
+   "min_level": 3,
+   "effects": {
+    "service_speed": 0.2
+   },
+   "desc": "Mais capacidade operacional: atendimento 20% mais rápido."
+  },
+  {
+   "id": "cadeiras",
+   "name": "Cadeiras de espera",
+   "category": "chair",
+   "cost": 300,
+   "maintenance": 0,
+   "energy": 0,
+   "min_stage": 1,
+   "min_level": 1,
+   "max": 6,
+   "effects": {
+    "comfort": 3,
+    "patience": 0.12
+   },
+   "desc": "Clientes esperam mais na fila."
+  },
+  {
+   "id": "sofa",
+   "name": "Sofá de espera",
+   "category": "chair",
+   "cost": 1200,
+   "maintenance": 1,
+   "energy": 0,
+   "min_stage": 3,
+   "min_level": 4,
+   "max": 6,
+   "effects": {
+    "comfort": 7,
+    "patience": 0.2
+   },
+   "desc": "Conforto de verdade para quem espera."
+  },
+  {
+   "id": "tv",
+   "name": "Televisão",
+   "category": "tv",
+   "cost": 1200,
+   "maintenance": 1,
+   "energy": 2,
+   "min_stage": 1,
+   "min_level": 1,
+   "max": 4,
+   "effects": {
+    "attract": 4,
+    "comfort": 2
+   },
+   "desc": "Clientes gostam de ver os jogos. Atrai mais gente."
+  },
+  {
+   "id": "telao",
+   "name": "Telão",
+   "category": "tv",
+   "cost": 6000,
+   "maintenance": 5,
+   "energy": 8,
+   "min_stage": 3,
+   "min_level": 5,
+   "max": 4,
+   "effects": {
+    "attract": 12,
+    "comfort": 4
+   },
+   "desc": "Experiência de estádio. Atrai muito mais clientes."
+  },
+  {
+   "id": "caixa",
+   "name": "Caixa registradora",
+   "category": "cashier",
+   "cost": 500,
+   "maintenance": 1,
+   "energy": 1,
+   "min_stage": 1,
+   "min_level": 1,
+   "max": 2,
+   "effects": {
+    "error_reduction": 0.4
+   },
+   "desc": "Reduz erros de pagamento."
+  },
+  {
+   "id": "impressora",
+   "name": "Impressora de bilhetes",
+   "category": "printer",
+   "cost": 350,
+   "maintenance": 1,
+   "energy": 1,
+   "min_stage": 1,
+   "min_level": 1,
+   "max": 2,
+   "effects": {
+    "service_speed": 0.08
+   },
+   "desc": "Bilhetes impressos: atendimento 8% mais rápido."
+  },
+  {
+   "id": "camera",
+   "name": "Câmera de segurança",
+   "category": "camera",
+   "cost": 1500,
+   "maintenance": 2,
+   "energy": 1,
+   "min_stage": 1,
+   "min_level": 2,
+   "max": 8,
+   "effects": {
+    "security": 12
+   },
+   "desc": "Reduz risco de fraude e roubo."
+  },
+  {
+   "id": "alarme",
+   "name": "Sistema de segurança",
+   "category": "security",
+   "cost": 6000,
+   "maintenance": 6,
+   "energy": 2,
+   "min_stage": 3,
+   "min_level": 5,
+   "max": 1,
+   "effects": {
+    "security": 30
+   },
+   "desc": "Alarme monitorado e controle de acesso."
+  },
+  {
+   "id": "terminal",
+   "name": "Terminal de autoatendimento",
+   "category": "terminal",
+   "cost": 4500,
+   "maintenance": 4,
+   "energy": 3,
+   "min_stage": 3,
+   "min_level": 5,
+   "max": 6,
+   "effects": {
+    "station": 0.7
+   },
+   "desc": "Atende clientes sozinho (70% da velocidade de um atendente)."
+  },
+  {
+   "id": "servidor",
+   "name": "Servidor",
+   "category": "server",
+   "cost": 12000,
+   "maintenance": 15,
+   "energy": 10,
+   "min_stage": 3,
+   "min_level": 7,
+   "max": 10,
+   "effects": {
+    "online_capacity": 400
+   },
+   "desc": "Sustenta mais usuários na operação online."
+  },
+  {
+   "id": "sistema_gestao",
+   "name": "Sistema de gestão",
+   "category": "management",
+   "cost": 15000,
+   "maintenance": 10,
+   "energy": 2,
+   "min_stage": 3,
+   "min_level": 6,
+   "max": 1,
+   "effects": {
+    "service_speed": 0.1,
+    "pricing_error": -0.3
+   },
+   "desc": "Melhora a precificação das odds e a eficiência geral."
+  },
+  {
+   "id": "area_vip",
+   "name": "Área VIP",
+   "category": "vip",
+   "cost": 40000,
+   "maintenance": 25,
+   "energy": 6,
+   "min_stage": 4,
+   "min_level": 8,
+   "max": 1,
+   "effects": {
+    "attract": 10,
+    "comfort": 10,
+    "vip": 1
+   },
+   "desc": "Atrai clientes VIP com mais frequência."
+  },
+  {
+   "id": "caca_niquel",
+   "name": "Caça-níquel Clássico",
+   "category": "casino",
+   "visual": "slot",
+   "cost": 18000,
+   "maintenance": 15,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 30,
+   "dealer": false,
+   "casino": {
+    "plays": 60,
+    "avg_bet": 10,
+    "edge": 0.08,
+    "vol": 1.2,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "Três rolos, frutas e o famoso 7. Receita estável.",
+   "game": "caca_niquel"
+  },
+  {
+   "id": "video_slot",
+   "name": "Video Slot Tesouro Dourado",
+   "category": "casino",
+   "visual": "slot",
+   "cost": 30000,
+   "maintenance": 22,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 20,
+   "dealer": false,
+   "casino": {
+    "plays": 72,
+    "avg_bet": 15,
+    "edge": 0.06,
+    "vol": 1.6,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 4
+   },
+   "desc": "Slot moderno com curinga e prêmios maiores.",
+   "game": "video_slot"
+  },
+  {
+   "id": "raspadinha",
+   "name": "Raspadinha",
+   "category": "casino",
+   "visual": "terminal",
+   "cost": 8000,
+   "maintenance": 6,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 10,
+   "dealer": false,
+   "casino": {
+    "plays": 84,
+    "avg_bet": 5,
+    "edge": 0.2,
+    "vol": 1.0,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 1
+   },
+   "desc": "Terminal de raspadinhas instantâneas. Margem alta, apostas baixas.",
+   "game": "raspadinha"
+  },
+  {
+   "id": "keno",
+   "name": "Keno",
+   "category": "casino",
+   "visual": "screen",
+   "cost": 12000,
+   "maintenance": 10,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 6,
+   "dealer": false,
+   "casino": {
+    "plays": 60,
+    "avg_bet": 8,
+    "edge": 0.15,
+    "vol": 1.3,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "Escolha números e torça no sorteio.",
+   "game": "keno"
+  },
+  {
+   "id": "video_poker",
+   "name": "Video Poker",
+   "category": "casino",
+   "visual": "slot",
+   "cost": 20000,
+   "maintenance": 14,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 16,
+   "dealer": false,
+   "casino": {
+    "plays": 72,
+    "avg_bet": 12,
+    "edge": 0.03,
+    "vol": 1.1,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "Pôquer de 5 cartas contra a máquina.",
+   "game": "video_poker"
+  },
+  {
+   "id": "dados",
+   "name": "Dados Acima/Abaixo",
+   "category": "casino",
+   "visual": "terminal",
+   "cost": 15000,
+   "maintenance": 10,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 10,
+   "dealer": false,
+   "casino": {
+    "plays": 84,
+    "avg_bet": 12,
+    "edge": 0.02,
+    "vol": 1.4,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "O jogador escolhe um alvo e rola de 0 a 99.",
+   "game": "dados"
+  },
+  {
+   "id": "hilo",
+   "name": "Maior ou Menor",
+   "category": "casino",
+   "visual": "terminal",
+   "cost": 15000,
+   "maintenance": 10,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 10,
+   "dealer": false,
+   "casino": {
+    "plays": 72,
+    "avg_bet": 10,
+    "edge": 0.03,
+    "vol": 1.3,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "Adivinhe se a próxima carta é maior ou menor.",
+   "game": "hilo"
+  },
+  {
+   "id": "minas",
+   "name": "Campo Minado",
+   "category": "casino",
+   "visual": "terminal",
+   "cost": 15000,
+   "maintenance": 10,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 10,
+   "dealer": false,
+   "casino": {
+    "plays": 72,
+    "avg_bet": 12,
+    "edge": 0.03,
+    "vol": 1.6,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "Abra casas sem achar as minas e saque o multiplicador.",
+   "game": "minas"
+  },
+  {
+   "id": "plinko",
+   "name": "Plinko",
+   "category": "casino",
+   "visual": "screen",
+   "cost": 18000,
+   "maintenance": 12,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 9,
+   "license": "entretenimento",
+   "max": 8,
+   "dealer": false,
+   "casino": {
+    "plays": 84,
+    "avg_bet": 10,
+    "edge": 0.03,
+    "vol": 2.0,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 3
+   },
+   "desc": "A bolinha desce pelos pinos até um multiplicador.",
+   "game": "plinko"
+  },
+  {
+   "id": "aviaozinho",
+   "name": "Aviãozinho (crash)",
+   "category": "casino",
+   "visual": "screen",
+   "cost": 25000,
+   "maintenance": 18,
+   "energy": 3,
+   "min_stage": 4,
+   "min_level": 10,
+   "license": "entretenimento",
+   "max": 6,
+   "dealer": false,
+   "casino": {
+    "plays": 120,
+    "avg_bet": 15,
+    "edge": 0.03,
+    "vol": 2.5,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 6
+   },
+   "desc": "O multiplicador sobe até o avião decolar. Saque antes!",
+   "game": "aviaozinho"
+  },
+  {
+   "id": "blackjack",
+   "name": "Mesa de 21",
+   "category": "casino",
+   "visual": "table",
+   "cost": 60000,
+   "maintenance": 40,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 12,
+   "dealer": true,
+   "casino": {
+    "plays": 132,
+    "avg_bet": 60,
+    "edge": 0.02,
+    "vol": 1.1,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 5
+   },
+   "desc": "O clássico 21 contra o crupiê.",
+   "game": "blackjack"
+  },
+  {
+   "id": "roleta",
+   "name": "Roleta Europeia",
+   "category": "casino",
+   "visual": "wheel",
+   "cost": 80000,
+   "maintenance": 50,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 8,
+   "dealer": true,
+   "casino": {
+    "plays": 156,
+    "avg_bet": 50,
+    "edge": 0.027,
+    "vol": 1.2,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 6
+   },
+   "desc": "Número único, cores, dúzias e mais.",
+   "game": "roleta"
+  },
+  {
+   "id": "bacara",
+   "name": "Bacará",
+   "category": "casino",
+   "visual": "table",
+   "cost": 70000,
+   "maintenance": 45,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 8,
+   "dealer": true,
+   "casino": {
+    "plays": 144,
+    "avg_bet": 80,
+    "edge": 0.012,
+    "vol": 1.0,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 5
+   },
+   "desc": "Jogador, Banca ou Empate. Margem baixa e volume alto.",
+   "game": "bacara"
+  },
+  {
+   "id": "bac_dados",
+   "name": "Bacará de Dados (Bac Bo)",
+   "category": "casino",
+   "visual": "table",
+   "cost": 70000,
+   "maintenance": 45,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 8,
+   "dealer": true,
+   "casino": {
+    "plays": 180,
+    "avg_bet": 50,
+    "edge": 0.028,
+    "vol": 1.2,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 5
+   },
+   "desc": "Bacará jogado com dados: o maior total vence.",
+   "game": "bac_dados"
+  },
+  {
+   "id": "dragao_tigre",
+   "name": "Dragão & Tigre",
+   "category": "casino",
+   "visual": "table",
+   "cost": 50000,
+   "maintenance": 35,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 8,
+   "dealer": true,
+   "casino": {
+    "plays": 180,
+    "avg_bet": 40,
+    "edge": 0.037,
+    "vol": 1.0,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 4
+   },
+   "desc": "Uma carta para cada lado. A maior vence.",
+   "game": "dragao_tigre"
+  },
+  {
+   "id": "sic_bo",
+   "name": "Sic Bo (3 dados)",
+   "category": "casino",
+   "visual": "table",
+   "cost": 55000,
+   "maintenance": 35,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 8,
+   "dealer": true,
+   "casino": {
+    "plays": 144,
+    "avg_bet": 40,
+    "edge": 0.028,
+    "vol": 1.4,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 4
+   },
+   "desc": "Aposte em Pequeno, Grande ou trincas.",
+   "game": "sic_bo"
+  },
+  {
+   "id": "roda",
+   "name": "Roda da Fortuna",
+   "category": "casino",
+   "visual": "wheel",
+   "cost": 45000,
+   "maintenance": 30,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 6,
+   "dealer": true,
+   "casino": {
+    "plays": 156,
+    "avg_bet": 25,
+    "edge": 0.05,
+    "vol": 1.5,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 6
+   },
+   "desc": "Roda gigante com multiplicadores de 1x a 40x.",
+   "game": "roda"
+  },
+  {
+   "id": "bingo",
+   "name": "Salão de Bingo",
+   "category": "casino",
+   "visual": "screen",
+   "cost": 40000,
+   "maintenance": 25,
+   "energy": 3,
+   "min_stage": 5,
+   "min_level": 11,
+   "license": "entretenimento",
+   "max": 4,
+   "dealer": false,
+   "casino": {
+    "plays": 180,
+    "avg_bet": 6,
+    "edge": 0.1,
+    "vol": 0.8,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 5
+   },
+   "desc": "Cartelas e globo. Atrai público fiel.",
+   "game": "bingo"
+  },
+  {
+   "id": "jackpot",
+   "name": "Jackpot Progressivo",
+   "category": "casino",
+   "visual": "jackpot",
+   "cost": 150000,
+   "maintenance": 60,
+   "energy": 6,
+   "min_stage": 6,
+   "min_level": 15,
+   "license": "cassino",
+   "max": 4,
+   "dealer": false,
+   "casino": {
+    "plays": 180,
+    "avg_bet": 25,
+    "edge": 0.12,
+    "vol": 1.0,
+    "jackpot_chance": 0.002,
+    "jackpot": 60000
+   },
+   "effects": {
+    "attract": 10
+   },
+   "desc": "Prêmio acumulado que cresce até alguém levar.",
+   "game": "jackpot"
+  },
+  {
+   "id": "poquer",
+   "name": "Sala de Pôquer",
+   "category": "casino",
+   "visual": "table",
+   "cost": 120000,
+   "maintenance": 70,
+   "energy": 3,
+   "min_stage": 6,
+   "min_level": 15,
+   "license": "cassino",
+   "max": 6,
+   "dealer": true,
+   "casino": {
+    "plays": 120,
+    "avg_bet": 100,
+    "edge": 0.05,
+    "vol": 0.2,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 7
+   },
+   "desc": "Os jogadores disputam entre si; a casa fica com a taxa de mesa.",
+   "game": "poquer"
+  },
+  {
+   "id": "bacara_vip",
+   "name": "Bacará VIP (alto limite)",
+   "category": "casino",
+   "visual": "table",
+   "cost": 200000,
+   "maintenance": 120,
+   "energy": 3,
+   "min_stage": 6,
+   "min_level": 15,
+   "license": "cassino",
+   "max": 2,
+   "dealer": true,
+   "casino": {
+    "plays": 72,
+    "avg_bet": 600,
+    "edge": 0.012,
+    "vol": 1.5,
+    "jackpot_chance": 0,
+    "jackpot": 0
+   },
+   "effects": {
+    "attract": 8
+   },
+   "desc": "Mesa exclusiva para grandes apostadores.",
+   "game": "bacara_vip",
+   "requires_item": "area_vip"
+  }
+ ]
+}

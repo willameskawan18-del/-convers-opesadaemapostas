@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/bluff.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "bluff"
+title = "BLUFF"
+tagline = "Pegue a oferta... ou dobre."
+rules = "Você recebe uma oferta SECRETA.
+PEGAR: leva o valor. DOBRAR: 50% de ganhar o dobro, 50% de perder pesado."
+color = Color(0.690196, 0.447059, 1.000000, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "risco"
+in_rotation = false
+min_round = 1

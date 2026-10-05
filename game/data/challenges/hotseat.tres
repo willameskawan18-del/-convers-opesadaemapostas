@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/hotseat.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "hotseat"
+title = "HOT SEAT"
+tagline = "Quem conhece quem?"
+rules = "Um jogador responde em segredo sobre ele mesmo.
+Os outros adivinham. Acertou ganha, errou perde."
+color = Color(0.901961, 0.286275, 0.501961, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "social"
+in_rotation = true
+min_round = 1

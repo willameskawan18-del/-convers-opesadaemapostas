@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/bomba.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "bomba"
+title = "BOMBA"
+tagline = "Abra caixas... ou pare a tempo."
+rules = "12 caixas: dinheiro, 1 JACKPOT e 3 BOMBAS.
+Abra uma caixa por etapa ou PARE e leve o pote. Bomba = perde tudo."
+color = Color(1.000000, 0.419608, 0.419608, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "risco"
+in_rotation = true
+min_round = 1

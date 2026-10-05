@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/corrida.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "corrida"
+title = "CORRIDA"
+tagline = "Corra e pule os obstáculos!"
+rules = "Aperte várias vezes para acelerar e PULE os obstáculos.
+1º +5.000 · 2º +3.000 · 3º +1.500 · último -1.000."
+color = Color(0.411765, 0.858824, 0.486275, 1)
+logic = ExtResource("2")
+input = "race"
+category = "habilidade"
+in_rotation = true
+min_round = 1

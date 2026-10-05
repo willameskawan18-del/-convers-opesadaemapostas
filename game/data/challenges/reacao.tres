@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/reacao.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "reacao"
+title = "REFLEXO"
+tagline = "O mais rápido leva tudo!"
+rules = "Espere o botão ficar VERDE e aperte o mais rápido possível.
+1º +3.000 · 2º +2.000 · 3º +1.000. Apertou antes? Perde!"
+color = Color(0.239216, 0.862745, 0.592157, 1)
+logic = ExtResource("2")
+input = "reaction"
+category = "habilidade"
+in_rotation = true
+min_round = 1

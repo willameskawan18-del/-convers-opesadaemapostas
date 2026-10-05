@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/risco.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "risco"
+title = "SAFE OU RISK"
+tagline = "Seguro ou cara-ou-coroa?"
+rules = "SAFE: ganho pequeno garantido.
+RISK: 50% de ganhar MUITO, 50% de perder muito."
+color = Color(1.000000, 0.623529, 0.109804, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "risco"
+in_rotation = false
+min_round = 1

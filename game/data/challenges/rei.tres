@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/rei.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "rei"
+title = "DERRUBE O REI"
+tagline = "O líder defende a coroa!"
+rules = "Todos jogam PRECISÃO contra o KING (1º lugar).
+Quem for mais preciso que o rei leva 6% dele."
+color = Color(1.000000, 0.831373, 0.231373, 1)
+logic = ExtResource("2")
+input = "precision"
+category = "social"
+in_rotation = true
+min_round = 4

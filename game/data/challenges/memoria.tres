@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/memoria.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "memoria"
+title = "MEMÓRIA"
+tagline = "Lembre a sequência de cores."
+rules = "Uma sequência aparece e some.
+Repita na ordem. Cada cor certa vale dinheiro; perfeita ganha bônus."
+color = Color(0.580392, 0.847059, 0.176471, 1)
+logic = ExtResource("2")
+input = "memory"
+category = "habilidade"
+in_rotation = true
+min_round = 1

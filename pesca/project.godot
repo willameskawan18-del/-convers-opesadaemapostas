@@ -1,0 +1,35 @@
+; Engine configuration file.
+config_version=5
+
+[application]
+
+config/name="Pesca no Abismo"
+config/description="Pesca cooperativa em alto-mar, à noite. Quanto mais fundo, mais valioso... e mais perigoso. 1 a 4 jogadores."
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+Settings="*res://scripts/core/settings.gd"
+Audio="*res://scripts/core/audio_manager.gd"
+Profile="*res://scripts/core/profile.gd"
+Net="*res://scripts/net/network_manager.gd"
+Game="*res://scripts/game/game_manager.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/window_width_override=1600
+window/size/window_height_override=900
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+anti_aliasing/quality/msaa_3d=1

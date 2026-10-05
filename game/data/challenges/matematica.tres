@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/matematica.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "matematica"
+title = "MATEMÁTICA"
+tagline = "Contas rápidas com o dinheiro do show."
+rules = "3 contas, 12 segundos cada.
+Acertou: ganha (o mais rápido ganha mais). Errou: perde."
+color = Color(0.360784, 0.486275, 0.980392, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "conhecimento"
+in_rotation = true
+min_round = 1

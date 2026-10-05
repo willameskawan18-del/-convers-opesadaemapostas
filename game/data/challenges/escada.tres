@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/escada.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "escada"
+title = "ESCADA DO RISCO"
+tagline = "Até onde você sobe?"
+rules = "Degraus: 500 · 1.000 · 2.000 · 4.000 · 8.000.
+A cada degrau: SUBIR (mais arriscado) ou PARAR e levar. Caiu? Perde tudo."
+color = Color(0.980392, 0.321569, 0.321569, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "risco"
+in_rotation = true
+min_round = 1

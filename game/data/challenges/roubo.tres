@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChallengeDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/challenge_def.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/minigames/roubo.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "roubo"
+title = "ROUBO"
+tagline = "Escolha a vítima... e acerte o cofre."
+rules = "Escolha um alvo ou fique em DEFESA.
+Para roubar, vença a prova de precisão. Falhou? Paga multa."
+color = Color(0.941176, 0.396078, 0.584314, 1)
+logic = ExtResource("2")
+input = "choice"
+category = "social"
+in_rotation = true
+min_round = 2
